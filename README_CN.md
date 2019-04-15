@@ -1,15 +1,16 @@
 # Cpython Internals
 
-This repository is my note for analyzing cpython source code
+这个仓库是笔者分析[cpython](https://github.com/python/cpython)源码的时候做的记录
 
-    # based on version 3.8.0a0
+    # 基于 3.8.0a0 版本
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
-#### favourite blog
+
+#### 收藏的博客
 [rushter](https://rushter.com/)
 [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 
-#### Basic Object
+#### 基本对象
  * [set](http://)
  * list
  * dict
