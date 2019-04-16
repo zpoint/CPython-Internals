@@ -27,3 +27,42 @@
 
 * graph representation
 
+
+    s = set()
+
+![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+
+
+    s.add(0) # hash(0) & mask == 0
+
+![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+
+    s.add(5) # hash(5) & mask == 0
+
+![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+
+    s.add(16) # hash(16) & mask == 0
+
+![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+
+    s.add(32) # hash(32) & mask == 0
+
+![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
+
+    s.add(2) # hash(2) & mask == 0
+
+![set_add_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2.png)
+
+    /*
+      now, fill == 5, mask == 7, fill*5 !< mask * 3, need to resize the hash table
+     from cpython/Objects/setobject.c
+    */
+        if ((size_t)so->fill*5 < mask*3)
+        return 0;
+    return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
+
+![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
+
+##### why LINEAR_PROBES?
+* improve cache locality
+* reduces the cost of hash collisions

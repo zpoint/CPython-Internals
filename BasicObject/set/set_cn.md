@@ -27,3 +27,41 @@
 
 * 图像表示
 
+    s = set()
+
+![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+
+
+    s.add(0) # hash(0) & mask == 0
+
+![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+
+    s.add(5) # hash(5) & mask == 0
+
+![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+
+    s.add(16) # hash(16) & mask == 0
+
+![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+
+    s.add(32) # hash(32) & mask == 0
+
+![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
+
+    s.add(2) # hash(2) & mask == 0
+
+![set_add_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2.png)
+
+    /*
+      现在, fill 值为 5, mask 值为 7, fill*5 !< mask * 3, 需要为哈希表重新分配空间
+      来自 cpython/Objects/setobject.c
+    */
+        if ((size_t)so->fill*5 < mask*3)
+        return 0;
+    return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
+
+![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
+
+##### 为什么采用 LINEAR_PROBES?
+* 更好的利用 cache locality
+* 减小哈希碰撞，避免链式存储出现很长的链表
