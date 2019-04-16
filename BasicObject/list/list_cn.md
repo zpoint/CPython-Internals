@@ -36,37 +36,37 @@
 		    * static int app1(PyListObject *self, PyObject *v)
 
 
-                #define PyList_SET_ITEM(op, i, v) (((PyListObject *)(op))->ob_item[i] = (v))
+					#define PyList_SET_ITEM(op, i, v) (((PyListObject *)(op))->ob_item[i] = (v))
 
-                static int app1(PyListObject *self, PyObject *v)
-                {
-                    Py_ssize_t n = PyList_GET_SIZE(self);
+					static int app1(PyListObject *self, PyObject *v)
+					{
+					    Py_ssize_t n = PyList_GET_SIZE(self);
 
-                    assert (v != NULL);
-                    if (n == PY_SSIZE_T_MAX) {
-                        PyErr_SetString(PyExc_OverflowError,
-                            "cannot add more objects to list");
-                        return -1;
-                    }
+					    assert (v != NULL);
+					    if (n == PY_SSIZE_T_MAX) {
+						PyErr_SetString(PyExc_OverflowError,
+						    "cannot add more objects to list");
+						return -1;
+					    }
 
-                    if (list_resize(self, n+1) < 0)
-                        return -1;
+					    if (list_resize(self, n+1) < 0)
+						return -1;
 
-                    Py_INCREF(v);
-                    PyList_SET_ITEM(self, n, v);
-                    return 0;
-                }
+					    Py_INCREF(v);
+					    PyList_SET_ITEM(self, n, v);
+					    return 0;
+					}
 
-                /* list_resize */
-                 /* list 大小的增长符合如下规律:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ...
-                 * 即使再大也不会溢出，因为最大就是这么大 PY_SSIZE_T_MAX * (9 / 8) + 6
-                 * 比 size_t 小
-                 */
-                new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
-                if (new_allocated > (size_t)PY_SSIZE_T_MAX / sizeof(PyObject *)) {
-                    PyErr_NoMemory();
-                    return -1;
-                }
+					/* list_resize */
+					 /* list 大小的增长符合如下规律:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ...
+					 * 即使再大也不会溢出，因为最大就是这么大 PY_SSIZE_T_MAX * (9 / 8) + 6
+					 * 比 size_t 小
+					 */
+					new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+					if (new_allocated > (size_t)PY_SSIZE_T_MAX / sizeof(PyObject *)) {
+					    PyErr_NoMemory();
+					    return -1;
+					}
 
 
 * graph representation
@@ -96,9 +96,10 @@
         * static PyObject *list_pop_impl(PyListObject *self, Py_ssize_t index)
 
 
-    	l.pop()
-    	# e
-    	# 此时, newsize == 4, allocated == 8, allocated >= (newsize >> 1) 是不成立的, 所以 resize 直接返回，不需要裁剪大小
+				l.pop()
+				# e
+				# 此时, newsize == 4, allocated == 8, allocated >= (newsize >> 1) 是不成立的, 所以 resize 直接返回，不需要裁剪大小
+
 
 ![pop_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_e.png)
 
@@ -123,32 +124,32 @@
         * static void list_dealloc(PyListObject *op)
 
 
-			# 我修改了部分源代码，打印出 free_list 的状态
-    		print(id(l)) # 4481833160
-            >>> id(l)
-            PyList_New, 0, numfree: 5
-            PyList_New, 0, numfree: 4
-            PyList_New, 0, numfree: 3
-            PyList_New, 0, numfree: 2
-            PyList_New, 2, numfree: 1
-            PyList_New, 2, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 0, numfree: 5
-            4320315592
-            PyList_New, 0, numfree: 6
-            >>> del l
-            PyList_New, 0, numfree: 5
-    		PyList_New, 0, numfree: 4
-    		PyList_New, 0, numfree: 3
-    		PyList_New, 0, numfree: 2
-            PyList_New, 1, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 0, numfree: 7
-            # 我们发现 python 虚拟机自己执行命令的时候也用了很多 list 对象，可能影响到我们对 free_list 的观察
-            a = [[] for i in range(10)]
-            print(id(a)) # 这个id就是我们上面删除的 l 的 id
-            4481833160
+				#我修改了部分源代码，打印出 free_list 的状态
+				print(id(l)) # 4481833160
+				>>> id(l)
+				PyList_New, 0, numfree: 5
+				PyList_New, 0, numfree: 4
+				PyList_New, 0, numfree: 3
+				PyList_New, 0, numfree: 2
+				PyList_New, 2, numfree: 1
+				PyList_New, 2, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 0, numfree: 5
+				4320315592
+				PyList_New, 0, numfree: 6
+				>>> del l
+				PyList_New, 0, numfree: 5
+				PyList_New, 0, numfree: 4
+				PyList_New, 0, numfree: 3
+				PyList_New, 0, numfree: 2
+				PyList_New, 1, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 0, numfree: 7
+				#我们发现 python 虚拟机自己执行命令的时候也用了很多 list 对象，可能影响到我们对 free_list 的观察
+				a = [[] for i in range(10)]
+				print(id(a)) # 这个id就是我们上面删除的 l 的 id
+				4481833160
 
 ![print_id](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/print_id.png)
 

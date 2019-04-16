@@ -36,37 +36,37 @@
 		    * static int app1(PyListObject *self, PyObject *v)
 
 
-                #define PyList_SET_ITEM(op, i, v) (((PyListObject *)(op))->ob_item[i] = (v))
+					#define PyList_SET_ITEM(op, i, v) (((PyListObject *)(op))->ob_item[i] = (v))
 
-                static int app1(PyListObject *self, PyObject *v)
-                {
-                    Py_ssize_t n = PyList_GET_SIZE(self);
+					static int app1(PyListObject *self, PyObject *v)
+					{
+					    Py_ssize_t n = PyList_GET_SIZE(self);
 
-                    assert (v != NULL);
-                    if (n == PY_SSIZE_T_MAX) {
-                        PyErr_SetString(PyExc_OverflowError,
-                            "cannot add more objects to list");
-                        return -1;
-                    }
+					    assert (v != NULL);
+					    if (n == PY_SSIZE_T_MAX) {
+						PyErr_SetString(PyExc_OverflowError,
+						    "cannot add more objects to list");
+						return -1;
+					    }
 
-                    if (list_resize(self, n+1) < 0)
-                        return -1;
+					    if (list_resize(self, n+1) < 0)
+						return -1;
 
-                    Py_INCREF(v);
-                    PyList_SET_ITEM(self, n, v);
-                    return 0;
-                }
+					    Py_INCREF(v);
+					    PyList_SET_ITEM(self, n, v);
+					    return 0;
+					}
 
-                /* list_resize */
-                 /* The growth pattern is:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ...
-                 * Note: new_allocated won't overflow because the largest possible value
-                 * is PY_SSIZE_T_MAX * (9 / 8) + 6 which always fits in a size_t.
-                 */
-                new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
-                if (new_allocated > (size_t)PY_SSIZE_T_MAX / sizeof(PyObject *)) {
-                    PyErr_NoMemory();
-                    return -1;
-                }
+					/* list_resize */
+					 /* The growth pattern is:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ...
+					 * Note: new_allocated won't overflow because the largest possible value
+					 * is PY_SSIZE_T_MAX * (9 / 8) + 6 which always fits in a size_t.
+					 */
+					new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+					if (new_allocated > (size_t)PY_SSIZE_T_MAX / sizeof(PyObject *)) {
+					    PyErr_NoMemory();
+					    return -1;
+					}
 
 
 * graph representation
@@ -96,9 +96,9 @@
         * static PyObject *list_pop_impl(PyListObject *self, Py_ssize_t index)
 
 
-    	l.pop()
-    	# e
-    	# now, newsize == 4, allocated == 8, allocated >= (newsize >> 1) is False, so resize do nothing
+				l.pop()
+				# e
+				# now, newsize == 4, allocated == 8, allocated >= (newsize >> 1) is False, so resize do nothing
 
 ![pop_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_e.png)
 
@@ -123,32 +123,34 @@
         * static void list_dealloc(PyListObject *op)
 
 
-			# I've alter the source code to print free_list state
-    		print(id(l)) # 4481833160
-            >>> id(l)
-            PyList_New, 0, numfree: 5
-            PyList_New, 0, numfree: 4
-            PyList_New, 0, numfree: 3
-            PyList_New, 0, numfree: 2
-            PyList_New, 2, numfree: 1
-            PyList_New, 2, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 0, numfree: 5
-            4320315592
-            PyList_New, 0, numfree: 6
-            >>> del l
-            PyList_New, 0, numfree: 5
-    		PyList_New, 0, numfree: 4
-    		PyList_New, 0, numfree: 3
-    		PyList_New, 0, numfree: 2
-            PyList_New, 1, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 1, numfree: 1
-            PyList_New, 0, numfree: 7
-            # we can see that cpython virtual machine use list object internally, it will interfer out test result
-            a = [[] for i in range(10)]
-            print(id(a)) # oops, it's the list we just del
-            4481833160
+
+				#I've alter the source code to print free_list state
+				print(id(l)) # 4481833160
+				>>> id(l)
+				PyList_New, 0, numfree: 5
+				PyList_New, 0, numfree: 4
+				PyList_New, 0, numfree: 3
+				PyList_New, 0, numfree: 2
+				PyList_New, 2, numfree: 1
+				PyList_New, 2, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 0, numfree: 5
+				4320315592
+				PyList_New, 0, numfree: 6
+				>>> del l
+				PyList_New, 0, numfree: 5
+				PyList_New, 0, numfree: 4
+				PyList_New, 0, numfree: 3
+				PyList_New, 0, numfree: 2
+				PyList_New, 1, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 1, numfree: 1
+				PyList_New, 0, numfree: 7
+				#we can see that cpython virtual machine use list object internally, it will interfer out test result
+				a = [[] for i in range(10)]
+				print(id(a)) # oops, it's the list we just del
+				4481833160
+				
 
 ![print_id](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/print_id.png)
 
