@@ -1,40 +1,108 @@
 # dict
 
-### category
+### 目录
 
-* [related file](#related-file)
-* [memory layout](#memory-layout)
-* [method](#method)
-	* [new](#new)
-	* [append](#append)
-	* [pop](#pop)
-	* [delete](#delete)
-		* [why free list](#why-free-list)
+因为 **PyDictObject** 比其他的基本对象稍微复杂一点点，我不会在这里一步一步的展示 _\_setitem_\_/_\_getitem_\_ 的过程，这些基本步骤会穿插在一些概念的解释里面一起说明
 
-#### related file
+* [相关位置文件](#相关位置文件)
+* [内存构造](#内存构造)
+	* [combined table && split table](#combined-table-&&-split-table)
+
+#### 相关位置文件
 * cpython/Objects/dictobject.c
 * cpython/Objects/clinic/dictobject.c.h
 * cpython/Include/dictobject.h
+* cpython/Include/cpython/dictobject.h
 
 
-#### memory layout
+#### 内存构造
 
-before we dive into the memory layout of python dictionary, let's imagine what normal dictionary object look like
+在深入看python 字典对象的内存构造之前，我们先来想象一下，如果让我们自己造一个字典对象会长成什么样呢？
 
-usually, we implement dictionary as hash table, it takes O(1) time to look up an element, that's what exactly cpython does.
+通常情况下，我们会用哈希表来实现一个字典对象，你只用花O(1)的时间即可以完成对一个元素的查找，这也是 cpython 的实现方式
 
-this is an entry, which points to a hash table inside the python dictionary object before python3.6
+下图是在 python3.6 版本之前，一个指向 python 内部字典对象的入口指针
 
 ![entry_before](https://img-blog.csdnimg.cn/20190311111041784.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-If you have many large sparse hash table, it will waste lots of memory. In order to represent the hash table in a more compact way, we split indices and real key value object inside the hashtable(After python3.6)
+如果你有很多稀疏的哈希表，会浪费很多内存空间，为了用更紧凑的方式来实现哈希表，可以把 哈希索引 和 真正的键值对分开存放，下图是 python3.6 版本以后的实现方式
 
 ![entry_after](https://img-blog.csdnimg.cn/20190311114021201.png)
 
-now, it takes about half of the origin memory to store the same hash table, and we can traverse the hash table in the same order as we insert/delete items. Before python3.6 it's not possible to retain the order of key/value in hash table due to the resize/rehash poeration. For those who needs more detail, please refer to [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) and [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+只花费了之前差不多一半的内存，就存下了同样的一张哈希表，而且我们遍历哈希表的时候遍历 entries 就可以实现让字典对象维持插入/删除的顺序，这一点在之前是做不到的，因为每次哈希表扩容/缩小，都要重新哈希所有元素，顺序会打乱，现在重新哈希会打乱的只是 indices, 需要更详细的内容，请参考 [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) 和 [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
 
-Now, let's see the memory layout
+现在，我们来看看 **PyDictObject** 的内存构造
 
 ![memory layout](https://img-blog.csdnimg.cn/20190308144931301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+
+##### combined table && split table
+
+第一次看到 **PyDictObject** 的定义是很懵逼的，**ma_values** 是什么? 怎么 **PyDictKeysObject** 和上面看到的 indices/entries 结构长得不太一样?
+
+源代码是这么注释的，我给翻译一下
+
+    /*
+    字典对象可以按照以下两种方式来表示
+    The DictObject can be in one of two forms.
+
+    Either:
+      要么是一张 combined table
+      A combined table:
+      	此时 ma_values 为 NULL, dk_refcnt 为 1
+        ma_values == NULL, dk_refcnt == 1.
+        哈希表的值都存储在 PyDictKeysObject 所包含的 me_value 这个字段里，也就是上图的方式存储
+        Values are stored in the me_value field of the PyDictKeysObject.
+    Or:
+    	要么是一张 split table
+      A split table:
+      	此时 ma_values 不为空，并且 dk_refcnt 的值 大于等于 1
+        ma_values != NULL, dk_refcnt >= 1
+        哈希表的值都存储在 PyDictObject 里面的 ma_values 这个数组里
+        Values are stored in the ma_values array.
+        只能存储 unicode 对象
+        Only string (unicode) keys are allowed.
+        所有共享的 哈希键值 必须是按照同样顺序插入的
+        All dicts sharing same key must have same insertion order.
+    */
+
+什么意思呢?
+In what situation will different dict object shares same keys but different values, only contain unicode keys and no dummy keys(no deleted object), and preserve same insertion order? Let's try.
+
+    # I've altered the source code to print some state information
+
+    class B(object):
+    	b = 1
+
+    b1 = B()
+    b2 = B()
+
+	# the __dict__ object isn't generated yet
+    >>> b1.b
+    1
+    >>> b2.b
+    1
+
+	# __dict__ obect appears, b1.__dict__ and b2.__dict__ are all split table, they shares the same PyDictKeysObject
+    >>> b1.b = 3
+    in lookdict_split, address of PyDictObject: 0x10bc0eb40, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    >>> b2.b = 4
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    >>> b1.b
+    in lookdict_split, address of PyDictObject: 0x10bc0eb40, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    3
+    >>> b2.b
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    4
+    # after delete a key from split table, it becomes combined table
+    >>> b2.x = 3
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
+    >>> del b2.x
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
+    # now, no more lookdict_split
+	>>> b2.b
+	4
+
+The split table implementation can save a lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
+
 
 #### method

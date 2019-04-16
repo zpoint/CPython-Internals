@@ -1,7 +1,7 @@
 # Cpython Internals
 * [简体中文](https://github.com/zpoint/Cpython-Internals/blob/master/README_CN.md)
 
-This repository is my note for analyzing [cpython](https://github.com/python/cpython) source code
+This repository is my notes at [cpython](https://github.com/python/cpython) source code
 
     # based on version 3.8.0a0
     cd cpython

@@ -2,19 +2,17 @@
 
 ### category
 
+Because the **PyDictObject** is a little bit more compilated than other basic object, I will not show every step of _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
+
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [method](#method)
-	* [new](#new)
-	* [append](#append)
-	* [pop](#pop)
-	* [delete](#delete)
-		* [why free list](#why-free-list)
+	* [combined table && split table](#combined-table-&&-split-table)
 
 #### related file
 * cpython/Objects/dictobject.c
 * cpython/Objects/clinic/dictobject.c.h
 * cpython/Include/dictobject.h
+* cpython/Include/cpython/dictobject.h
 
 
 #### memory layout
@@ -31,10 +29,70 @@ If you have many large sparse hash table, it will waste lots of memory. In order
 
 ![entry_after](https://img-blog.csdnimg.cn/20190311114021201.png)
 
-now, it takes about half of the origin memory to store the same hash table, and we can traverse the hash table in the same order as we insert/delete items. Before python3.6 it's not possible to retain the order of key/value in hash table due to the resize/rehash poeration. For those who needs more detail, please refer to [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) and [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+It takes about half of the origin memory to store the same hash table, and we can traverse the hash table in the same order as we insert/delete items. Before python3.6 it's not possible to retain the order of key/value in hash table due to the resize/rehash operation. For those who needs more detail, please refer to [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) and [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
 
 Now, let's see the memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190308144931301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+
+##### combined table && split table
+
+I'm confused when I first look at the defination of the **PyDictObject**, what's **ma_values** ? why **PyDictKeysObject** looks different from the indices/entries structure above?
+
+the source code says
+
+    /*
+    The DictObject can be in one of two forms.
+
+    Either:
+      A combined table:
+        ma_values == NULL, dk_refcnt == 1.
+        Values are stored in the me_value field of the PyDictKeysObject.
+    Or:
+      A split table:
+        ma_values != NULL, dk_refcnt >= 1
+        Values are stored in the ma_values array.
+        Only string (unicode) keys are allowed.
+        All dicts sharing same key must have same insertion order.
+    */
+
+In what situation will different dict object shares same keys but different values, only contain unicode keys and no dummy keys(no deleted object), and preserve same insertion order? Let's try.
+
+    # I've altered the source code to print some state information
+
+    class B(object):
+    	b = 1
+
+    b1 = B()
+    b2 = B()
+
+	# the __dict__ object isn't generated yet
+    >>> b1.b
+    1
+    >>> b2.b
+    1
+
+	# __dict__ obect appears, b1.__dict__ and b2.__dict__ are all split table, they shares the same PyDictKeysObject
+    >>> b1.b = 3
+    in lookdict_split, address of PyDictObject: 0x10bc0eb40, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    >>> b2.b = 4
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    >>> b1.b
+    in lookdict_split, address of PyDictObject: 0x10bc0eb40, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    3
+    >>> b2.b
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
+    4
+    # after delete a key from split table, it becomes combined table
+    >>> b2.x = 3
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
+    >>> del b2.x
+    in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
+    # now, no more lookdict_split
+	>>> b2.b
+	4
+
+The split table implementation can save a lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
+
 
 #### method
