@@ -8,8 +8,8 @@
 
 
 #### 收藏的博客
-[rushter](https://rushter.com/)
-[YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
+* [rushter](https://rushter.com/)
+* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 
 #### 基本对象
  * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
