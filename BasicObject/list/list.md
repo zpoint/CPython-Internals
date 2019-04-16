@@ -124,7 +124,7 @@
 
 
 
-				#I've alter the source code to print free_list state
+				#I've altered the source code to print free_list state
 				print(id(l)) # 4481833160
 				>>> id(l)
 				PyList_New, 0, numfree: 5
@@ -146,7 +146,7 @@
 				PyList_New, 1, numfree: 1
 				PyList_New, 1, numfree: 1
 				PyList_New, 0, numfree: 7
-				#we can see that cpython virtual machine use list object internally, it will interfer out test result
+				#we can see that cpython virtual machine use list object internally, it will interfere with out test result
 				a = [[] for i in range(10)]
 				print(id(a)) # oops, it's the list we just del
 				4481833160
