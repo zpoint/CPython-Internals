@@ -10,24 +10,26 @@
 
 #### 内建方法
 
-##### new
-* 调用栈
-	* static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-		* static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
+* **new**
+    * 调用栈
+	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
 
 * 图像表示
 
 ![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-##### add
-* 调用栈
-	* static PyObject *set_add(PySetObject *so, PyObject *key)
-		* static int set_add_key(PySetObject *so, PyObject *key)
-			* static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
+* **add**
+    * 调用栈
+	    * static PyObject *set_add(PySetObject *so, PyObject *key)
+		    * static int set_add_key(PySetObject *so, PyObject *key)
+			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
 
 * 图像表示
 
+
     s = set()
+
 
 ![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
 

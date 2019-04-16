@@ -10,25 +10,26 @@
 
 #### method
 
-##### new
-* call stack
-	* static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-		* static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
+* **new**
+    * call stack
+	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
 
-* graph representation
+* **graph representation**
 
 ![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-##### add
-* call stack
-	* static PyObject *set_add(PySetObject *so, PyObject *key)
-		* static int set_add_key(PySetObject *so, PyObject *key)
-			* static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
+* **add**
+    * call stack
+        * static PyObject *set_add(PySetObject *so, PyObject *key)
+		    * static int set_add_key(PySetObject *so, PyObject *key)
+			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
 
 * graph representation
 
 
     s = set()
+
 
 ![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
 
@@ -55,7 +56,7 @@
 
     /*
       now, fill == 5, mask == 7, fill*5 !< mask * 3, need to resize the hash table
-     from cpython/Objects/setobject.c
+      from cpython/Objects/setobject.c
     */
         if ((size_t)so->fill*5 < mask*3)
         return 0;
