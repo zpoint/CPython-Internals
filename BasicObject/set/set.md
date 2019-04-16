@@ -1,5 +1,15 @@
 # Set
 
+### category
+
+* [related file](#related-file)
+* [memory layout](#memory-layout)
+* [method](#命令行支持及示例)
+	* [new](#new)
+	* [add](#add)
+	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES?)
+	* [clear](#clear)
+
 #### related file
 * cpython/Objects/setobject.c
 * cpython/Include/setobject.h
@@ -10,7 +20,7 @@
 
 #### method
 
-* **new**
+* ##### **new**
     * call stack
 	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
@@ -19,7 +29,7 @@
 
 ![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-* **add**
+* ##### **add**
     * call stack
         * static PyObject *set_add(PySetObject *so, PyObject *key)
 		    * static int set_add_key(PySetObject *so, PyObject *key)
@@ -28,7 +38,7 @@
 * graph representation
 
 
-      s = set()`
+      s = set()
 
 ![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
 
@@ -63,11 +73,11 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-* **why LINEAR_PROBES?**
+* ##### **why LINEAR_PROBES?**
     * improve cache locality
     * reduces the cost of hash collisions
 
-* **clear**
+* ##### **clear**
     * call stack
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
 		    * static int set_clear_internal(PySetObject *so)

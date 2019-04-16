@@ -1,5 +1,15 @@
 # set
 
+### 目录
+
+* [相关位置文件](#相关位置文件)
+* [内存构造](#内存构造)
+* [内建方法](#内建方法)
+	* [new](#new)
+	* [add](#add)
+	    * [为什么采用-LINEAR_PROBES?](#为什么采用-LINEAR_PROBES?)
+	* [clear](#clear)
+
 #### 相关位置文件
 * cpython/Objects/setobject.c
 * cpython/Include/setobject.h
@@ -10,7 +20,7 @@
 
 #### 内建方法
 
-* **new**
+* ##### **new**
     * 调用栈
 	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
@@ -19,7 +29,7 @@
 
 ![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-* **add**
+* ##### **add**
     * 调用栈
 	    * static PyObject *set_add(PySetObject *so, PyObject *key)
 		    * static int set_add_key(PySetObject *so, PyObject *key)
@@ -63,11 +73,11 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-* **为什么采用 LINEAR_PROBES?**
+* ##### **为什么采用 LINEAR_PROBES?**
     * 更好的利用 cache locality
     * 减小哈希碰撞，避免链式存储出现很长的链表
 
-* **clear**
+* ##### **clear**
     * 调用栈
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
 		    * static int set_clear_internal(PySetObject *so)
