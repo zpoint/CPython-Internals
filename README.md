@@ -12,7 +12,7 @@ This repository is my note for analyzing [cpython](https://github.com/python/cpy
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 
 #### Basic Object
- * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set.md)
+ * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
  * list
  * dict
  * bytes
