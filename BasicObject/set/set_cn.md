@@ -30,7 +30,6 @@
 
     s = set()
 
-
 ![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
 
 
