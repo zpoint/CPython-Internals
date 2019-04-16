@@ -14,7 +14,7 @@ This repository is my note for analyzing [cpython](https://github.com/python/cpy
 
 #### Basic Object
  * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
- * list
+ * [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
  * dict
  * bytes
  * str

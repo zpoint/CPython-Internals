@@ -14,7 +14,7 @@
 
 #### 基本对象
  * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
- * list
+ * [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md)
  * dict
  * bytes
  * str
