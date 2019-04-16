@@ -63,6 +63,18 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-##### 为什么采用 LINEAR_PROBES?
-* 更好的利用 cache locality
-* 减小哈希碰撞，避免链式存储出现很长的链表
+* **为什么采用 LINEAR_PROBES?**
+    * 更好的利用 cache locality
+    * 减小哈希碰撞，避免链式存储出现很长的链表
+
+* **clear**
+    * 调用栈
+        * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
+		    * static int set_clear_internal(PySetObject *so)
+				* static void set_empty_to_minsize(PySetObject *so)
+
+* graph representation
+
+      s.clear()
+
+![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)

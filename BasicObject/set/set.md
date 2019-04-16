@@ -63,6 +63,18 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-##### why LINEAR_PROBES?
-* improve cache locality
-* reduces the cost of hash collisions
+* **why LINEAR_PROBES?**
+    * improve cache locality
+    * reduces the cost of hash collisions
+
+* **clear**
+    * call stack
+        * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
+		    * static int set_clear_internal(PySetObject *so)
+				* static void set_empty_to_minsize(PySetObject *so)
+
+* graph representation
+
+      s.clear()
+
+![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)
