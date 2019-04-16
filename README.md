@@ -7,9 +7,10 @@ This repository is my note for analyzing [cpython](https://github.com/python/cpy
     cd cpython
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
-#### favourite blog
+#### favourite blog && learning material
 * [rushter](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
+* [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 
 #### Basic Object
  * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
