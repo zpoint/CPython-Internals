@@ -162,8 +162,8 @@ split table 可以在你对同个class有非常多实例的时候节省很多内
     // 假设 indices array 里的类型为 int8_t
     size_t indices_offset = DK_SIZE(dk) * DK_IXSIZE(dk);
     int8_t *pointer_to_indices = (int8_t *)(dk->dk_indices);
-    int8_t *pointer_to_pointer_to_entries = pointer_to_indices + indices_offset;
-    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_pointer_to_entries;
+    int8_t *pointer_to_entries = pointer_to_indices + indices_offset;
+    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_entries;
 
 现在就很清晰了
 

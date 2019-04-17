@@ -150,8 +150,8 @@ to
     // assume int8_t can fit into the indices array
     size_t indices_offset = DK_SIZE(dk) * DK_IXSIZE(dk);
     int8_t *pointer_to_indices = (int8_t *)(dk->dk_indices);
-    int8_t *pointer_to_pointer_to_entries = pointer_to_indices + indices_offset;
-    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_pointer_to_entries;
+    int8_t *pointer_to_entries = pointer_to_indices + indices_offset;
+    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_entries;
 
 now, the overview is clear
 
