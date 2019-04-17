@@ -65,10 +65,9 @@
         All dicts sharing same key must have same insertion order.
     */
 
-什么意思呢?
-In what situation will different dict object shares same keys but different values, only contain unicode keys and no dummy keys(no deleted object), and preserve same insertion order? Let's try.
+什么意思呢? 在什么情况下字段对象会共享同样的键，但是不共享值呢? 而且键还只能是 unicode 对象，字典对象中的键还不能被删除? 我们来试试看
 
-    # I've altered the source code to print some state information
+    # 我更改了部分源代码，解释器执行 split table 查询时会打印出一些信息
 
     class B(object):
     	b = 1
@@ -76,13 +75,13 @@ In what situation will different dict object shares same keys but different valu
     b1 = B()
     b2 = B()
 
-	# the __dict__ object isn't generated yet
+	# __dict__ 对象还未生成
     >>> b1.b
     1
     >>> b2.b
     1
 
-	# __dict__ obect appears, b1.__dict__ and b2.__dict__ are all split table, they shares the same PyDictKeysObject
+	# __dict__ 对象已经生成(通过 descriptor protocol), b1.__dict__ 和 b2.__dict__ 都是 split table, 他们共享一份 PyDictKeysObject
     >>> b1.b = 3
     in lookdict_split, address of PyDictObject: 0x10bc0eb40, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
     >>> b2.b = 4
@@ -93,16 +92,14 @@ In what situation will different dict object shares same keys but different valu
     >>> b2.b
     in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: b
     4
-    # after delete a key from split table, it becomes combined table
+    # 进行删除操作之后，b2.__dict__ 会从 split table 变为 combined table
     >>> b2.x = 3
     in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
     >>> del b2.x
     in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysObject: 0x10bd8cca8, key_str: x
-    # now, no more lookdict_split
+    # 现在，看不到 lookdict_split 的输出了，说明已经变成了 combined table
 	>>> b2.b
 	4
 
-The split table implementation can save a lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
+split table 可以在你对同个class有非常多实例的时候节省很多内存，这些实例在满足上述条件时，都会共享同一个 PyDictKeysObject, 更多关于实现方面的细节请参考 [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
 
-
-#### method
