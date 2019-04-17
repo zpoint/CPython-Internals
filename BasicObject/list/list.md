@@ -75,7 +75,7 @@
 * graph representation
 
 
-    l.append("a") # list_resize, newsize is 1, 1 + (1 >> 3) + 3 = 4
+      l.append("a") # list_resize, newsize is 1, 1 + (1 >> 3) + 3 = 4
 
 ![append_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_a.png)
 
