@@ -48,14 +48,14 @@
     Either:
       要么是一张 combined table
       A combined table:
-      	此时 ma_values 为 NULL, dk_refcnt 为 1
+        此时 ma_values 为 NULL, dk_refcnt 为 1
         ma_values == NULL, dk_refcnt == 1.
         哈希表的值都存储在 PyDictKeysObject 所包含的 me_value 这个字段里，也就是上图的方式存储
         Values are stored in the me_value field of the PyDictKeysObject.
     Or:
-    	要么是一张 split table
+      要么是一张 split table
       A split table:
-      	此时 ma_values 不为空，并且 dk_refcnt 的值 大于等于 1
+        此时 ma_values 不为空，并且 dk_refcnt 的值 大于等于 1
         ma_values != NULL, dk_refcnt >= 1
         哈希表的值都存储在 PyDictObject 里面的 ma_values 这个数组里
         Values are stored in the ma_values array.
