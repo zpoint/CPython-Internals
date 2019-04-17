@@ -95,4 +95,40 @@ In what situation will different dict object shares same keys but different valu
 The split table implementation can save a lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
 
 
-#### method
+#### indices and entries
+
+Let's analyze some source code to understand how indices/entries implement in **PyDictKeysObject**, what **char dk_indices[]** means in **PyDictKeysObject**?
+
+    /*
+    dk_indices is actual hashtable.  It holds index in entries, or DKIX_EMPTY(-1)
+    or DKIX_DUMMY(-2).
+    Size of indices is dk_size.  Type of each index in indices is vary on dk_size:
+
+    * int8  for          dk_size <= 128
+    * int16 for 256   <= dk_size <= 2**15
+    * int32 for 2**16 <= dk_size <= 2**31
+    * int64 for 2**32 <= dk_size
+
+    dk_entries is array of PyDictKeyEntry.  It's size is USABLE_FRACTION(dk_size).
+    DK_ENTRIES(dk) can be used to get pointer to entries.
+
+    NOTE: Since negative value is used for DKIX_EMPTY and DKIX_DUMMY, type of
+    dk_indices entry is signed integer and int16 is used for table which
+    dk_size == 256.
+    */
+
+    #define DK_SIZE(dk) ((dk)->dk_size)
+    #if SIZEOF_VOID_P > 4
+    #define DK_IXSIZE(dk)                          \
+        (DK_SIZE(dk) <= 0xff ?                     \
+            1 : DK_SIZE(dk) <= 0xffff ?            \
+                2 : DK_SIZE(dk) <= 0xffffffff ?    \
+                    4 : sizeof(int64_t))
+    #else
+    #define DK_IXSIZE(dk)                          \
+        (DK_SIZE(dk) <= 0xff ?                     \
+            1 : DK_SIZE(dk) <= 0xffff ?            \
+                2 : sizeof(int32_t))
+    #endif
+    #define DK_ENTRIES(dk) \
+        ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))

@@ -28,7 +28,10 @@
 
 * **graph representation**
 
-![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
+
+      l = list()
+
+![list_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_empty.png)
 
 * ##### **append**
     * call stack
@@ -70,11 +73,6 @@
 
 
 * graph representation
-
-
-      l = list()
-
-![list_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_empty.png)
 
 
     l.append("a") # list_resize, newsize is 1, 1 + (1 >> 3) + 3 = 4
