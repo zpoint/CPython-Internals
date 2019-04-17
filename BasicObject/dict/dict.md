@@ -9,8 +9,10 @@ Because the **PyDictObject** is a little bit more compilated than other basic ob
 	* [combined table && split table](#combined-table-&&-split-table)
 	* [indices and entries](#indices-and-entries)
 * [hash collisions and delete](#hash-collisions-and-delete)
-* [variable-size-indices](#variable-size-indices)
-* [free list](#free list)
+* [resize](#resize)
+* [variable size indices](#variable-size-indices)
+* [free list](#free-list)
+
 
 #### related file
 * cpython/Objects/dictobject.c
@@ -236,12 +238,12 @@ I've altered the source code to print some information
 
 
 #### variable size indices
-Notice, the indices array is variable size. whrn size of your hash table is <= 128, type of each item is int_8, int16 and int64 for bigger table. The variable size indices array can save memory usage.
+Notice, the indices array is variable size. when size of your hash table is <= 128, type of each item is int_8, int16 and int64 for bigger table. The variable size indices array can save memory usage.
 
 #### free list
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
-cpython also use free_list to reuse the deallocated hash table, to avoid memory fragment abd improve performance, I've illustrated free_list in [set object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
+cpython also use free_list to reuse the deleted hash table, to avoid memory fragment abd improve performance, I've illustrated free_list in [set object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
 
 now, you understand how python dictionary object work internally.

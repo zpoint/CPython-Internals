@@ -1,4 +1,5 @@
 # Cpython Internals
+* [English](https://github.com/zpoint/Cpython-Internals/blob/master/README.md)
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录
 

@@ -11,7 +11,8 @@
 * [哈希碰撞与删除](#哈希碰撞与删除)
 * [表扩展](#表扩展)
 * [类型可变的indices数组](#类型可变的indices数组)
-* [free list](#free list)
+* [free list](#free-list)
+
 
 #### 相关位置文件
 * cpython/Objects/dictobject.c
