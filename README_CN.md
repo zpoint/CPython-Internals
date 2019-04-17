@@ -2,6 +2,7 @@
 * [English](https://github.com/zpoint/Cpython-Internals/blob/master/README.md)
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录
+
 笔者将尝试尽可能的多的用 图像/源代码注释 讲清楚 cpython 实现的每个细节
 
     # 基于 3.8.0a0 版本
