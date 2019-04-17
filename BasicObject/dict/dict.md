@@ -2,11 +2,15 @@
 
 ### category
 
-Because the **PyDictObject** is a little bit more compilated than other basic object, I will not show every step of _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
+Because the **PyDictObject** is a little bit more compilated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 	* [combined table && split table](#combined-table-&&-split-table)
+	* [indices and entries](#indices-and-entries)
+* [hash collisions and delete](#hash-collisions-and-delete)
+* [variable-size-indices](#variable-size-indices)
+* [free list](#free list)
 
 #### related file
 * cpython/Objects/dictobject.c
@@ -98,6 +102,7 @@ The split table implementation can save a lots of memory if you have many instan
 #### indices and entries
 
 Let's analyze some source code to understand how indices/entries implement in **PyDictKeysObject**, what **char dk_indices[]** means in **PyDictKeysObject**?
+(It took me sometimes to figure out)
 
     /*
     dk_indices is actual hashtable.  It holds index in entries, or DKIX_EMPTY(-1)
@@ -132,3 +137,111 @@ Let's analyze some source code to understand how indices/entries implement in **
     #endif
     #define DK_ENTRIES(dk) \
         ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))
+
+Let's rewrite the marco
+
+    #define DK_ENTRIES(dk) \
+        ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))
+
+to
+
+    // assume int8_t can fit into the indices array
+    size_t indices_offset = DK_SIZE(dk) * DK_IXSIZE(dk);
+    int8_t *pointer_to_indices = (int8_t *)(dk->dk_indices);
+    int8_t *pointer_to_pointer_to_entries = pointer_to_indices + indices_offset;
+    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_pointer_to_entries;
+
+now, the overview is clear
+
+![dictkeys_basic](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
+
+#### hash collisions and delete
+
+how pyrthon handle hash collisions in dict object? Instead of depending on a good hash function, python uses "perturb" strategy, let's read some source code and have a try
+
+
+	j = ((5*j) + 1) mod 2**i
+    0 -> 1 -> 6 -> 7 -> 4 -> 5 -> 2 -> 3 -> 0 [and here it's repeating]
+    perturb >>= PERTURB_SHIFT;
+    j = (5*j) + 1 + perturb;
+    use j % 2**i as the next table index;
+
+I've altered the source code to print some information
+
+
+    >>> d = dict()
+    >>> d[1] = 1
+    : 1, ix: -1, address of ep0: 0x10870d798, dk->dk_indices: 0x10870d790
+    ma_used: 0, ma_version_tag: 11313, PyDictKeyObject.dk_refcnt: 1, PyDictKeyObject.dk_size: 8, PyDictKeyObject.dk_usable: 5, PyDictKeyObject.dk_nentries: 0
+    DK_SIZE(dk): 8, DK_IXSIZE(dk): 1, DK_SIZE(dk) * DK_IXSIZE(dk): 8, &((int8_t *)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]): 0x10870d798
+
+	>>> repr(d)
+    ma_used: 1, ma_version_tag: 11322, PyDictKeyObject.dk_refcnt: 1, PyDictKeyObject.dk_size: 8, PyDictKeyObject.dk_usable: 4, PyDictKeyObject.dk_nentries: 1
+    index: 0 ix: -1 DKIX_EMPTY
+    index: 1 ix: 0 me_hash: 1, me_key: 1, me_value: 1
+    index: 2 ix: -1 DKIX_EMPTY
+    index: 3 ix: -1 DKIX_EMPTY
+    index: 4 ix: -1 DKIX_EMPTY
+    index: 5 ix: -1 DKIX_EMPTY
+    index: 6 ix: -1 DKIX_EMPTY
+    index: 7 ix: -1 DKIX_EMPTY
+	'{1: 1}'
+
+
+![hh_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_1.png)
+
+    d[4] = 4
+
+![hh_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_2.png)
+
+    d[7] = 111
+
+![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
+
+	# delete, mark as DKIX_DUMMY
+    # notice, dk_usable and dk_nentries don't change
+    del d[4]
+
+![hh_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_4.png)
+
+	# notice, dk_usable and dk_nentries now change
+	d[0] = 0
+
+![hh_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_5.png)
+
+	d[16] = 16
+    # hash (16) & mask == 0
+    # but position 0 already taken by key: 0, value: 0
+    # currently perturb = 16, PERTURB_SHIFT = 5, i = 0
+    # so, perturb >>= PERTURB_SHIFT ===> perturb == 0
+    # i = (i*5 + perturb + 1) & mask ===> i = 1
+    # now, position 1 already taken by key: 1, value: 1
+    # currently perturb = 0, PERTURB_SHIFT = 5, i = 1
+    # so, perturb >>= PERTURB_SHIFT ===> perturb == 0
+    # i = (i*5 + perturb + 1) & mask ===> i = 6
+    # position 6 is empty, so we take it
+
+![hh_6](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_6.png)
+
+#### resize
+
+	# now, dk_usable is 0, dk_nentries is 5
+    # let's insert one more item
+    d[5] = 5
+    # step1: resize, when resizing, the deleted object which mark as DKIX_DUMMY in entries won't be copyed
+
+![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/resize.png)
+
+	# step2: insert key: 5, value: 5
+
+
+#### variable size indices
+Notice, the indices array is variable size. whrn size of your hash table is <= 128, type of each item is int_8, int16 and int64 for bigger table. The variable size indices array can save memory usage.
+
+#### free list
+
+	static PyDictObject *free_list[PyDict_MAXFREELIST];
+
+cpython also use free_list to reuse the deallocated hash table, to avoid memory fragment abd improve performance, I've illustrated free_list in [set object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
+
+now, you understand how python dictionary object work internally.

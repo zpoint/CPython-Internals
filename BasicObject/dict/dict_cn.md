@@ -7,6 +7,11 @@
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
 	* [combined table && split table](#combined-table-&&-split-table)
+	* [indices and entries](#indices-and-entries)
+* [哈希碰撞与删除](#哈希碰撞与删除)
+* [表扩展](#表扩展)
+* [类型可变的indices数组](#类型可变的indices数组)
+* [free list](#free list)
 
 #### 相关位置文件
 * cpython/Objects/dictobject.c
@@ -29,7 +34,7 @@
 
 ![entry_after](https://img-blog.csdnimg.cn/20190311114021201.png)
 
-只花费了之前差不多一半的内存，就存下了同样的一张哈希表，而且我们遍历哈希表的时候遍历 entries 就可以实现让字典对象维持插入/删除的顺序，这一点在之前是做不到的，因为每次哈希表扩容/缩小，都要重新哈希所有元素，顺序会打乱，现在重新哈希会打乱的只是 indices, 需要更详细的内容，请参考 [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) 和 [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+只花费了之前差不多一半的内存，就存下了同样的一张哈希表，而且我们可以在 resize 时保持键值对的顺序，需要更详细的内容，请参考 [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) 和 [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
 
 现在，我们来看看 **PyDictObject** 的内存构造
 
@@ -103,3 +108,154 @@
 
 split table 可以在你对同个class有非常多实例的时候节省很多内存，这些实例在满足上述条件时，都会共享同一个 PyDictKeysObject, 更多关于实现方面的细节请参考 [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
 
+#### indices and entries
+
+我们进到源代码里看一下 cpython 如何在 **PyDictKeysObject** 中实现 indices/entries, **char dk_indices[]** 又是什么意思?
+
+    /*
+    这是代码本身的注释，我来翻译一下
+    dk_indices 是真正的哈希表，他在 entries 存储了哈希的索引，或者 DKIX_EMPTY(-1) 和 DKIX_DUMMY(-2) 的一种
+    dk_indices is actual hashtable.  It holds index in entries, or DKIX_EMPTY(-1)
+    or DKIX_DUMMY(-2).
+    dk_size 字段表示 indices 的大小，但是这个字段的类型是可以根据表的大小变化的
+    Size of indices is dk_size.  Type of each index in indices is vary on dk_size:
+
+    * int8  for          dk_size <= 128
+    * int16 for 256   <= dk_size <= 2**15
+    * int32 for 2**16 <= dk_size <= 2**31
+    * int64 for 2**32 <= dk_size
+
+	dk_entries 是一个数组，里面的对象类型是 PyDictKeyEntry, 他的大小可以用 USABLE_FRACTION 这个宏来表示， DK_ENTRIES(dk) 可以获得真正哈希键对值的第一个入口
+    dk_entries is array of PyDictKeyEntry.  It's size is USABLE_FRACTION(dk_size).
+    DK_ENTRIES(dk) can be used to get pointer to entries.
+
+	# 注意, DKIX_EMPTY 和 DKIX_DUMMY 是用负数表示的，所有 dk_indices 里面的索引类型也需要用有符号整数表示，int16 用来表示 dk_size 为 256 的表
+    NOTE: Since negative value is used for DKIX_EMPTY and DKIX_DUMMY, type of
+    dk_indices entry is signed integer and int16 is used for table which
+    dk_size == 256.
+    */
+
+    #define DK_SIZE(dk) ((dk)->dk_size)
+    #if SIZEOF_VOID_P > 4
+    #define DK_IXSIZE(dk)                          \
+        (DK_SIZE(dk) <= 0xff ?                     \
+            1 : DK_SIZE(dk) <= 0xffff ?            \
+                2 : DK_SIZE(dk) <= 0xffffffff ?    \
+                    4 : sizeof(int64_t))
+    #else
+    #define DK_IXSIZE(dk)                          \
+        (DK_SIZE(dk) <= 0xff ?                     \
+            1 : DK_SIZE(dk) <= 0xffff ?            \
+                2 : sizeof(int32_t))
+    #endif
+    #define DK_ENTRIES(dk) \
+        ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))
+
+这个宏一开始看的时候不是很好理解，我们把他重写一下
+
+    #define DK_ENTRIES(dk) \
+        ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))
+
+重写成
+
+    // 假设 indices array 里的类型为 int8_t
+    size_t indices_offset = DK_SIZE(dk) * DK_IXSIZE(dk);
+    int8_t *pointer_to_indices = (int8_t *)(dk->dk_indices);
+    int8_t *pointer_to_pointer_to_entries = pointer_to_indices + indices_offset;
+    PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_pointer_to_entries;
+
+现在就很清晰了
+
+![dictkeys_basic](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
+
+#### 哈希碰撞与删除
+
+cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个好的哈希函数，cpython 还依赖 perturb 策略，
+我们来读一读源代码看看
+
+
+	j = ((5*j) + 1) mod 2**i
+    0 -> 1 -> 6 -> 7 -> 4 -> 5 -> 2 -> 3 -> 0 [and here it's repeating]
+    perturb >>= PERTURB_SHIFT;
+    j = (5*j) + 1 + perturb;
+    use j % 2**i as the next table index;
+
+我更改了部分源代使得每次打印出更多信息
+
+
+    >>> d = dict()
+    >>> d[1] = 1
+    : 1, ix: -1, address of ep0: 0x10870d798, dk->dk_indices: 0x10870d790
+    ma_used: 0, ma_version_tag: 11313, PyDictKeyObject.dk_refcnt: 1, PyDictKeyObject.dk_size: 8, PyDictKeyObject.dk_usable: 5, PyDictKeyObject.dk_nentries: 0
+    DK_SIZE(dk): 8, DK_IXSIZE(dk): 1, DK_SIZE(dk) * DK_IXSIZE(dk): 8, &((int8_t *)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]): 0x10870d798
+
+	>>> repr(d)
+    ma_used: 1, ma_version_tag: 11322, PyDictKeyObject.dk_refcnt: 1, PyDictKeyObject.dk_size: 8, PyDictKeyObject.dk_usable: 4, PyDictKeyObject.dk_nentries: 1
+    index: 0 ix: -1 DKIX_EMPTY
+    index: 1 ix: 0 me_hash: 1, me_key: 1, me_value: 1
+    index: 2 ix: -1 DKIX_EMPTY
+    index: 3 ix: -1 DKIX_EMPTY
+    index: 4 ix: -1 DKIX_EMPTY
+    index: 5 ix: -1 DKIX_EMPTY
+    index: 6 ix: -1 DKIX_EMPTY
+    index: 7 ix: -1 DKIX_EMPTY
+	'{1: 1}'
+
+
+![hh_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_1.png)
+
+    d[4] = 4
+
+![hh_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_2.png)
+
+    d[7] = 111
+
+![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
+
+	# 删除的时候并不会把索引清楚，而是标记成 DKIX_DUMMY
+    # 并且 dk_usable 和 dk_nentries 并没有改变
+    del d[4]
+
+![hh_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_4.png)
+
+	# 注意, dk_usable 和 dk_nentries 现在变了
+	d[0] = 0
+
+![hh_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_5.png)
+
+	d[16] = 16
+    # hash (16) & mask == 0
+    # 但是索引位置 0 已经被 key: 0, value: 0 这个对象占用了
+    # 当前 perturb = 16, PERTURB_SHIFT = 5, i = 0
+    # 所以, perturb >>= PERTURB_SHIFT ===> perturb == 0
+    # i = (i*5 + perturb + 1) & mask ===> i = 1
+    # 现在, 索引位置 1 依然被 key: 1, value: 1 占用
+    # 当前 perturb = 0, PERTURB_SHIFT = 5, i = 1
+    # 所有, perturb >>= PERTURB_SHIFT ===> perturb == 0
+    # i = (i*5 + perturb + 1) & mask ===> i = 6
+    # 此时索引位置 6 是空的，插入
+
+![hh_6](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_6.png)
+
+#### 表扩展
+
+	# 现在, dk_usable 为 0, dk_nentries 为 5
+    # 再插入一个对象试试
+    d[5] = 5
+    # 第一步，表达到了阈值，扩展表，并复制
+    # 索引里被标记成 DKIX_DUMMY 不会被复制，所以索引对应的位置后面的元素都会往前移
+
+![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/resize.png)
+
+	# 第二步， 插入 key: 5, value: 5
+
+#### 类型可变的indices数组
+indices 数组的大小是可变的，当你的哈希表大小 <= 128 时，索引数组的元素类型为 int_8, 表变大时会用 int16 或者 int64 来表示，这样做可以节省内存使用，这个策略在上面代码注释部分说明过了
+
+#### free list
+
+	static PyDictObject *free_list[PyDict_MAXFREELIST];
+
+cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md), cpython set 使用了同样的策略，里面有图片解释
+
+现在，我们弄明白了cpython 字典对象的内部实现了!
