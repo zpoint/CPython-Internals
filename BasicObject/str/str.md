@@ -17,13 +17,13 @@
 
 #### memory layout
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/layout/layout.png)
+![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/layout.png)
 
 For those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
 #### conversion
 
-Before we look into how unicode object creaete, resize, let's look into the c function **PyUnicode_AsUTF8**
+Before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
 
     # Whenever I try to covert some python object to const char* pointer, which can pass to printf function
     # I call
