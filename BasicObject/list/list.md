@@ -8,7 +8,7 @@
 	* [new](#new)
 	* [append](#append)
 	* [pop](#pop)
-	* [delete](#delete)
+	* [delete and free list](#delete-and-free-list)
 		* [why free list](#why-free-list)
 
 #### related file
@@ -116,7 +116,7 @@
 
 ![clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/clear.png)
 
-* ##### **delete**
+* ##### **delete and free list**
     * call stack
         * static void list_dealloc(PyListObject *op)
 
@@ -148,7 +148,7 @@
 				a = [[] for i in range(10)]
 				print(id(a)) # oops, it's the list we just del
 				4481833160
-				
+
 
 ![print_id](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/print_id.png)
 

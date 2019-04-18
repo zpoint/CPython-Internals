@@ -8,7 +8,7 @@
 	* [new](#new)
 	* [append](#append)
 	* [pop](#pop)
-	* [delete](#delete)
+	* [delete 和 free list](#delete-和-free-list)
 		* [为什么用 free list](#为什么用-free-list)
 
 #### 相关位置文件
@@ -117,7 +117,7 @@
 
 ![clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/clear.png)
 
-* ##### **delete**
+* ##### **delete 和 free list**
     * call stack
         * static void list_dealloc(PyListObject *op)
 
