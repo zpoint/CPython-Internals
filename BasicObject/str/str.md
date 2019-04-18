@@ -4,7 +4,7 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [method](#命令行支持及示例)
+* [method](#method)
 	* [new](#new)
 	* [add](#add)
 	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES?)
@@ -17,14 +17,64 @@
 
 #### memory layout
 
-![memory layout](https://img-blog.csdnimg.cn/20190312123042232.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/layout/layout.png)
+
+For those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
+
+#### conversion
+
+Before we look into how unicode object creaete, resize, let's look into the c function **PyUnicode_AsUTF8**
+
+    # Whenever I try to covert some python object to const char* pointer, which can pass to printf function
+    # I call
+    const char *s = PyUnicode_AsUTF8(py_object_to_be_converted)
+    # let's look at the defination of the function
+    const char *
+	PyUnicode_AsUTF8(PyObject *unicode)
+	{
+    	return PyUnicode_AsUTF8AndSize(unicode, NULL);
+	}
+
+    # let's find PyUnicode_AsUTF8AndSize
+    const char *
+    PyUnicode_AsUTF8AndSize(PyObject *unicode, Py_ssize_t *psize)
+    {
+        PyObject *bytes;
+
+		/* do some checking here */
+
+		/* PyUnicode_UTF8 checks whether the unicode object is Compact unicode
+        */
+        if (PyUnicode_UTF8(unicode) == NULL) {
+            assert(!PyUnicode_IS_COMPACT_ASCII(unicode));
+            bytes = _PyUnicode_AsUTF8String(unicode, NULL);
+            if (bytes == NULL)
+                return NULL;
+            _PyUnicode_UTF8(unicode) = PyObject_MALLOC(PyBytes_GET_SIZE(bytes) + 1);
+            if (_PyUnicode_UTF8(unicode) == NULL) {
+                PyErr_NoMemory();
+                Py_DECREF(bytes);
+                return NULL;
+            }
+            _PyUnicode_UTF8_LENGTH(unicode) = PyBytes_GET_SIZE(bytes);
+            memcpy(_PyUnicode_UTF8(unicode),
+                      PyBytes_AS_STRING(bytes),
+                      _PyUnicode_UTF8_LENGTH(unicode) + 1);
+            Py_DECREF(bytes);
+        }
+
+        if (psize)
+            *psize = PyUnicode_UTF8_LENGTH(unicode);
+        return PyUnicode_UTF8(unicode);
+    }
+
+![pyunicode_utf8](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
 
 #### method
 
 * ##### **new**
     * call stack
-	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
+	    static PyUnicodeObject *_PyUnicode_New(Py_ssize_t length)
 
 * **graph representation**
 
