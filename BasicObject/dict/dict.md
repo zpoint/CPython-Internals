@@ -244,6 +244,6 @@ Notice, the indices array is variable size. when size of your hash table is <= 1
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
-cpython also use free_list to reuse the deleted hash table, to avoid memory fragment abd improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
+cpython also use free_list to reuse the deleted hash table, to avoid memory fragment abd improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
 
 now, you understand how python dictionary object work internally.

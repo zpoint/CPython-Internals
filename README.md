@@ -18,8 +18,8 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
  - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
+ - [ ] [str](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str.md)
  - [ ] bytes
- - [ ] str
 
 #### interpreter
 

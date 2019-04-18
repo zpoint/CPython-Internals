@@ -257,6 +257,6 @@ indices 数组的大小是可变的，当你的哈希表大小 <= 128 时，索�
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
-cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md), cpython set 使用了同样的策略，里面有图片解释
+cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-free-list), cpython set 使用了同样的策略，里面有图片解释
 
 现在，我们弄明白了cpython 字典对象的内部实现了!

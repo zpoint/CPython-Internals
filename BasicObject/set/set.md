@@ -4,10 +4,10 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [method](#命令行支持及示例)
+* [method](#method)
 	* [new](#new)
 	* [add](#add)
-	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES?)
+	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES)
 	* [clear](#clear)
 
 #### related file
@@ -73,7 +73,7 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-* ##### **why LINEAR_PROBES?**
+* ##### **why LINEAR_PROBES**
     * improve cache locality
     * reduces the cost of hash collisions
 

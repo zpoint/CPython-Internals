@@ -1,41 +1,42 @@
 # set
 
-### 目录
+### category
 
-* [相关位置文件](#相关位置文件)
-* [内存构造](#内存构造)
-* [内建方法](#内建方法)
+* [related file](#related-file)
+* [memory layout](#memory-layout)
+* [method](#命令行支持及示例)
 	* [new](#new)
 	* [add](#add)
-	    * [为什么采用-LINEAR_PROBES?](#为什么采用-LINEAR_PROBES)
+	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES?)
 	* [clear](#clear)
 
-#### 相关位置文件
-* cpython/Objects/setobject.c
-* cpython/Include/setobject.h
+#### related file
+* cpython/Objects/unicodeobject.c
+* cpython/Include/unicodeobject.h
+* cpython/Include/cpython/unicodeobject.h
 
-#### 内存构造
+#### memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190312123042232.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### 内建方法
+#### method
 
 * ##### **new**
-    * 调用栈
+    * call stack
 	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
 
-* 图像表示
+* **graph representation**
 
 ![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
 * ##### **add**
-    * 调用栈
-	    * static PyObject *set_add(PySetObject *so, PyObject *key)
+    * call stack
+        * static PyObject *set_add(PySetObject *so, PyObject *key)
 		    * static int set_add_key(PySetObject *so, PyObject *key)
 			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
 
-* 图像表示
+* graph representation
 
 
       s = set()
@@ -64,8 +65,8 @@
 ![set_add_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2.png)
 
     /*
-      现在, fill 值为 5, mask 值为 7, fill*5 !< mask * 3, 需要为哈希表重新分配空间
-      来自 cpython/Objects/setobject.c
+      now, fill == 5, mask == 7, fill*5 !< mask * 3, need to resize the hash table
+      from cpython/Objects/setobject.c
     */
         if ((size_t)so->fill*5 < mask*3)
         return 0;
@@ -73,12 +74,12 @@
 
 ![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
 
-* ##### **为什么采用 LINEAR_PROBES**
-    * 更好的利用 cache locality
-    * 减小哈希碰撞，避免链式存储出现很长的链表
+* ##### **why LINEAR_PROBES?**
+    * improve cache locality
+    * reduces the cost of hash collisions
 
 * ##### **clear**
-    * 调用栈
+    * call stack
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
 		    * static int set_clear_internal(PySetObject *so)
 				* static void set_empty_to_minsize(PySetObject *so)
