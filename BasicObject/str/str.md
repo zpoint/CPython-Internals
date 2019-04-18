@@ -25,18 +25,19 @@ For those who are interested in bit-fields in C please refer to [When to use bit
 
 Before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
 
-    # Whenever I try to covert some python object to const char* pointer, 
-    # which can pass to printf function
-    # I call
-    const char *s = PyUnicode_AsUTF8(py_object_to_be_converted)
-    # let's look at the defination of the function
+    /* Whenever I try to covert some python object to const char* pointer,
+       which can pass to printf function
+       I call
+       const char *s = PyUnicode_AsUTF8(py_object_to_be_converted)
+       let's look at the defination of the function
+    */
     const char *
 	PyUnicode_AsUTF8(PyObject *unicode)
 	{
     	return PyUnicode_AsUTF8AndSize(unicode, NULL);
 	}
 
-    # let's find PyUnicode_AsUTF8AndSize
+    /* let's find PyUnicode_AsUTF8AndSize */
     const char *
     PyUnicode_AsUTF8AndSize(PyObject *unicode, Py_ssize_t *psize)
     {
@@ -45,19 +46,25 @@ Before we look into how unicode object create, resize, let's look into the c fun
 		/* do some checking here */
 
 		/* PyUnicode_UTF8 checks whether the unicode object is Compact unicode
+           PyUnicode_UTF8(unicode) will return a pointer to char
         */
         if (PyUnicode_UTF8(unicode) == NULL) {
             assert(!PyUnicode_IS_COMPACT_ASCII(unicode));
+            /* bytes should be a PyBytesObject, there are 4 situations totally */
             bytes = _PyUnicode_AsUTF8String(unicode, NULL);
             if (bytes == NULL)
                 return NULL;
+            /* set ((PyCompactUnicodeObject*)(unicode))->utf8 to new malloced buffer size */
             _PyUnicode_UTF8(unicode) = PyObject_MALLOC(PyBytes_GET_SIZE(bytes) + 1);
             if (_PyUnicode_UTF8(unicode) == NULL) {
+            	/* check for fail malloc */
                 PyErr_NoMemory();
                 Py_DECREF(bytes);
                 return NULL;
             }
+            /* set ((PyCompactUnicodeObject*)(unicode))->utf8_length to length of bytes */
             _PyUnicode_UTF8_LENGTH(unicode) = PyBytes_GET_SIZE(bytes);
+            /* copy the real bytes from bytes to unicode */
             memcpy(_PyUnicode_UTF8(unicode),
                       PyBytes_AS_STRING(bytes),
                       _PyUnicode_UTF8_LENGTH(unicode) + 1);
@@ -69,13 +76,32 @@ Before we look into how unicode object create, resize, let's look into the c fun
         return PyUnicode_UTF8(unicode);
     }
 
+PyUnicode_UTF8
+
 ![pyunicode_utf8](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
+
+_PyUnicode_UTF8
+
+![_PyUnicode_UTF8.png](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8.png)
+
+_PyUnicode_AsUTF8String
+
+![_PyUnicode_AsUTF8String](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_AsUTF8String.png)
+
+_PyUnicode_UTF8_LENGTH
+
+![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
 
 #### method
 
 * ##### **new**
     * call stack
 	    static PyUnicodeObject *_PyUnicode_New(Py_ssize_t length)
+
+now, let's see the method of unicode object
+
+	# initialize an empty string
+	s = ""
 
 * **graph representation**
 
