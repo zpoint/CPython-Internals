@@ -15,9 +15,9 @@ Trying to use graph representation/code comment to illustrate every detail of cp
 * [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 
 #### Basic Object
- - [x][set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
- - [x][list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
- - [x][dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
+ - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
+ - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
+ - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
  - [ ] bytes
  - [ ] str
 
