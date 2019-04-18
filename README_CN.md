@@ -16,7 +16,15 @@
 * [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 
 #### 基本对象
- * [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
- * [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md)
- * [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
- * str
+- [x][set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
+- [x][list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md)
+- [x][dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
+- [ ] str
+
+#### 解释器相关
+
+ - [ ] frame
+ - [ ] code
+ - [ ] code
+ - [ ] GIL
+
