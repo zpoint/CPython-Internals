@@ -4,11 +4,8 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [method](#method)
-	* [new](#new)
-	* [add](#add)
-	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES?)
-	* [clear](#clear)
+* [conversion](#method)
+* [interned](#add)
 
 #### related file
 * cpython/Objects/unicodeobject.c
@@ -92,77 +89,104 @@ _PyUnicode_UTF8_LENGTH
 
 ![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
 
-#### method
 
-* ##### **new**
-    * call stack
-	    static PyUnicodeObject *_PyUnicode_New(Py_ssize_t length)
+now, let's initialize string
 
-now, let's see the method of unicode object
 
 	# initialize an empty string
 	s = ""
+	# notice, because s is compact and ascii, it uses the address of utf8_length as the beginning of real address
 
-* **graph representation**
+![empty_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/empty_s.png)
 
-![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
-
-* ##### **add**
-    * call stack
-        * static PyObject *set_add(PySetObject *so, PyObject *key)
-		    * static int set_add_key(PySetObject *so, PyObject *key)
-			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
-
-* graph representation
-
-
-      s = set()
-
-![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+	s = "s"
+    repr(s) # I've altered the source code as usual
+    address of char *utf8: 0x1091d6ea0, content of char *utf8: 0x1
+    hash: 24526920963829810, interned: 1, kind: PyUnicode_1BYTE_KIND,
+    compact: 1, ready: 1, ascii: 1, ascii length: 1, utf8 length: 115, ready: 0
+    address of unicode: 0x1091d6e68, PyUnicode_UTF8(unicode): 0x1091d6e98
+    calling PyUnicode_AsUTF8(unicode): s
 
 
-    s.add(0) # hash(0) & mask == 0
+Have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's', yes, this is the begin address of the c style null terminate string
 
-![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+![s_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/s_s.png)
 
-    s.add(5) # hash(5) & mask == 0
 
-![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+	s = "aaa"
 
-    s.add(16) # hash(16) & mask == 0
+![aaa](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/aaa.png)
 
-![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+#### interned
 
-    s.add(32) # hash(32) & mask == 0
+	/* all unicode object with "interned" set to 1 will be hold in this doctionary,
+       any other new created unicode object with same value will points to same object,
+       it act as singleton
+       */
+    static PyObject *interned = NULL;
 
-![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
+if you delete the string, and initialize a new same empty string, the id of them are the same, the first time you creted it, it's stored in **interned** dictionary
 
-    s.add(2) # hash(2) & mask == 0
+	>>> id(s)
+    4314134768
+    >>> del s
+    >>> s = "aaa"
+    >>> id(s)
+    4314134768
+    >>> y = "aaa"
+    >>> id(y)
+    4314134768
 
-![set_add_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2.png)
 
-    /*
-      now, fill == 5, mask == 7, fill*5 !< mask * 3, need to resize the hash table
-      from cpython/Objects/setobject.c
-    */
-        if ((size_t)so->fill*5 < mask*3)
-        return 0;
-    return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
+#### kind
 
-![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
+there are totally four values of **kind** field in **PyASCIIObject**, it shows how characters are stored in the unicode object internally.
 
-* ##### **why LINEAR_PROBES?**
-    * improve cache locality
-    * reduces the cost of hash collisions
+* PyUnicode_WCHAR_KIND
 
-* ##### **clear**
-    * call stack
-        * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
-		    * static int set_clear_internal(PySetObject *so)
-				* static void set_empty_to_minsize(PySetObject *so)
+I haven't found a way to define an unicode object represent with **PyUnicode_WCHAR_KIND**,
+It may be used in c/c++ level
 
-* graph representation
+* PyUnicode_1BYTE_KIND
+	* 8 bits/character
+	* ascii flag set ?
+		* ascii flag set true: U+0000-U+007F
+		* ascii flag set false: at least one character in U+0080-U+00FF
 
-      s.clear()
+fields used are same as variables **s** before, the **utf8_length** field stores the null terminated c style string, except the interned field is 0, only the characters in specific range wiill cpython store the unicode object in the interned dictionary.
 
-![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)
+	s = "\u007F\u0000"
+    id(s)
+    4519246896
+    del s
+    s = "\u007F\u0000"
+    4519246896
+    del s
+    gc.collect()
+    s = "\u007F\u0000"
+    id(s)
+    4519245680
+    s2 = "\u007F\u0000"
+    id(s2)
+    4519247152
+
+![1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
+
+Now, because the first character is U+0080, the ascii flag become 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it return whatever in the **char *utf8** field
+
+	s = "\u0080\u0000"
+
+![no_ascii_1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/no_ascii_1_byte_kind.png)
+
+* PyUnicode_2BYTE_KIND
+	* 16 bits/character
+	* all characters are in range U+0000-U+FFFF
+	* at least one character is in the range U+0100-U+FFFF
+
+
+
+* PyUnicode_4BYTE_KIND
+	* 32 bits/character
+	* all characters are in the range U+0000-U+10FFFF
+	* at least one character is in the range U+10000-U+10FFFF
+
