@@ -1,4 +1,4 @@
-# set
+# str
 
 ### category
 
@@ -45,8 +45,8 @@ Before we look into how unicode object create, resize, let's look into the c fun
 		/* do some checking here */
 
 		/* PyUnicode_UTF8 checks whether the unicode object is Compact unicode
-           PyUnicode_UTF8(unicode) will return a pointer to char
-        */
+		   PyUnicode_UTF8(unicode) will return a pointer to char
+		*/
         if (PyUnicode_UTF8(unicode) == NULL) {
             assert(!PyUnicode_IS_COMPACT_ASCII(unicode));
             /* bytes should be a PyBytesObject, there are 4 situations totally */
@@ -92,7 +92,7 @@ _PyUnicode_UTF8_LENGTH
 ![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
 
 
-now, let's initialize string
+let's initialize an empty string
 
 
 	# initialize an empty string
@@ -121,13 +121,12 @@ Have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, 
 
 #### interned
 
-	/* all unicode object with "interned" set to 1 will be hold in this doctionary,
-       any other new created unicode object with same value will points to same object,
-       it act as singleton
-       */
+all unicode object with "interned" set to 1 will be hold in this doctionary,
+any other new created unicode object with same value will points to same object, it act as singleton
+
     static PyObject *interned = NULL;
 
-if you delete the string, and initialize a new same empty string, the id of them are the same, the first time you creted it, it's stored in **interned** dictionary
+if you delete the string, and initialize a new same string, the id of them are the same, the first time you creted it, it's stored in **interned** dictionary
 
 	>>> id(s)
     4314134768
@@ -142,12 +141,11 @@ if you delete the string, and initialize a new same empty string, the id of them
 
 #### kind
 
-there are totally four values of **kind** field in **PyASCIIObject**, it shows how characters are stored in the unicode object internally.
+there are totally four values of **kind** field in **PyASCIIObject**, it means how characters are stored in the unicode object internally.
 
 * PyUnicode_WCHAR_KIND
 
-I haven't found a way to define an unicode object represent with **PyUnicode_WCHAR_KIND**,
-It may be used in c/c++ level
+I haven't found a way to define an unicode object represent with **PyUnicode_WCHAR_KIND** in python layer, It may be used in c/c++ level
 
 * PyUnicode_1BYTE_KIND
 	* 8 bits/character
@@ -174,13 +172,15 @@ the **utf8_length** field still stores the null terminated c style string, excep
 
 ![1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 
-Now, because the first character is U+0088, the ascii flag become 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the **char *utf8** field, and that's 0
+let's define an unicode object with the a character **\u0088** inside
 
 	s = "\u0088\u0011\u00f1"
 
+Now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the **char *utf8** field, and that's 0
+
 if **PyUnicode_UTF8(unicode)** is zero, where is the three bytes located?
 we haven't used the data field in **PyUnicodeObject**, let's print whatever inside **data** field.
-It took me sometime to figure out how to print these three bytes from the latin1 field.
+It took me sometime to figure out how to print those bytes in the latin1 field.
 
     static PyObject *
     unicode_repr(PyObject *unicode)
@@ -225,7 +225,7 @@ It took me sometime to figure out how to print these three bytes from the latin1
     ...
     }
 
-now, we can track latin1 fields in repr() function
+after recompile with the above code, we are able to track latin1 fields in repr() function
 
 	>>> repr(s)
     PyUnicode_1BYTE_KIND,
