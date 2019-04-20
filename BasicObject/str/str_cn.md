@@ -7,7 +7,7 @@
 * [字符串转换](#字符串转换)
 * [interned](#interned)
 * [kind](#kind)
-	* [unicode](#unicode底层存储方式总结)
+	* [unicode底层存储方式总结](#unicode底层存储方式总结)
 * [compact](#compact)
 
 #### 相关位置文件
