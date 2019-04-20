@@ -19,7 +19,7 @@
 - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
 - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md)
 - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
-- [ ] [str](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str_cn.md)
+- [ ] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str_cn.md)
 - [ ] bytes
 
 #### 解释器相关
