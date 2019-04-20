@@ -7,6 +7,7 @@
 * [conversion](#conversion)
 * [interned](#interned)
 * [kind](#kind)
+	* [unicode memory usage summary](#unicode-memory-usage-summary)
 * [compact](#compact)
 
 #### related file
@@ -262,6 +263,7 @@ Now, kind field become **PyUnicode_4BYTE_KIND**
 
 ![4_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
+##### unicode memory usage summary
 
 we now konw that there are three kinds of storage mechanism, how many bytes cpython will consume to store an unicode object depends on the maximum range of your character. All characters inside the unicode object must be in the same size, if cpython use variable size representation such as utf-8, it would be impossible to do index operation in O(1) time
 

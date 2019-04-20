@@ -7,7 +7,7 @@
 * [字符串转换](#字符串转换)
 * [interned](#interned)
 * [kind](#kind)
-	* [cpython底层存储方式总结](#cpython底层存储方式总结)
+	* [unicode](#unicode底层存储方式总结)
 * [compact](#compact)
 
 #### 相关位置文件
@@ -268,11 +268,10 @@ _PyUnicode_UTF8_LENGTH
 
 ![4_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
-##### cpython底层存储方式总结
+##### unicode底层存储方式总结
 
 我们现在检验了3种不同的存储方式，到底 cpython 底层会使用多少个字节去存储你的字符串，取决于你字符串里最大的字符的范围，每一个字符在 unicode 对象里占用的空间必须是同样大小的，只有这样才有可能用 O(1) 的时间去获取到unicode对象里任意的第n个字符, 如果 cpython 使用了像 utf8 一样的变长字节数来存储，我们只能做到 O(n) 的时间去获取第 n 个字符
 
-	# if represented as utf8 encoding, and stores 1 million variable size characters
     # 如果按照 utf8 的方式存储 100万个字符，常见字符多的情况下确实会省下一部分空间
 	s = "...."
     # 但是下面这个操作无法在 O(1) 时间内完成了
