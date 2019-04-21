@@ -4,87 +4,91 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [method](#method)
-	* [new](#new)
-	* [add](#add)
-	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES)
-	* [clear](#clear)
+* [how element stored inside](#how-element-stored-inside)
+* [free list](#free-list)
 
 #### related file
-* cpython/Objects/setobject.c
-* cpython/Include/setobject.h
+* cpython/Include/cpython/tupleobject.c
+* cpython/Include/tupleobject.h
+* cpython/Objects/tupleobject.c
 
 #### memory layout
 
-![memory layout](https://img-blog.csdnimg.cn/20190312123042232.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+![memory layout](https://img-blog.csdnimg.cn/20190313121821367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### method
+The structure of **tuple** object is more simple than other python object.
+Obviously, **ob_item** is an array of PyObject* pointer, all element will be stored inside the **ob_item** array, But how exactly each element stored in **PyTupleObject**? Is the first element begin at the 0 index? What is the resize strategy?
 
-* ##### **new**
-    * call stack
-	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
+Let's see
 
-* **graph representation**
+#### how element stored inside
 
-![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
+	t = tuple()
 
-* ##### **add**
-    * call stack
-        * static PyObject *set_add(PySetObject *so, PyObject *key)
-		    * static int set_add_key(PySetObject *so, PyObject *key)
-			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
+![tuple_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_empty.png)
 
-* graph representation
+	t = ("aa", )
+
+![tuple_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_1.png)
+
+	t = ("aa", "bb", "cc", "dd")
+
+**ob_size** represent the size of **PyTupleObject** object, because tuple object is immutable, the **ob_item** is the start address of an array of pointer to **PyObject**, and the size of this array is **ob_size**, there's no need for resize operation.
+
+![tuple_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
+
+#### free list
+
+The free_list mechanism used here is more interesting than [free_list in list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md#delete-and-free-list)
+
+	#define PyTuple_MAXSAVESIZE     20
+    #define PyTuple_MAXFREELIST  2000
+    static PyTupleObject *free_list[PyTuple_MAXSAVESIZE];
+	static int numfree[PyTuple_MAXSAVESIZE];
 
 
-      s = set()
+let's exam what **free_list** and **numfree** is
+we assume that python intepreter don't create/deallocate any tuple object internally during the following code
 
-![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+	>>> t = tuple()
+    >>> id(t)
+    4458758208
+    >>> del t
+    >>> t = tuple()
+    >>> id(t) # same as previous deleted one
+    4458758208
+    >>> t2 = tuple()
+    >>> id(t2) # same as t
+    4458758208
 
+![delete_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_0.png)
 
-    s.add(0) # hash(0) & mask == 0
+	>>> t = ("aa", )
+    >>> id(t)
+    4459413360
+    >>> del t
+    >>> t = ("bb", )
+    >>> id(t) # it's not repeatable, because I assume that python intepreter don't create/deallocate any tuple object during execution
+    4459413360
+    >>> t2 = ("cc", )
+    >>> del t
+    >>> del t2
 
-![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+![delete_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_2.png)
 
-    s.add(5) # hash(5) & mask == 0
+num_free[i] means how many objects left in free_list[i], when you create a new tuple with size i, cpython will use the top object at free_list[i]
 
-![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+	>>> t = ("aa", )
 
-    s.add(16) # hash(16) & mask == 0
+![delete_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_3.png)
 
-![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+	>>> t2 = ("aa", "bb")
+    >>> t3 = ("cc", "dd")
+    >>> t4 = ("ee", "ff")
+    >>> t5 = ("gg", "hh")
+    >>> del t2
+    >>> del t3
+    >>> del t4
+    >>> del t5
 
-    s.add(32) # hash(32) & mask == 0
-
-![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
-
-    s.add(2) # hash(2) & mask == 0
-
-![set_add_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2.png)
-
-    /*
-      now, fill == 5, mask == 7, fill*5 !< mask * 3, need to resize the hash table
-      from cpython/Objects/setobject.c
-    */
-        if ((size_t)so->fill*5 < mask*3)
-        return 0;
-    return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
-
-![set_add_2_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_2_resize.png)
-
-* ##### **why LINEAR_PROBES**
-    * improve cache locality
-    * reduces the cost of hash collisions
-
-* ##### **clear**
-    * call stack
-        * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
-		    * static int set_clear_internal(PySetObject *so)
-				* static void set_empty_to_minsize(PySetObject *so)
-
-* graph representation
-
-      s.clear()
-
-![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)
+![delete_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_4.png)
