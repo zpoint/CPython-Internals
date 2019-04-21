@@ -19,12 +19,16 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
  - [x] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str.md)
+ - [ ] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md)
  - [ ] bytes
 
 #### interpreter
 
  - [ ] frame
  - [ ] code
- - [ ] code
  - [ ] GIL
 
+#### module
+
+ - [ ] regex
+ - [ ] asyncio

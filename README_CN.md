@@ -3,7 +3,7 @@
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录
 
-笔者将尝试尽可能的多的用 图像/源代码注释 讲清楚 cpython 实现的每个细节
+笔者将尝试尽可能的多的用 图像/源代码注释 讲清楚 cpython 底层实现的每个细节
 
     # 基于 3.8.0a0 版本
     cd cpython
@@ -20,12 +20,18 @@
 - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md)
 - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
 - [x] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str_cn.md)
+- [ ] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md)
 - [ ] bytes
 
 #### 解释器相关
 
  - [ ] frame
  - [ ] code
- - [ ] code
  - [ ] GIL
+
+#### 模块
+
+ - [ ] regex
+ - [ ] asyncio
+
 
