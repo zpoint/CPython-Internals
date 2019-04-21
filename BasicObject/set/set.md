@@ -62,12 +62,12 @@ add a value 5
 add a value 16, because the mask is 7, hash(16) & 7 ===> 0
 cpython use **LINEAR_PROBES** to solve hash collision instead of **CHAIN**(linked list)
 
-	// pseudocode
-	#define LINEAR_PROBES 9
+    // pseudocode
+    #define LINEAR_PROBES 9
     while (1)
     {
-    	i is the hash value
-    	// find the position according to the hash value
+        // i is the hash result
+        // find the position according to the hash value
         if (entry in i is empty)
         	return entry[i]
         // reach here, means entry[i] already taken
@@ -76,7 +76,7 @@ cpython use **LINEAR_PROBES** to solve hash collision instead of **CHAIN**(linke
             	if (entry in j is empty)
                 	return j
             }
-		}
+        }
         // reach here, means entry[i] - entry[i + LINEAR_PROBES] all are taken
         // now, rehash take place
         perturb >>= PERTURB_SHIFT;

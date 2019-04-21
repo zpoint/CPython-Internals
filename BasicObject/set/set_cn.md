@@ -63,11 +63,11 @@
 通常我们会用开链法处理哈希，这里 cpython 使用了一个叫 **LINEAR_PROBES** 的方法处理这个问题
 
 
-	// 伪代码
-	#define LINEAR_PROBES 9
+    // 伪代码
+    #define LINEAR_PROBES 9
     while (1)
     {
-    	// i 是当前的哈希值
+        // i 是当前的哈希值
         // 根据哈希值找到哈希表对应的位置
         if (entry in i is empty)
         	return entry[i]
@@ -77,7 +77,7 @@
             	if (entry in j is empty)
                 	return j
             }
-		}
+        }
         // 到了这里，说明 entry[i] - entry[i + LINEAR_PROBES] 的位置都被占了
         // 此时，才进行重新哈希
         perturb >>= PERTURB_SHIFT;
