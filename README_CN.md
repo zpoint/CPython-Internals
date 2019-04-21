@@ -31,7 +31,7 @@
 
 #### 模块
 
- - [ ] regex
+ - [ ] re
  - [ ] asyncio
 
 
