@@ -20,7 +20,7 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
  - [x] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str.md)
  - [x] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md)
- - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
+ - [ ] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
  - [ ] bytes
 
 #### interpreter

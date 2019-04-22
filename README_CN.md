@@ -21,7 +21,7 @@
 - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
 - [x] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str_cn.md)
 - [x] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md)
-- [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long_cn.md)
+- [ ] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long_cn.md)
 - [ ] bytes
 
 #### 解释器相关
