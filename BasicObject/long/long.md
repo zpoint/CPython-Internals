@@ -1,4 +1,4 @@
-# tuple
+# int
 
 ### category
 
@@ -8,10 +8,12 @@
 	* [ingeter 0](#ingeter-0)
 	* [ingeter 1](#ingeter-1)
 	* [ingeter -1](#ingeter--1)
-	* [ingeter -1](#ingeter--1)
 	* [ingeter 1023](#ingeter-1023)
 	* [ingeter 32767](#ingeter-32767)
-* [free list](#free-list)
+	* [ingeter 32768](#ingeter-32768)
+	* [little endian and big endian](#little-endian-and-big-endian)
+	* [reserved bit](#reserved-bit)
+* [small ints](#small ints)
 
 #### related file
 * cpython/Objects/longobject.c
@@ -77,7 +79,7 @@ When i becomes -1, the only difference from the integer 1 is the value in **ob_s
 
 ##### ingeter 1023
 
-The basic unit is type **digit**, which provide 2 bytes(18bits) for storage. And 1023 takes the right most 10 bits,
+The basic unit is type **digit**, which provide 2 bytes(16bits) for storage. And 1023 takes the right most 10 bits,
 so the value **ob_size** field is still 1.
 
 
@@ -105,7 +107,82 @@ we can have a better understanding with the integer value -262143
 
 the minus sign is stored in the **ob_size** field
 
-The interger 262143(2^18 = 262144) in binary representation should be 00000011 11111111 11111111
+The interger 262143(2^18 = 262144) in binary representation is 00000011 11111111 11111111
 
 ![262143](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/262143.png)
 
+##### reserved bit
+
+Why the left-most bit in **digit** is reserved? Why order between **digit** in the **ob_digit** array are represent as little-endian?
+
+Let's try to add two integer value
+
+	i = 1073741824 - 1 # 1 << 30 == 1073741824
+    j = 1
+
+![before_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/before_add.png)
+
+	k = i + j
+
+first, initialize a temporary **PyLongObject** with size = max(size(i), size(j)) + 1
+
+![temp_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/temp_add.png)
+
+step1, sum the firt **digit** in each **ob_digit** array to a variable named **carray**
+
+![step_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_1.png)
+
+step2, set the value in temp[0] to (carry & PyLong_MASK)
+
+![step_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_2.png)
+
+step3, right shift the carray up to the left most bit
+
+![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+
+step4, add the second **digit** in each **ob_digit** array to the result of **carray**
+
+![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_4.png)
+
+step5, set the value in temp[1] to (carry & PyLong_MASK)
+
+![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_5.png)
+
+step6, right shift the carray again
+
+![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+
+go to step4 and repeat until no more **digit** left, set the final carray to the last index of temp
+
+![step_final](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_final.png)
+
+the variable temp contains the sum, now, you see the reserved bit is used for the **carry** or **borrow** when you add/sub an integer, the **digit** in **ob_digit** array are stored in little-endian order so that the add/sub operation can process each **digit** from left to right
+
+the sub operation is similar to the add operation, so you can read the source code directly
+
+![k](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/k.png)
+
+
+##### small ints
+
+cpython alse use a buffer pool to stored the frequently used integer
+
+
+	#define NSMALLPOSINTS           257
+	#define NSMALLNEGINTS           5
+    static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
+
+let's see
+
+	c = 0
+    d = 0
+    e = 0
+    print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400
+    a = -5
+    b = -5
+    print(id(a), id(b)) # 4480940240 4480940240
+    f = 1313131313131313
+    g = 1313131313131313
+    print(id(f), id(g)) # 4484604176 4484604016
+
+![small_ints](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/small_ints.png)
