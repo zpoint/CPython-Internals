@@ -58,7 +58,9 @@ There are two differenct type of **ob_digit** depends on your system.
     #define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
 
 I've modified the source code to change the value of **PYLONG_BITS_IN_DIGIT** to 15
+
 Notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
+
 But when it's going to represent integer 1, **ob_size** becomes 1 and field in **ob_digit** represent the value 1 with type **unsigned short**
 
 	i = 1
@@ -75,7 +77,7 @@ When i becomes -1, the only difference from the integer 1 is the value in **ob_s
 
 ##### ingeter 1023
 
-The basic unit is type **ob_digit**, which provide 2 bytes(18bits) for storage. And 1023 takes the right most 10 bits,
+The basic unit is type **digit**, which provide 2 bytes(18bits) for storage. And 1023 takes the right most 10 bits,
 so the value **ob_size** field is still 1.
 
 
@@ -89,8 +91,21 @@ The integer 32767 represent in the same way as usual
 
 ##### ingeter 32768
 
+cpython don't use all the 16 bits in **digit** field, the first bit of every **digit** is reserved, we wiil see why later
+
 ![32768](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/32768.png)
 
 ##### little endian and big endian
 
-Notice, inside the **ob_digit**, the ob_item array use big endian order to represent variable size integer
+Notice, because the **digit** is the smallest unit in the cpython abstract level, order between bytes inside a single ob_digit are represent in most-important-bit-in-the-left-most order(big endian order)
+
+order between **digit** in the **ob_digit** array are represent in most-important-digit-in-the-right-most order(little endian order)
+
+we can have a better understanding with the integer value -262143
+
+the minus sign is stored in the **ob_size** field
+
+The interger 262143(2^18 = 262144) in binary representation should be 00000011 11111111 11111111
+
+![262143](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/262143.png)
+
