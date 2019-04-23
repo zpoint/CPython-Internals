@@ -28,7 +28,7 @@
 
 **int** 在内存空间上的构造和 [tuple 元素在内存空间的构造](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0) 非常相似
 
-很明显, 只有**ob_digit**这一个位置可以用来存储真正的整数, 但是 cpython 如何按照字节来存储任意长度的整型的呢?
+很明显, 只有 **ob_digit** 这一个位置可以用来存储真正的整数, 但是 cpython 如何按照字节来存储任意长度的整型的呢?
 
 我们来看看
 
@@ -100,7 +100,7 @@
 
 ##### 小端大端
 
-注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序是按照 最重要的再最左边的 原则存储的(大端存储)
+注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序是按照"最重要的在最左边" 的原则存储的(大端存储)
 
 而 **digit** 和 **digit** 之间则是按照 最重要的再最右边的 原则存储的(小端存储
 
