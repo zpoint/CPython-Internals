@@ -13,7 +13,7 @@
 	* [整数 32768](#整数-32768)
 	* [小端大端](#小端大端)
 	* [第一个保留位](#第一个保留位)
-* [small ints(缓冲池)](#small ints)
+* [small ints(缓冲池)](#small-ints)
 
 #### 相关位置文件
 * cpython/Objects/longobject.c

@@ -13,7 +13,7 @@
 	* [ingeter 32768](#ingeter-32768)
 	* [little endian and big endian](#little-endian-and-big-endian)
 	* [reserved bit](#reserved-bit)
-* [small ints](#small ints)
+* [small ints](#small-ints)
 
 #### related file
 * cpython/Objects/longobject.c
