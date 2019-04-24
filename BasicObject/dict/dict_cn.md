@@ -214,7 +214,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
 
 ![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
 
-	# 删除的时候并不会把索引清楚，而是把对应那格的索引标记成 DKIX_DUMMY, DKIX_DUMMY 数字表示为 -2
+	# 删除的时候并不会把索引清除，而是把对应那格的索引标记成 DKIX_DUMMY, DKIX_DUMMY 数字表示为 -2
     # 并且 dk_usable 和 dk_nentries 并没有改变
     del d[4]
 

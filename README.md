@@ -29,7 +29,7 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [ ] code
  - [ ] GIL
 
-#### module
+#### lib
 
  - [ ] re
  - [ ] asyncio
