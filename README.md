@@ -14,7 +14,7 @@ Trying to use graph representation/code comment to illustrate every detail of cp
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 * [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 
-#### Basic Object
+#### Objects
  - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
  - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
@@ -23,18 +23,18 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
 
-#### modules
+#### Modules
 
  - [ ] io
- 	- [ ] fileio
+ 	- [ ] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio.md)
 
-#### interpreter
+#### Lib
+
+ - [ ] re
+ - [ ] asyncio
+
+#### Interpreter
 
  - [ ] frame
  - [ ] code
  - [ ] GIL
-
-#### lib
-
- - [ ] re
- - [ ] asyncio

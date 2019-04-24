@@ -24,15 +24,21 @@
 - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long_cn.md)
 - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes_cn.md)
 
+#### 模块
+
+ - [ ] io
+ 	- [ ] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio_cn.md)
+
+#### 库
+
+ - [ ] re
+ - [ ] asyncio
+
 #### 解释器相关
 
  - [ ] frame
  - [ ] code
  - [ ] GIL
 
-#### 库
-
- - [ ] re
- - [ ] asyncio
 
 
