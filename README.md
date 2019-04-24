@@ -23,6 +23,11 @@ Trying to use graph representation/code comment to illustrate every detail of cp
  - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
 
+#### modules
+
+ - [ ] io
+ 	- [ ] fileio
+
 #### interpreter
 
  - [ ] frame
