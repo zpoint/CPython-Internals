@@ -202,6 +202,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
     index: 7 ix: -1 DKIX_EMPTY
 	'{1: 1}'
 
+这里 indices 是索引, 索引里面 **-1(DKIX_EMPTY)** 表示这个坑位是空的, 现在代码里设置了 d[1] = 1, hash(1) & mask == 1, 会对应到 indices 的下标为 1 的坑位上, 这个坑位原本是 -1(DKIX_EMPTY) 表示没有被占用过, 马上占用他, 把这里的 -1 改成 entries 里面第一个空余的真正的存储 key 和 value 的位置, 这个位置是 0, 所以就把 0 存储到了 indices[1] 里
 
 ![hh_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_1.png)
 
@@ -213,7 +214,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
 
 ![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
 
-	# 删除的时候并不会把索引清楚，而是标记成 DKIX_DUMMY
+	# 删除的时候并不会把索引清楚，而是把对应那格的索引标记成 DKIX_DUMMY, DKIX_DUMMY 数字表示为 -2
     # 并且 dk_usable 和 dk_nentries 并没有改变
     del d[4]
 

@@ -26,7 +26,7 @@
     * call stack
 	    * PyObject * PyList_New(Py_ssize_t size)
 
-* **graph representation**
+* **图像表示**
 
 
       l = list()
