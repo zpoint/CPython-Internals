@@ -26,7 +26,7 @@
 在我们深入的看 unicod 对象如何创建，调整空间之前，我们先来看下 **PyUnicode_AsUTF8** 这个 c 函数
 
     /*
-       每当我需要在 cpython 里面尝试把 一个 PyObject 转换成 const char* 指针时，我会调用这个函数
+       每当我需要在 cpython 里面尝试把 一个 PyUnicodeObject 转换成 const char* 指针时，我会调用这个函数
        const char *s = PyUnicode_AsUTF8(py_object_to_be_converted)
        我们来看看这个函数的定义
     */
@@ -185,16 +185,7 @@ _PyUnicode_UTF8_LENGTH
     unicode_repr(PyObject *unicode)
     {
     	...
-        	/*
-            // there exists official marco to get the char in exact index,
-            // I use my own to have a better understanding of how things work internally
-			Py_ssize_t isize = PyUnicode_GET_LENGTH(unicode);
-            Py_ssize_t idata = PyUnicode_DATA(unicode);
-            int ikind = PyUnicode_KIND(unicode);
-            // no mattner what ikind is, use Py_UCS4(4 bytes) to catch the result
-            Py_UCS4 ch = PyUnicode_READ(ikind, idata, i);
-            */
-        	/*
+            /*
             // 有一些官方的宏可以用来直接获取 data 字段里的第 n 个值，比如
             Py_ssize_t isize = PyUnicode_GET_LENGTH(unicode);
             Py_ssize_t idata = PyUnicode_DATA(unicode);

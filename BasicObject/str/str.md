@@ -25,8 +25,8 @@ For those who are interested in bit-fields in C please refer to [When to use bit
 
 Before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
 
-    /* Whenever I try to covert some python object to const char* pointer,
-       which can pass to printf function
+    /* Whenever I try to covert PyUnicodeObject to const char* pointer,
+       which can be passed to c printf function
        I call
        const char *s = PyUnicode_AsUTF8(py_object_to_be_converted)
        let's look at the defination of the function

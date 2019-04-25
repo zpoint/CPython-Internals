@@ -19,3 +19,11 @@
 
 ![memory layout](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/layout.png)
 
+As [python document](https://docs.python.org/3/library/io.html#raw-file-i-o) said, the **FileIO** object represents an OS-level file containing bytes data
+
+
+	>>> import io
+    >>> f = io.FileIO("./1.txt", "a+")
+    >>> f.write(b"hello")
+    5
+
