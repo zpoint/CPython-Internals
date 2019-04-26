@@ -39,7 +39,7 @@
 #### 模块
 
  - [ ] io
- 	- [ ] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio_cn.md)
+ 	- [x] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio_cn.md)
 
 #### 库
 

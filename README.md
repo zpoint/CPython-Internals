@@ -38,7 +38,7 @@ Trying to use graph representation/code comment to illustrate every detail of cp
 #### Modules
 
  - [ ] io
- 	- [ ] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio.md)
+ 	- [x] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio.md)
 
 #### Lib
 
