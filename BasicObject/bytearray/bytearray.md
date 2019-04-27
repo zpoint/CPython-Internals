@@ -109,7 +109,7 @@ what's field **ob_exports** mean ? If you need detail, you can refer to [less-co
 
 ![exports](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports.png)
 
-the **bytearray** implements the **buffer protocol**, and **memoryview** are able to access the internal data block by the **buffer protocol**, **mybuf** and **buf** sharing the same internal block
+the **bytearray** implements the **buffer protocol**, and **memoryview** is able to access the internal data block via the **buffer protocol**, **mybuf** and **buf** are all sharing the same internal block
 
 field **ob_exports** becomes 1, which indicate how many objects currently sharing the internal block via **buffer protocol**
 
@@ -118,7 +118,7 @@ field **ob_exports** becomes 1, which indicate how many objects currently sharin
 
 ![exports_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
 
-so does **mybuf2** object(**ob_exports** doesn't change because you need to call the c function defined by **buf** object via the **buffer protocol**, mybuf2 barely calls the slice function of mybuf)
+so does **mybuf2** object(**ob_exports** doesn't change because you need to call the c function defined by **buf** object via the **buffer protocol**, **mybuf2** barely calls the slice function of **mybuf**)
 
 	mybuf2 = mybuf[:4]
     mybuf2[0] = 1

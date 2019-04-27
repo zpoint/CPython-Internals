@@ -103,7 +103,7 @@ slice 操作之后, **ob_start** 指向真正的数组内容开始的位置, **o
 
 ##### ob_exports
 
-**ob_exports** 这里表示的值是什么意思呢? 你需要先理解 **buffer protocol** 的概念和设计初衷, 请参考[less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) 和 [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
+**ob_exports** 这里表示的值是什么意思呢? 你需要先理解 **buffer protocol** 的概念和设计初衷, 请参考 [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) 和 [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
 
 	buf = bytearray(b"abcdefg")
 
@@ -118,7 +118,7 @@ slice 操作之后, **ob_start** 指向真正的数组内容开始的位置, **o
 
 ![exports_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
 
-**mybuf2** 也进行了同样的操作(ob_exports并未增加, 是因为 mybuf2 调用的是 mybuf 的 slice 操作, 增加 **ob_exports** 是通过调用 buf 的 **buffer protocol** 定义的函数完成的)
+**mybuf2** 也进行了同样的操作(ob_exports并未增加, 是因为 **mybuf2** 调用的是 **mybuf** 的 slice 操作, 增加 **ob_exports** 是通过调用 **buf** 的 **buffer protocol** 定义的c函数完成的)
 
 	mybuf2 = mybuf[:4]
     mybuf2[0] = 1

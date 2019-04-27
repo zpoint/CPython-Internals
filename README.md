@@ -3,7 +3,7 @@
 
 This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code
 
-Trying to understand every detail of cpython implementation
+Trying to illustrate every detail of cpython implementation
 
     # based on version 3.8.0a0
     cd cpython
