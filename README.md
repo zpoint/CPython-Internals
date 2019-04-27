@@ -22,7 +22,7 @@ Trying to understand every detail of cpython implementation
  - [x] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md)
  - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
- - [ ] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
+ - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [ ] float
  - [ ] func
  - [ ] method

@@ -23,7 +23,7 @@
 - [x] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md)
 - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long_cn.md)
 - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes_cn.md)
-- [ ] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
+- [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
 - [ ] float
 - [ ] func
 - [ ] method
