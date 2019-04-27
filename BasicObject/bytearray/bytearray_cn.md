@@ -16,7 +16,7 @@
 * cpython/Include/bytearrayobject.h
 * cpython/Objects/clinic/bytearrayobject.c.h
 
-####内存构造
+#### 内存构造
 
 **ob_alloc** 表示了实际分配的字节大小
 

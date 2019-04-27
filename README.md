@@ -23,7 +23,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
- - [ ] float
+ - [ ] [float](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md)
  - [ ] func
  - [ ] method
  - [ ] iter
