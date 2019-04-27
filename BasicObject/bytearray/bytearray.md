@@ -43,4 +43,17 @@ The **ob_alloc** field represent the real allocated size in bytes
 
 ![empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/empty.png)
 
-##### empty bytearray
+##### append
+
+after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_start** all points to same address
+
+	a.append(ord('a'))
+
+![append_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/append_a.png)
+
+##### resize
+
+	a.append(ord('b'))
+
+![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/resize.png)
+
