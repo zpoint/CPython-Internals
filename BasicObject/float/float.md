@@ -5,73 +5,60 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [empty bytes](#empty-bytes)
-	* [ascii characters](#ascii-characters)
-	* [nonascii characters](#nonascii-characters)
+	* [0](#0)
+	* [1](#1)
+	* [0.1](#0.1)
+	* [1.1](#1.1)
+	* [-0.1](#-0.1)
 * [summary](#summary)
-	* [ob_shash](#ob_shash)
-	* [ob_size](#ob_size)
-	* [summary](#summary)
 
 #### related file
-* cpython/Objects/bytesobject.c
-* cpython/Include/bytesobject.h
-* cpython/Objects/clinic/bytesobject.c.h
+* cpython/Objects/floatobject.c
+* cpython/Include/floatobject.h
+* cpython/Objects/clinic/floatobject.c.h
 
 #### memory layout
 
-![memory layout](https://img-blog.csdnimg.cn/20190318160629447.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+**PyFloatObject** is no more than a wrapper of c type **double**, which takes 8 bytes to represent a floating point number
 
-The memory layout of **PyBytesObject** looks like [memory layout of tuple object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout) and [memory layout of int object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md#memory-layout), but simpler than any of them.
+you can refer to [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985)/[IEEE-754标准与浮点数运算](https://blog.csdn.net/m0_37972557/article/details/84594879) for more detail
+
+![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/layout.png)
 
 #### example
 
-##### empty bytes
+##### 0
 
-**bytes** object is an immutable object, whenever you need to modify a **bytes** object, you need to create a new one, which keeps the implementation simple.
+the binary representation of 0.0 in **IEEE 754** format is all bit in zero
 
-	s = b""
+	f = 0.0
 
-![empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/empty.png)
+![0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/0.png)
 
-##### ascii characters
+##### 1.0
 
-let's initialize a byte object with ascii characters
+	f = 1.0
 
-	s = b"abcdefg123"
+![1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/1.png)
 
-![ascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/ascii.png)
+##### 0.1
+
+	f = 0.1
+
+![0.1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/0.1.png)
+
+##### 1.1
+
+the difference between 1.1 and 0.1 is the last few exponent bits
+
+![1.1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/1.1.png)
+
+##### -0.1
+
+the difference between -0.1 and 0.1 is the first sign bit
+
+![-0.1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/-0.1.png)
 
 ##### nonascii characters
 
 	s = "我是帅哥".encode("utf8")
-
-![nonascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/nonascii.png)
-
-#### summary
-
-
-##### ob_shash
-
-
-The field **ob_shash** should stores the hash value of the byte object, value **-1** means not computed yet.
-
-The first time the hash value computed, it will be cached to the **ob_shash** field
-
-the cached hash value can saves recalculation and speeds up dict lookups
-
-##### ob_size
-
-field **ob_size** is inside every **PyVarObject**, the **PyBytesObject** uses this **field** to store size information to keep O(1) time complexity for **len()** opeeration and tracks the size of non-ascii string(may be null characters inside)
-
-##### summary
-
-The **PyBytesObject** is a python wrapper of c style null terminate string, with **ob_shash** for caching hash value and **ob_size** for storing the size information of **PyBytesObject**
-
-The implementation of **PyBytesObject** looks like the **embstr** encoding in redis
-
-	redis-cli
-    127.0.0.1:6379> set a "hello"
-    OK
-    127.0.0.1:6379> object encoding a
-    "embstr"
