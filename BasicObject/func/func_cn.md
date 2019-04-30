@@ -1,10 +1,10 @@
 # func
 
-### category
+### 目录
 
-* [related file](#related-file)
-* [memory layout](#memory-layout)
-* [field](#field)
+* [相关位置文件](#相关位置文件)
+* [内存构造](#内存构造)
+* [字段](#字段)
 	* [func_code](#func_code)
 	* [func_globals](#func_globals)
 	* [func_defaults](#func_defaults)
@@ -17,31 +17,30 @@
 	* [func_annotations](#func_annotations)
 	* [func_qualname](#func_qualname)
 
-#### related file
+#### 相关位置文件
 * cpython/Objects/funcobject.c
 * cpython/Include/funcobject.h
 * cpython/Objects/clinic/funcobject.c.h
 
-#### memory layout
+#### 内存构造
 
-every thing is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
+在 python 中, 一切皆对象, 包括函数对象, 一个函数对象在 c 语言中被定义为 **PyFunctionObject**
 
-the type **function** indicates the user-defined method/classes, for **builtin_function_or_method** please refer to [method](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/method.md)
+类型 **function** 表示用户自定义函数/对象, 对于那种内建函数/对象, 他们是不同的类型, 请参考 [method](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/method_cn.md)
 
 ![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/layout.png)
 
-#### field
+#### 字段
 
-Let's figure out the meaning of each field in the **PyFunctionObject**
+我们来看看每个字段在 **PyFunctionObject** 中分别代表什么意思
 
 ##### func_code
 
-**func_code** field stores an instance of **PyCodeObject**, which contains information of a code block
+**func_code** 存储了一个 **PyCodeObject** 的实例, 这个实例会保存一段函数代码块中相关的信息
 
-A code block must contains python virtual machine's instruction, argument number, argument
-body and etc
+一段代码块相关信息会包括对应 python 虚拟机的指令, 这个函数的参数数量, 参数内容等信息
 
-I will explain **PyCodeObject** in other article
+后续会有文章讲 **PyCodeObject**
 
 	def f(a, b=2):
     	print(a, b)
@@ -51,7 +50,7 @@ I will explain **PyCodeObject** in other article
 
 ##### func_globals
 
-the global namespace attached to the function object
+这个函数相关联的全局作用域
 
 	>>> type(f.__globals__)
 	<class 'dict'>
@@ -60,14 +59,14 @@ the global namespace attached to the function object
 
 ##### func_defaults
 
-a tuple stores all the default argument of the function object
+一个元组对象, 存储了该函数的所有默参数的值
 
 	>>> f.__defaults__
 	(2,)
 
 ##### func_kwdefaults
 
-field **func_kwdefaults** is a python dictionary, which stores the [keyword-only argument](https://www.python.org/dev/peps/pep-3102/) with default value
+**func_kwdefaults** 是一个 python 字典对象, 保存了指定了默认值的 [keyword-only argument](https://www.python.org/dev/peps/pep-3102/)
 
     def f2(a, b=4, *x, key=111):
         print(a, b, x, key)
@@ -77,7 +76,7 @@ field **func_kwdefaults** is a python dictionary, which stores the [keyword-only
 
 ##### func_closure
 
-the **func_closure** field is a tuple, indicate all the enclosing level of the current function object
+**func_closure** 是一个元组对象, 存储了当前函数所对应的所有闭包层级
 
     def wrapper(func):
         def func_inside(*args, **kwargs):
@@ -97,7 +96,7 @@ the **func_closure** field is a tuple, indicate all the enclosing level of the c
     >>> wrapper
     <function wrapper at 0x1092b3cc0>
 
-let's see an example with more _\_closure_\_
+我们来看一个有更多 _\_closure_\_ 的示例
 
 
     def wrapper2(func1):
@@ -140,7 +139,7 @@ let's see an example with more _\_closure_\_
 
 ##### func_doc
 
-usually, it's an **unicode** object for explaintion
+通常, 他是一个用来解释函数作用的 **unicode** 对象
 
     def f():
         """
@@ -152,7 +151,7 @@ usually, it's an **unicode** object for explaintion
 
 ##### func_name
 
-the name of the **PyFunctionObject** object
+这个 **PyFunctionObject** 对象的函数名
 
     def i_have_a_very_long_long_long_name():
         pass
@@ -164,7 +163,7 @@ the name of the **PyFunctionObject** object
 
 ##### func_dict
 
-**func_dict** field stores the attribute of the function object
+**func_dict** 是一个字典对象, 存储了这个对象的属性
 
 	>>> f.__dict__
 	{}
@@ -174,7 +173,7 @@ the name of the **PyFunctionObject** object
 
 ##### func_module
 
-**func_module** field indicate the module which the **PyFunctionObject** attached to
+**func_module** 表示了这个对象所属的/相关联的模块
 
 	>>> f.__module__
 	'__main__'
@@ -184,7 +183,7 @@ the name of the **PyFunctionObject** object
 
 ##### func_annotations
 
-you can read [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/pep-3107/) for more detail
+这是一个比较新的特性, 你可以读一下 [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/pep-3107/), 上面有更好的例子解释这个字段的作用
 
 	def a(x: "I am a int" = 3, y: "I am a float" = 4) -> "return a list":
     	pass
@@ -194,7 +193,7 @@ you can read [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/
 
 ##### func_qualname
 
-it's used for nested class/function representation, it contains a dotted path leading to the object from the module top-level, refer [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
+这个字段在内嵌函数表示名称的时候挺管用的, 这个字段还包括了从顶往下的内嵌路径, 你可以通过这个字段了解更多函数定义相关的信息, 可以读下 [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
 
 	def f():
     	def g():

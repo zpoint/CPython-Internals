@@ -24,7 +24,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [x] [float](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md)
- - [ ] [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func.md)
+ - [x] [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func.md)
  - [ ] method
  - [ ] iter
  - [ ] gen
