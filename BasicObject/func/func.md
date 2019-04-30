@@ -32,7 +32,7 @@ the type **function** indicates the user-defined method/classes, for **builtin_f
 
 #### field
 
-Let's figure out the meaning of each field in the **PyFunctionObject**
+let's figure out the meaning of each field in the **PyFunctionObject**
 
 ##### func_code
 
