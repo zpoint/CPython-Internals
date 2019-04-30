@@ -24,9 +24,9 @@ Trying to illustrate every detail of cpython implementation
  - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [x] [float](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md)
- - [x] [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func.md)
+ - [x] [func(user-defined)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func.md)
+ - [ ] [method(builtin)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/method.md)
  - [x] [iter](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter.md)
- - [ ] method
  - [ ] gen
  - [ ] class
  - [ ] complex

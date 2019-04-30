@@ -86,6 +86,7 @@ let's iter through an iterator object
             return index * 2 if index < 3 else index * 3
 
 	a = iter(A())
+    type(a) # iterator
 
 ![iter0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter0.png)
 
@@ -154,6 +155,8 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
 
 #### memory layout citer
 
+![callable_layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/callable_layout.png)
+
     static PyObject *
     calliter_iternext(calliterobject *it)
     {
@@ -188,8 +191,6 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
 
 a callable_iterator calls whatever stores in **it_callable** each time you iter through it, until the result match the **it_sentinel** or a StopIteration raised
 
-![callable_layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/callable_layout.png)
-
 
 #### example citer
 
@@ -206,6 +207,7 @@ a callable_iterator calls whatever stores in **it_callable** each time you iter 
             return self.val
 
     r = iter(A(), 2)
+    type(r) # callable_iterator
 
 ![citer0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer0.png)
 
