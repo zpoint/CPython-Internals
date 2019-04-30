@@ -26,7 +26,7 @@
 - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
 - [x] [float](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float_cn.md)
 - [x] [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func_cn.md)
-- [ ] [iter](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter_cn.md)
+- [x] [iter](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter_cn.md)
 - [ ] method
 - [ ] gen
 - [ ] class

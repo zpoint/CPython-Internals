@@ -277,6 +277,6 @@ we now konw that there are three kinds of storage mechanism, how many bytes cpyt
 #### compact
 
 if flag in **compact** field in 1, it means all characters are stored within **PyUnicodeObject**, no matter what **kind** field is. The example above all have **compact** field set to 1. Otherwise, the data block will not stored inside the **PyUnicodeObject** object directly, the data block will be a newly malloced location.
-The difference look the same as the difference in redis  string encoding **raw** and **embstr**
+The difference bwtween **compact** 0 and **compact** 1 is the same as the difference bwtween redis string encoding **raw** and **embstr**
 
 now, we understand most of the unicode implementations in cpython, for more detail, you can directly refer to source code

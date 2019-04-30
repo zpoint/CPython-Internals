@@ -1,11 +1,11 @@
 # iter
 
-### category
+### 目录
 
-* [related file](#related-file)
+* [相关位置文件](#相关位置文件)
 * [iterator](#iterator)
-    * [memory layout](#memory-layout-iter)
-    * [example](#example)
+    * [内存构造](#内存构造iter)
+    * [示例](#示例)
         * [iter0](#iter0)
         * [iter1](#iter1)
         * [iter2](#iter2)
@@ -15,8 +15,8 @@
         * [iter end](#iter-end)
 
 * [callable iterator](#callable-iterator)
-    * [memory layout](#memory-layout-citer)
-    * [example](#example-citer)
+    * [内存构造](#内存构造citer)
+    * [示例](#示例citer)
     	* [citer0](#citer0)
     	* [citer1](#citer1)
     	* [citer-end](#citer-end)
@@ -27,11 +27,11 @@
 
 ### iterator
 
-#### memory layout iter
+#### 内存构造iter
 
-The python sequence iterator is a wrapper of a python object with _\_getitem_\_ defined
+python 中的sequence迭代器是一层包装, 包装的内容是一个定义了 _\_getitem_\_ 方法的 python 对象
 
-so the sequence iterator can iter through the target object by calling the object[index], and set index to index + 1
+所以 sequence 迭代器可以通过调用 object[index] 来迭代这个目标对象, 在迭代的过程中会把 index 设置为 index + 1
 
     static PyObject *
     iter_iternext(PyObject *iterator)
@@ -68,11 +68,11 @@ so the sequence iterator can iter through the target object by calling the objec
 
 ![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/layout.png)
 
-#### example
+#### 示例
 
 ##### iter0
 
-let's iter through an iterator object
+我们来尝试迭代一个 sequence 迭代器
 
     class A(object):
         def __getitem__(self, index):
@@ -91,7 +91,7 @@ let's iter through an iterator object
 
 ##### iter1
 
-the **next(a)** calls object[0], and return the result
+**next(a)** 调用了方法 object[0], 并返回了对应的结果
 
 	>>> next(a)
 	'index 0'
@@ -107,7 +107,7 @@ the **next(a)** calls object[0], and return the result
 
 ##### iter3
 
-the current **it_index** is 2, so the next(a) calls object[2] which returns 4
+当前的 **it_index** 为 2, 所以 next(a) 会调用 object[2] 并返回 4
 
 	>>> next(a)
 	4
@@ -130,9 +130,9 @@ the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 
 ##### iter end
 
-now, the **it_idnex** is 5, next(a) will raise an IndexError
+现在 **it_idnex** 为 5, next(a) 会抛出一个 IndexError
 
-the content in **it_index** is still 5, but the content in **it_seq** becomes 0x00, which indicate end of iteration
+**it_index** 中存储的值仍为 5, 但是 **it_seq** 中存储的指针则变为了 0x00 这个空指针, 通过这种方式来表示迭代结束
 
     >>> next(a)
     raise by myself
@@ -142,7 +142,7 @@ the content in **it_index** is still 5, but the content in **it_seq** becomes 0x
 
 ![iterend](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iterend.png)
 
-notice, if you call next(a) again, the **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**, it lose the way to access the instance of **class A**, and can no longer call the _\_getitem_\_ function
+注意, 如果你再次调用 next(a), **"raise by myself"** 是不会被打印出来的, 当前的 **it_seq** 已经指向了空的指针, 这个迭代器已经丢失了对迭代对象的指针/引用 了, 你没有办法再找到这个被迭代的对象并调用这个对象上面对应的方法
 
     >>> next(a)
     Traceback (most recent call last):
@@ -152,7 +152,7 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
 
 ### callable iterator
 
-#### memory layout citer
+#### 内存构造citer
 
     static PyObject *
     calliter_iternext(calliterobject *it)
@@ -186,12 +186,12 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
         return NULL;
     }
 
-a callable_iterator calls whatever stores in **it_callable** each time you iter through it, until the result match the **it_sentinel** or a StopIteration raised
+一个 callable 迭代器 在每次迭代的过程中会调用 **it_callable** 里面存储的对象, 直到这个对象返回了和 **it_sentinel** 相同的值或者自己抛出 StopIteration 为止
 
 ![callable_layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/callable_layout.png)
 
 
-#### example citer
+#### 示例 citer
 
 ##### citer0
 
@@ -211,9 +211,9 @@ a callable_iterator calls whatever stores in **it_callable** each time you iter 
 
 ##### citer1
 
-the callable_iterator calls the _\_call_\_ method of instance of A, and compare the result with the sentinal **2**
+callable 迭代器 调用了 A 的实例的 _\_call_\_ 方法, 并且用返回值和 **sentinal** 的值 2 做了比较
 
-the next operation won't change any state of the callable_iterator object, the state inside **it_callable** is changed anyway
+下一次调用 next 并不会改变 callable 迭代器 内存储的任何状态, 只有 存储在 **it_callable** 的这个对象本身发生了一些改变
 
     >>> next(r)
     1
@@ -222,9 +222,9 @@ the next operation won't change any state of the callable_iterator object, the s
 
 ##### citer end
 
-this time the instance of A returns PyLongObject 2, which is the same as the object stored inside **it_sentinel** field,
+这次 A 的实例返回了 **PyLongObject** 对象, 值为 2, 和存储在 **it_sentinel** 中的值相同,
 
-so the callable_iterator clears it's state and return NULL to the outer scope, which raise a StopIteration
+所以 callable 迭代器 会清空他自己当前的状态, 并返回 NULL 给上一级调用者, 上一级调用者会抛出 StopIteration
 
     >>> next(r)
     Traceback (most recent call last):
