@@ -72,7 +72,7 @@
 					}
 
 
-* graph representation
+* 图像示例
 
 
       l.append("a") # 调用 list_resize, 此时 newsize == 1, 1 + (1 >> 3) + 3 = 4
