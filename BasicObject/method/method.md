@@ -40,7 +40,7 @@ let's look at some code snippet first
                                                        PyObject *);
     typedef PyObject *(*PyNoArgsFunction)(PyObject *);
 
-The **PyCFunction** is a type in c, any c function with signature(accept two **PyObject* ** as parameters and return a **PyObject * **)  can be cast to type **PyCFunction**
+The **PyCFunction** is a type in c, any c function with signature(accept two PyObject* as parameters and return a PyObject *)  can be cast to type **PyCFunction**
 
     // a c function named builtin_print
     static PyObject *
@@ -53,4 +53,18 @@ The **PyCFunction** is a type in c, any c function with signature(accept two **P
     }
 
 ![print](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print.png)
+
+a **PyMethodDef** should be attached to a **module** object, and a **self** arugment, and then becomes **PyCFunctionObject**
+
+what user really interactive with is **PyCFunctionObject**
+
+![print2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print2.png)
+
+let's check for more detail of each field
+
+the type in **m_self** field is **module**, and type in **m_module** field is **str**
+
+![print3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print3.png)
+
+
 
