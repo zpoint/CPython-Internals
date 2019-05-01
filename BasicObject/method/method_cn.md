@@ -7,6 +7,7 @@
 * [示例](#示例)
 	* [print](#print)
 * [PyMethodDef 中的字段](#PyMethodDef-中的字段)
+* [free_list(缓冲池)](#free_list)
 * [classmethod](#classmethod)
 * [staticmethod](#staticmethod)
 
@@ -46,7 +47,7 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 **PyCFunction** 在 c 语言中是一个类型, 这个类型可以表示任何接受两个 PyObject * 作为参数, 并返回一个 PyObject * 作为返回对象的函数
 
-    // a一个 c 函数, 函数名为 builtin_print
+    // 一个 c 函数, 函数名为 builtin_print
     static PyObject *
     builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames);
 
@@ -66,9 +67,8 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 ![print2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print2.png)
 
 我们来看看每个字段的意义
-let's check for more detail of each field
 
-the type in **m_self** field is **module**, and type in **m_module** field is **str**
+**m_self** 字段中的类型是 **module**, 而 **m_module** 字段中的类型是 **str**
 
 ![print3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print3.png)
 
@@ -99,3 +99,21 @@ the type in **m_self** field is **module**, and type in **m_module** field is **
 | METH_CLASS | 0x0010 | 取出第一个对象的类型传入, 而不是第一个对象的实例去传入, 就是我们常用的@classmethod 干的活 |
 | METH_STATIC | 0x0020 | 第一个对象会传入空的值, 我们常用的 @staticmethod 干的活 |
 | METH_COEXIST | 0x0040 | 重复定义时替代原本存在的, 而不是跳过 |
+
+##### free_list
+
+    static PyCFunctionObject *free_list = NULL;
+    static int numfree = 0;
+    #ifndef PyCFunction_MAXFREELIST
+    #define PyCFunction_MAXFREELIST 256
+    #endif
+
+cpython 使用了一个长度为 256 的缓冲池来存储释放掉的对象以供再度循环使用, free_list 是一个单链表, 利用 PyCFunctionObject 上面的 **m_self** 字段一直往下串在一起
+
+相似的技术在 [float-free_list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float_cn.md#free_list) 对象上也使用过, float 使用的是 **ob_type** 字段串联起来, 这里就不做图说明了, 有兴趣的同学可以直接点解链接看里面的图片
+
+#### classmethod
+
+#### staticmethod
+
+其实他们在分析 [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/dunc_cn.md) 对象时就已经出现了, 但是他们和 **classobject** 文件中的关联度较高, 我会在后续看 [class](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/class/class_cn.md) 时分析这两个家伙

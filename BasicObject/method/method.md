@@ -98,3 +98,21 @@ for more detail please refer to [c-api Common Object Structures](https://docs.py
 | METH_CLASS | 0x0010 | the type object will be passed as first parameter, what @classmethod do |
 | METH_STATIC | 0x0020 | null will passed as first parameter, what @staticmethod do |
 | METH_COEXIST | 0x0040 | replace existing defination instead of skip |
+
+##### free_list
+
+    static PyCFunctionObject *free_list = NULL;
+    static int numfree = 0;
+    #ifndef PyCFunction_MAXFREELIST
+    #define PyCFunction_MAXFREELIST 256
+    #endif
+
+cpython use a buffer pool with szie 256 to reuse the deallocated **PyCFunctionObject** object, free_list is a single linked list, all elements are chained by the **m_self** field
+
+the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md#free_list)
+
+#### classmethod
+
+#### staticmethod
+
+they're more related in **classobject**, I will talk about them later in [class object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/class/class.md)
