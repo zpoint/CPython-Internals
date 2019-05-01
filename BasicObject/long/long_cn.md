@@ -102,7 +102,7 @@
 
 注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序是按照"最重要的在最左边" 的原则存储的(大端存储)
 
-而 **digit** 和 **digit** 之间则是按照 最重要的再最右边的 原则存储的(小端存储
+而 **digit** 和 **digit** 之间则是按照 最重要的在最右边的 原则存储的(小端存储)
 
 我们来看一看整数值 -262143 的存储方式
 
@@ -153,7 +153,7 @@
 
 ![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
-回到步骤四, 知道两边都没有剩余的 **digit** 可以相加为止, 把最后的 carray 存储到 temp 最后一格
+回到步骤四, 直到两边都没有剩余的 **digit** 可以相加为止, 把最后的 carray 存储到 temp 最后一格
 
 ![step_final](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_final.png)
 
@@ -166,7 +166,7 @@ temp 这个变量此时按照 **PyLongObject** 的方式存储了前面两个数
 
 ##### small ints
 
-cpython 同时也使用了一个全局变量叫做 small_ints 来单例化一部分常见范围的整数, 这么做可以减少频繁的向操作系统申请和释放的次数, 并且节约空间
+cpython 同时也使用了一个全局变量叫做 small_ints 来单例化一部分常见范围的整数, 这么做可以减少频繁的向操作系统申请和释放的次数, 并提高性能
 
 
 	#define NSMALLPOSINTS           257

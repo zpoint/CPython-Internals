@@ -193,7 +193,7 @@
 
 ##### func_qualname
 
-这个字段在内嵌函数表示名称的时候挺管用的, 这个字段还包括了从顶往下的内嵌路径, 你可以通过这个字段了解更多函数定义相关的信息, 可以读下 [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
+这个字段在内嵌函数表示名称的时候挺管用的, 这个字段还包括了从顶往下的内嵌路径, 你可以通过这个字段了解更多函数定义相关的信息, 可以读下 [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/)
 
 	def f():
     	def g():
