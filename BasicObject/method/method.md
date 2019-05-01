@@ -7,6 +7,7 @@
 * [example](#example)
 	* [print](#print)
 * [fields in PyMethodDef](#fields-in-PyMethodDef)
+* [free_list](#free_list)
 * [classmethod](#classmethod)
 * [staticmethod](#staticmethod)
 

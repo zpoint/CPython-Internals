@@ -86,6 +86,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
             return index * 2 if index < 3 else index * 3
 
 	a = iter(A())
+    type(a) # iterator
 
 ![iter0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter0.png)
 
@@ -206,6 +207,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
             return self.val
 
     r = iter(A(), 2)
+    type(r) # callable_iterator
 
 ![citer0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer0.png)
 
