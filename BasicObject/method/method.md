@@ -6,11 +6,15 @@
 * [memory layout](#memory-layout)
 * [example](#example)
 	* [print](#print)
+* [fields in PyMethodDef](#fields-in-PyMethodDef)
+* [classmethod](#classmethod)
+* [staticmethod](#staticmethod)
 
 ### related file
 * cpython/Objects/methodobject.c
 * cpython/Include/methodobject.h
 * cpython/Python/bltinmodule.c
+* cpython/Objects/call.c
 
 #### memory layout
 
@@ -27,7 +31,7 @@ There's a type named **builtin_function_or_method** in python, as the type name 
 
 ##### print
 
-let's look at some code snippet first
+let's read code snippet first
 
     #define PyCFunction_Check(op) (Py_TYPE(op) == &PyCFunction_Type)
 
@@ -45,6 +49,7 @@ The **PyCFunction** is a type in c, any c function with signature(accept two PyO
     // a c function named builtin_print
     static PyObject *
     builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames);
+
     // name "print" is defined inside a c array named builtin_methods, and defined s type PyMethodDef
     static PyMethodDef builtin_methods[] = {
     ...
@@ -54,7 +59,7 @@ The **PyCFunction** is a type in c, any c function with signature(accept two PyO
 
 ![print](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print.png)
 
-a **PyMethodDef** should be attached to a **module** object, and a **self** arugment, and then becomes **PyCFunctionObject**
+a **PyMethodDef** should be attached to a **module** object, and a **self** arugment, and then a **PyCFunctionObject** will be generated
 
 what user really interactive with is **PyCFunctionObject**
 
@@ -66,5 +71,30 @@ the type in **m_self** field is **module**, and type in **m_module** field is **
 
 ![print3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print3.png)
 
+#### fields in PyMethodDef
 
+##### ml_name
 
+as you can see in the above picture, field **ml_name** is the name of the builtin method, it's a c style null iterminated string "print"
+
+##### ml_meth
+
+the real c function pointer that does the job
+
+##### ml_flags
+
+bit flag indicate how the c function's behaviour in the python level
+
+the function in **call.c** begin with **_PyMethodDef_** will delegate the work to the **PyCFunction**, but with different calling behaviour according to different **ml_flags**
+
+for more detail please refer to [c-api Common Object Structures](https://docs.python.org/3/c-api/structures.html)
+
+| flag name | flag value | meaning |
+| - | :-: | -: |
+| METH_VARARGS | 0x0001| methods type PyCFunction, expects two PyObject* values |
+| METH_KEYWORDS | 0x0002 | methods type PyCFunctionWithKeywords, expects three parameters: self, args, and a dictionary of all the keyword arguments |
+| METH_NOARGS | 0x0004 | methods without parameters, need to be of type PyCFunction |
+| METH_O | 0x0008 | methods with a single object argument, have the type PyCFunction |
+| METH_CLASS | 0x0010 | the type object will be passed as first parameter, what @classmethod do |
+| METH_STATIC | 0x0020 | null will passed as first parameter, what @staticmethod do |
+| METH_COEXIST | 0x0040 | replace existing defination instead of skip |
