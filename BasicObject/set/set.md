@@ -29,7 +29,7 @@
 
 the following picture shows value in each field in an empty set
 
-![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
+![make new set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
 * ##### **add**
     * call stack
@@ -43,19 +43,19 @@ initialize a new empty set, whenever an empty set created, the **setentry** fiel
 
       s = set()
 
-![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+![set_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_empty.png)
 
 the value in **mask** field is the size of malloced entries - 1, currently it's 7
 
     s.add(0) # hash(0) & mask == 0
 
-![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+![set_add_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_0.png)
 
 add a value 5
 
     s.add(5) # hash(5) & mask == 0
 
-![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+![set_add_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_5.png)
 
 * ###### hash collision
 
@@ -87,13 +87,13 @@ the 0th position has been taken, so the **LINEAR_PROBES** take the next empty po
 
     s.add(16) # hash(16) & mask == 0
 
-![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+![set_add_16](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_16.png)
 
 the 0th position has been taken, the first time **LINEAR_PROBES** find the 1th position, which also has been taken, the second time **LINEAR_PROBES** find the 2th position which is empty.
 
     s.add(32) # hash(32) & mask == 0
 
-![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
+![set_add_32](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_32.png)
 
 * ##### **resize**
 
@@ -101,7 +101,7 @@ let's insert one more item with value 64, still repeat the **LINEAR_PROBES** pro
 
     s.add(64) # hash(64) & mask == 0
 
-![set_add_64](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_64.png)
+![set_add_64](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64.png)
 
 now, value in field **fill** is 5, **mask** is 7, it will trigger the resize operation
 the trigger condition is **fill*5 !< mask * 3**
@@ -114,7 +114,7 @@ the trigger condition is **fill*5 !< mask * 3**
 after resize，value 32 and 64 still repeat the **LINEAR_PROBES** progress, inserted at index 1 and index 2, because the value in **mask** field becoms 31, hash(16) is less than mask, so 16 can be inserted to index 15
 And field **table** no longer points to **smalltable**, instead, it points to a new malloced block
 
-![set_add_64_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
+![set_add_64_resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
 
 * ##### **why LINEAR_PROBES**
     * improve cache locality
@@ -130,4 +130,4 @@ call clear to restore the initial state
 
       s.clear()
 
-![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)
+![set_clear](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_clear.png)

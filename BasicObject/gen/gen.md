@@ -56,7 +56,7 @@ which can be expanded to
 
 we can draw the layout according to the code now
 
-![layout_gen](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/layout_gen.png)
+![layout_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_gen.png)
 
 #### example generator
 
@@ -114,7 +114,7 @@ the **gi_running** is 0, indicating the generator is not executing right now
 
 **gi_name** and **gi_qualname** all points to same **unicode** object, all fields in **gi_exc_state** have value 0x00
 
-![example_gen_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_0.png)
+![example_gen_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_0.png)
 
     >>> r = f.send(None)
     result None
@@ -127,7 +127,7 @@ looing into the object f, nothing changed
 
 but the **f_lasti** in **gi_frame** now in the position 52(the first place keyword **yield** appears)
 
-![example_gen_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_1.png)
+![example_gen_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_1.png)
 
 step one more time, due to the while loop, the **f_lasti** still points to same position
 
@@ -178,7 +178,7 @@ the **f_lasti** is in the position of the first **except** statement, the **exc_
     >>> repr(r)
     "'ZeroDivisionError'"
 
-![example_gen_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_2.png)
+![example_gen_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_2.png)
 
 the **f_lasti** is in the position of the second **except** statement, **exc_type**, **exc_value**, and **exc_traceback** now relate to ModuleNotFoundError
 
@@ -189,11 +189,11 @@ the **f_lasti** is in the position of the second **except** statement, **exc_typ
     >>> repr(r)
     "'ModuleNotFoundError'"
 
-![example_gen_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_3.png)
+![example_gen_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_3.png)
 
 the **f_lasti** is in the position of the first **finally** statement, the ModuleNotFoundError is handled properly, at the top of the exception stack is the **ZeroDivisionError**
 
-there will be another article talking about the [exception handling](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/exception/exception_cn.md) later, the refer link is reserved
+there will be another article talking about the [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception_cn.md) later, the refer link is reserved
 
     >>> r = f.send("handsome8")
     result 'handsome8'
@@ -202,7 +202,7 @@ there will be another article talking about the [exception handling](https://git
     >>> repr(r)
     "'ModuleNotFoundError finally'"
 
-![example_gen_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_4.png)
+![example_gen_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_4.png)
 
 now, the **StopIteration** is raised
 
@@ -228,5 +228,5 @@ and states in **gi_exc_state** is restored
       File "<stdin>", line 1, in <module>
     AttributeError: 'NoneType' object has no attribute 'f_lasti'
 
-![example_gen_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
+![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 

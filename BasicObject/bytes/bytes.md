@@ -22,7 +22,7 @@
 
 ![memory layout](https://img-blog.csdnimg.cn/20190318160629447.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-The memory layout of **PyBytesObject** looks like [memory layout of tuple object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout) and [memory layout of int object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md#memory-layout), but simpler than any of them.
+The memory layout of **PyBytesObject** looks like [memory layout of tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout) and [memory layout of int object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md#memory-layout), but simpler than any of them.
 
 #### example
 
@@ -32,7 +32,7 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 	s = b""
 
-![empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/empty.png)
+![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
 ##### ascii characters
 
@@ -40,13 +40,13 @@ let's initialize a byte object with ascii characters
 
 	s = b"abcdefg123"
 
-![ascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/ascii.png)
+![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
 ##### nonascii characters
 
 	s = "我是帅哥".encode("utf8")
 
-![nonascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/nonascii.png)
+![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
 #### summary
 

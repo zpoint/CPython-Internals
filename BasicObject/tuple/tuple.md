@@ -25,21 +25,21 @@ Let's see
 
 	t = tuple()
 
-![tuple_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_empty.png)
+![tuple_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_empty.png)
 
 	t = ("aa", )
 
-![tuple_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_1.png)
+![tuple_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_1.png)
 
 	t = ("aa", "bb", "cc", "dd")
 
 **ob_size** represent the size of **PyTupleObject** object, because tuple object is immutable, the **ob_item** is the start address of an array of pointer to **PyObject**, and the size of this array is **ob_size**, there's no need for resize operation.
 
-![tuple_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
+![tuple_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
 
 #### free list
 
-The free_list mechanism used here is more interesting than [free_list in list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md#delete-and-free-list)
+The free_list mechanism used here is more interesting than [free_list in list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#delete-and-free-list)
 
 	#define PyTuple_MAXSAVESIZE     20
     #define PyTuple_MAXFREELIST  2000
@@ -61,7 +61,7 @@ we assume that python intepreter don't create/deallocate any tuple object intern
     >>> id(t2) # same as t
     4458758208
 
-![delete_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_0.png)
+![delete_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_0.png)
 
 	>>> t = ("aa", )
     >>> id(t)
@@ -74,13 +74,13 @@ we assume that python intepreter don't create/deallocate any tuple object intern
     >>> del t
     >>> del t2
 
-![delete_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_2.png)
+![delete_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_2.png)
 
 num_free[i] means how many objects left in free_list[i], when you create a new tuple with size i, cpython will use the top object at free_list[i]
 
 	>>> t = ("aa", )
 
-![delete_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_3.png)
+![delete_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_3.png)
 
 	>>> t2 = ("aa", "bb")
     >>> t3 = ("cc", "dd")
@@ -91,4 +91,4 @@ num_free[i] means how many objects left in free_list[i], when you create a new t
     >>> del t4
     >>> del t5
 
-![delete_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_4.png)
+![delete_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_4.png)

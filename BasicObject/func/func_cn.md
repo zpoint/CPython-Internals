@@ -26,9 +26,9 @@
 
 在 python 中, 一切皆对象, 包括函数对象, 一个函数对象在 c 语言中被定义为 **PyFunctionObject**
 
-类型 **function** 表示用户自定义函数/对象, 对于那种内建函数/对象, 他们是不同的类型, 请参考 [method](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/method_cn.md)
+类型 **function** 表示用户自定义函数/对象, 对于那种内建函数/对象, 他们是不同的类型, 请参考 [method](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method_cn.md)
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
 
 #### 字段
 

@@ -26,7 +26,7 @@ There's a type named **builtin_function_or_method** in python, as the type name 
     >>> type(print)
     <class 'builtin_function_or_method'>
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/layout.png)
 
 #### example
 
@@ -58,19 +58,19 @@ The **PyCFunction** is a type in c, any c function with signature(accept two PyO
     ...
     }
 
-![print](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print.png)
+![print](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print.png)
 
 a **PyMethodDef** should be attached to a **module** object, and a **self** arugment, and then a **PyCFunctionObject** will be generated
 
 what user really interactive with is **PyCFunctionObject**
 
-![print2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print2.png)
+![print2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print2.png)
 
 let's check for more detail of each field
 
 the type in **m_self** field is **module**, and type in **m_module** field is **str**
 
-![print3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print3.png)
+![print3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print3.png)
 
 #### fields in PyMethodDef
 
@@ -110,10 +110,10 @@ for more detail please refer to [c-api Common Object Structures](https://docs.py
 
 cpython use a buffer pool with szie 256 to reuse the deallocated **PyCFunctionObject** object, free_list is a single linked list, all elements are chained by the **m_self** field
 
-the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md#free_list)
+the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md#free_list)
 
 #### classmethod
 
 #### staticmethod
 
-they're more related in **classobject**, I will talk about them later in [class object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/class/class.md)
+they're more related in **classobject**, I will talk about them later in [class object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)

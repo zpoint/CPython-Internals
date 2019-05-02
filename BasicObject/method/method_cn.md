@@ -26,7 +26,7 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
     >>> type(print)
     <class 'builtin_function_or_method'>
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/layout.png)
 
 #### 示例
 
@@ -58,19 +58,19 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
     ...
     }
 
-![print](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print.png)
+![print](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print.png)
 
 一个 **PyMethodDef** 会与一个 **module** 对象, 和一个 **self** 对象相关联, 关联之后就可以用一个 **PyCFunctionObject** 对象来表示
 
 用户实际上在交互界面可以看到的对象在 c 层级被定义为类型 **PyCFunctionObject**
 
-![print2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print2.png)
+![print2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print2.png)
 
 我们来看看每个字段的意义
 
 **m_self** 字段中的类型是 **module**, 而 **m_module** 字段中的类型是 **str**
 
-![print3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/print3.png)
+![print3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print3.png)
 
 #### PyMethodDef 中的字段
 
@@ -110,10 +110,10 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 cpython 使用了一个长度为 256 的缓冲池来存储释放掉的对象以供再度循环使用, free_list 是一个单链表, 利用 PyCFunctionObject 上面的 **m_self** 字段一直往下串在一起
 
-相似的技术在 [float-free_list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float_cn.md#free_list) 对象上也使用过, float 使用的是 **ob_type** 字段串联起来, 这里就不做图说明了, 有兴趣的同学可以直接点解链接看里面的图片
+相似的技术在 [float-free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float_cn.md#free_list) 对象上也使用过, float 使用的是 **ob_type** 字段串联起来, 这里就不做图说明了, 有兴趣的同学可以直接点解链接看里面的图片
 
 #### classmethod
 
 #### staticmethod
 
-其实他们在分析 [func](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/dunc_cn.md) 对象时就已经出现了, 但是他们和 **classobject** 文件中的关联度较高, 我会在后续看 [class](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/class/class_cn.md) 时分析这两个家伙
+其实他们在分析 [func](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/dunc_cn.md) 对象时就已经出现了, 但是他们和 **classobject** 文件中的关联度较高, 我会在后续看 [class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class_cn.md) 时分析这两个家伙

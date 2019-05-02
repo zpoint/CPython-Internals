@@ -39,7 +39,7 @@ The **ob_alloc** field represent the real allocated size in bytes
     4353755712
 
 
-![empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/empty.png)
+![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/empty.png)
 
 ##### append
 
@@ -47,7 +47,7 @@ after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_sta
 
 	a.append(ord('a'))
 
-![append_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/append_a.png)
+![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/append_a.png)
 
 ##### resize
 
@@ -67,31 +67,31 @@ In appending, ob_alloc is 2, and request size is 2, 2 <= 2 * 1.125, so the new a
 
 	a.append(ord('b'))
 
-![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/resize.png)
+![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/resize.png)
 
 ##### slice
 
 	b = bytearray(b"abcdefghijk")
 
-![slice](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/slice.png)
+![slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/slice.png)
 
 After the slice operation, **ob_start** points to the real beginning of the content, and **ob_bytes** still points to the begin address of the malloced block
 
 	b[0:5] = [1,2]
 
-![after_slice](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/after_slice.png)
+![after_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_slice.png)
 
 as long as the slice operation is going to shrink the bytearray, and the **new_size < alloc / 2** is False, the resize operation won't shrink the real mallcoed size
 
 	b[2:6] = [3, 4]
 
-![after2_slice](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/after2_slice.png)
+![after2_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after2_slice.png)
 
 now, in the shrink operation, the **new_size < alloc / 2** is True, the resize operation will be triggered
 
 	b[0:3] = [7,8]
 
-![after3_slice](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/after3_slice.png)
+![after3_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after3_slice.png)
 
 The grow pattern in slice operation is same as the append operation
 
@@ -99,7 +99,7 @@ request size is 6, 6 < 6 * 1.125, so new allocated size is 6 + (6 >> 3) + 3 ==> 
 
 	b[0:3] = [1,2,3,4]
 
-![after_grow_slice](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/after_grow_slice.png)
+![after_grow_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_grow_slice.png)
 
 ##### ob_exports
 
@@ -107,7 +107,7 @@ what's field **ob_exports** mean ? If you need detail, you can refer to [less-co
 
 	buf = bytearray(b"abcdefg")
 
-![exports](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports.png)
+![exports](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports.png)
 
 the **bytearray** implements the **buffer protocol**, and **memoryview** is able to access the internal data block via the **buffer protocol**, **mybuf** and **buf** are all sharing the same internal block
 
@@ -116,20 +116,20 @@ field **ob_exports** becomes 1, which indicate how many objects currently sharin
 	mybuf = memoryview(buf)
     mybuf[1] = 3
 
-![exports_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
+![exports_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
 
 so does **mybuf2** object(**ob_exports** doesn't change because you need to call the c function defined by **buf** object via the **buffer protocol**, **mybuf2** barely calls the slice function of **mybuf**)
 
 	mybuf2 = mybuf[:4]
     mybuf2[0] = 1
 
-![exports_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_2.png)
+![exports_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_2.png)
 
 **ob_exports** becomes 2
 
 	mybuf3 = memoryview(buf)
 
-![exports_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_3.png)
+![exports_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_3.png)
 
 **ob_exports** becomes 0
 
@@ -137,4 +137,4 @@ so does **mybuf2** object(**ob_exports** doesn't change because you need to call
     del mybuf2
     del mybuf3
 
-![exports_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/exports_4.png)
+![exports_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_4.png)

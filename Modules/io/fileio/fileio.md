@@ -15,7 +15,7 @@
 
 #### memory layout
 
-![memory layout](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/layout.png)
+![memory layout](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/layout.png)
 
 #### overview
 
@@ -34,9 +34,9 @@ The **fd** field represent the low level file descriptor, the **created** flag i
 
 **dict** field stores the user specific **filename**
 
-For those who need the detail of python dict object, please refer to my previous article [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
+For those who need the detail of python dict object, please refer to my previous article [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
 
-![1_txt_a+](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
+![1_txt_a+](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
 
 ##### close
 
@@ -44,7 +44,7 @@ After call the close method, the **fd** becomes -1, and one more key **__IOBase_
 
 	>>> f.close()
 
-![1_txt_close](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
+![1_txt_close](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
 
 ##### rb
 
@@ -54,7 +54,7 @@ the **fd** and **dict** object are all reused, and **writable**, **appending**, 
 
 	>>> f = io.FileIO("../../Desktop/2.txt", "rb")
 
-![2_txt_rb](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
+![2_txt_rb](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
 
 ##### fd
 
@@ -66,5 +66,5 @@ let's pass a integer to parameter name
     >>> f2 = io.FileIO(3, "r")
 	"<_io.FileIO name=3 mode='rb' closefd=True>"
 
-![fd_3](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fd_3.png)
+![fd_3](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fd_3.png)
 

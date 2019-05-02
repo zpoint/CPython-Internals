@@ -155,7 +155,7 @@ to
 
 now, the overview is clear
 
-![dictkeys_basic](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
+![dictkeys_basic](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
 
 #### hash collisions and delete
 
@@ -190,26 +190,26 @@ I've altered the source code to print some information
 	'{1: 1}'
 
 
-![hh_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_1.png)
+![hh_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_1.png)
 
     d[4] = 4
 
-![hh_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_2.png)
+![hh_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_2.png)
 
     d[7] = 111
 
-![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
+![hh_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_3.png)
 
 	# delete, mark as DKIX_DUMMY
     # notice, dk_usable and dk_nentries don't change
     del d[4]
 
-![hh_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_4.png)
+![hh_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_4.png)
 
 	# notice, dk_usable and dk_nentries now change
 	d[0] = 0
 
-![hh_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_5.png)
+![hh_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_5.png)
 
 	d[16] = 16
     # hash (16) & mask == 0
@@ -223,7 +223,7 @@ I've altered the source code to print some information
     # i = (i*5 + perturb + 1) & mask ===> i = 6
     # position 6 is empty, so we take it
 
-![hh_6](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_6.png)
+![hh_6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_6.png)
 
 #### resize
 
@@ -232,7 +232,7 @@ I've altered the source code to print some information
     d[5] = 5
     # step1: resize, when resizing, the deleted object which mark as DKIX_DUMMY in entries won't be copyed
 
-![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/resize.png)
+![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/resize.png)
 
 	# step2: insert key: 5, value: 5
 
@@ -244,6 +244,6 @@ Notice, the indices array is variable size. when size of your hash table is <= 1
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
-cpython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
+cpython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
 
 now, you understand how python dictionary object work internally.

@@ -15,7 +15,7 @@
 
 #### 内存构造
 
-![memory layout](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/layout.png)
+![memory layout](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/layout.png)
 
 #### 总览
 
@@ -34,9 +34,9 @@
 
 **dict** 对象存储了一些相关信息, 这里保存了用户传入的 **filename** 的内容
 
-对 python **dict** 对象有兴趣的读者, 请参考我以前的文章 [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict_cn.md)
+对 python **dict** 对象有兴趣的读者, 请参考我以前的文章 [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_cn.md)
 
-![1_txt_a+](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
+![1_txt_a+](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
 
 ##### close
 
@@ -44,7 +44,7 @@
 
 	>>> f.close()
 
-![1_txt_close](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
+![1_txt_close](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
 
 ##### rb
 
@@ -54,7 +54,7 @@
 
 	>>> f = io.FileIO("../../Desktop/2.txt", "rb")
 
-![2_txt_rb](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
+![2_txt_rb](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
 
 ##### fd
 
@@ -66,5 +66,5 @@
     >>> f2 = io.FileIO(3, "r")
 	"<_io.FileIO name=3 mode='rb' closefd=True>"
 
-![fd_3](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fd_3.png)
+![fd_3](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fd_3.png)
 

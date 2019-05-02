@@ -31,7 +31,7 @@
 
       l = list()
 
-![list_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_empty.png)
+![list_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_empty.png)
 
 * ##### **append**
     * call stack
@@ -77,17 +77,17 @@
 
       l.append("a") # 调用 list_resize, 此时 newsize == 1, 1 + (1 >> 3) + 3 = 4
 
-![append_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_a.png)
+![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_a.png)
 
     l.append("b")
     l.append("c")
     l.append("d")
 
-![append_d](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_d.png)
+![append_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_d.png)
 
     l.append("e") # 调用 list_resize,此时  newsize == 5, 5 + (5 >> 3) + 3 = 8
 
-![append_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_e.png)
+![append_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_e.png)
 
 * ##### **pop**
     * call stack
@@ -99,13 +99,13 @@
 				# 此时, newsize == 4, allocated == 8, allocated >= (newsize >> 1) 是不成立的, 所以 resize 直接返回，不需要裁剪大小
 
 
-![pop_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_e.png)
+![pop_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_e.png)
 
     l.pop()
     # d
     # 此时, newsize == 3, allocated == 8, allocated >= (newsize >> 1) 是成立的, new_size = 3 + (3 >> 3) + 3 = 6
 
-![pop_d](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_d.png)
+![pop_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_d.png)
 
 * ##### **clear**
     * call stack
@@ -115,7 +115,7 @@
 
     	l.clear()
 
-![clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/clear.png)
+![clear](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/clear.png)
 
 * ##### **delete 和 free list**
     * call stack
@@ -149,11 +149,11 @@
 				print(id(a)) # 这个id就是我们上面删除的 l 的 id
 				4481833160
 
-![print_id](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/print_id.png)
+![print_id](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/print_id.png)
 
-![del_l](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/del_l.png)
+![del_l](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/del_l.png)
 
-![new_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/new_a.png)
+![new_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/new_a.png)
 
 * ##### **为什么用 free list**
     * 提高性能，malloc 这个系统调用是很耗时的(python自己也实现了一套内存管理)

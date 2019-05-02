@@ -17,7 +17,7 @@
 
 #### memory layout
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
 For those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
@@ -78,19 +78,19 @@ Before we look into how unicode object create, resize, let's look into the c fun
 
 PyUnicode_UTF8
 
-![pyunicode_utf8](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
+![pyunicode_utf8](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
 
 _PyUnicode_UTF8
 
-![_PyUnicode_UTF8.png](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8.png)
+![_PyUnicode_UTF8.png](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8.png)
 
 _PyUnicode_AsUTF8String
 
-![_PyUnicode_AsUTF8String](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_AsUTF8String.png)
+![_PyUnicode_AsUTF8String](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_AsUTF8String.png)
 
 _PyUnicode_UTF8_LENGTH
 
-![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
+![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
 
 
 let's initialize an empty string
@@ -100,7 +100,7 @@ let's initialize an empty string
 	s = ""
 	# notice, because s is compact and ascii, it uses the address of utf8_length as the beginning of real address
 
-![empty_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/empty_s.png)
+![empty_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/empty_s.png)
 
 	s = "s"
     repr(s) # I've altered the source code as usual
@@ -113,12 +113,12 @@ let's initialize an empty string
 
 Have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's', yes, this is the begin address of the c style null terminate string
 
-![s_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/s_s.png)
+![s_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/s_s.png)
 
 
 	s = "aaa"
 
-![aaa](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/aaa.png)
+![aaa](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/aaa.png)
 
 #### interned
 
@@ -171,7 +171,7 @@ the **utf8_length** field still stores the null terminated c style string, excep
     id(s2)
     4519247152
 
-![1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
+![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 
 let's define an unicode object with the a character **\u0088** inside
 
@@ -232,7 +232,7 @@ after recompile with the above code, we are able to track latin1 fields in repr(
     PyUnicode_1BYTE_KIND,
 	PyUnicodeObject->latin1: 0x88 0x11 0xf1
 
-![no_ascii_1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/no_ascii_1_byte_kind.png)
+![no_ascii_1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/no_ascii_1_byte_kind.png)
 
 * PyUnicode_2BYTE_KIND
 	* 16 bits/character
@@ -247,7 +247,7 @@ we can use same code to trace bytes stored in **data** field, now the field name
 
 now, the **kind** field is **PyUnicode_2BYTE_KIND** and it takes 2 bytes to store each character
 
-![2_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/2_byte_kind.png)
+![2_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/2_byte_kind.png)
 
 * PyUnicode_4BYTE_KIND
 	* 32 bits/character
@@ -261,7 +261,7 @@ Now, kind field become **PyUnicode_4BYTE_KIND**
     kind: PyUnicode_4BYTE_KIND, PyUnicodeObject->ucs4: 00xff 0x10ffff 0x100111 0x10fff1
 
 
-![4_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
+![4_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
 ##### unicode memory usage summary
 
@@ -272,7 +272,7 @@ we now konw that there are three kinds of storage mechanism, how many bytes cpyt
     # it would be impossible to find s[n] in O(1) time
     s[999999]
 
-![kind_overview](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/kind_overview.png)
+![kind_overview](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/kind_overview.png)
 
 #### compact
 

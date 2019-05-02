@@ -31,7 +31,7 @@
 
       l = list()
 
-![list_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_empty.png)
+![list_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_empty.png)
 
 * ##### **append**
     * call stack
@@ -77,17 +77,17 @@
 
       l.append("a") # list_resize, newsize is 1, 1 + (1 >> 3) + 3 = 4
 
-![append_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_a.png)
+![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_a.png)
 
     l.append("b")
     l.append("c")
     l.append("d")
 
-![append_d](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_d.png)
+![append_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_d.png)
 
     l.append("e") # list_resize, newsize is 5, 5 + (5 >> 3) + 3 = 8
 
-![append_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/append_e.png)
+![append_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_e.png)
 
 * ##### **pop**
     * call stack
@@ -98,13 +98,13 @@
 				# e
 				# now, newsize == 4, allocated == 8, allocated >= (newsize >> 1) is False, so resize do nothing
 
-![pop_e](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_e.png)
+![pop_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_e.png)
 
     l.pop()
     # d
     # now, newsize == 3, allocated == 8, allocated >= (newsize >> 1) is True, new_size = 3 + (3 >> 3) + 3 = 6
 
-![pop_d](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/pop_d.png)
+![pop_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_d.png)
 
 * ##### **clear**
     * call stack
@@ -114,7 +114,7 @@
 
     	l.clear()
 
-![clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/clear.png)
+![clear](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/clear.png)
 
 * ##### **delete and free list**
     * call stack
@@ -150,11 +150,11 @@
 				4481833160
 
 
-![print_id](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/print_id.png)
+![print_id](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/print_id.png)
 
-![del_l](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/del_l.png)
+![del_l](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/del_l.png)
 
-![new_a](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/new_a.png)
+![new_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/new_a.png)
 
 * ##### **why free list**
     * improve performance

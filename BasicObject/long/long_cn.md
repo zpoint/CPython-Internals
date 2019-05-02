@@ -26,7 +26,7 @@
 
 在 python3 之后, 就只有一个叫做 **int** 的类型了, python2.x 的 **long** 类型在 python3.x 里面就叫做 **int** 类型
 
-**int** 在内存空间上的构造和 [tuple 元素在内存空间的构造](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0) 非常相似
+**int** 在内存空间上的构造和 [tuple 元素在内存空间的构造](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0) 非常相似
 
 很明显, 只有 **ob_digit** 这一个位置可以用来存储真正的整数, 但是 cpython 如何按照字节来存储任意长度的整型的呢?
 
@@ -38,7 +38,7 @@
 
 	i = 0
 
-![0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/0.png)
+![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
 ##### 整数 1
 
@@ -69,7 +69,7 @@
 
 	i = 1
 
-![1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/1.png)
+![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
 ##### 整数 -1
 
@@ -77,26 +77,26 @@
 
 	i = -1
 
-![-1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/-1.png)
+![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
 ##### 整数 1023
 
 对于 PyLongObject 来说, 最基本的存储单位是 **digit**, 在我这里是 2个 byte 的大小(16个bit). 1023 只需要占用最右边的10个bit 就够了, 所以 **ob_size** 里的值仍然是 1
 
 
-![1023](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/1023.png)
+![1023](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1023.png)
 
 ##### 整数 32767
 
 整数 32767 的存储方式依旧和上面的存储无大致上的差别
 
-![32767](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/32767.png)
+![32767](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32767.png)
 
 ##### 整数 32768
 
 我们发现, cpython 并不会占用掉一个 **digit** 的所有的 bit 去存储一个数, 第一个 bit 会被保留下来, 我们后面会看到这个保留下来的 bit 有什么作用
 
-![32768](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/32768.png)
+![32768](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32768.png)
 
 ##### 小端大端
 
@@ -110,7 +110,7 @@
 
 整数值 262143(2^18 = 262144) 的二进制表示应该是 00000011 11111111 11111111
 
-![262143](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/262143.png)
+![262143](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/262143.png)
 
 ##### 第一个保留位
 
@@ -121,47 +121,47 @@
 	i = 1073741824 - 1 # 1 << 30 == 1073741824
     j = 1
 
-![before_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/before_add.png)
+![before_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/before_add.png)
 
 	k = i + j
 
 首先, 相加之前会初始化一个中间变量我这里叫做 temp, 他的类型也是 **PyLongObject**, 并且大小为 max(size(i), size(j)) + 1
 
-![temp_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/temp_add.png)
+![temp_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/temp_add.png)
 
 第一步, 把两个数 **ob_digit** 里的第一个坑位里的 **digit** 加起来, 并加到 **carray** 里
 
-![step_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_1.png)
+![step_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_1.png)
 
 第二步, 把 temp[0] 里的值设置为 (carry & PyLong_MASK)
 
-![step_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_2.png)
+![step_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_2.png)
 
 第三步, 右移 carray, 值保留下最左边的一位(这一位其实就是之前两个数相加的进位)
 
-![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
 第四步, 把两边下一个 **ob_digit** 的对应位置的值加起来, 并把结果与 **carray** 相加
 
-![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_4.png)
+![step_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_4.png)
 
 第五步, 把 temp[1] 里的值设置为 (carry & PyLong_MASK)
 
-![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_5.png)
+![step_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_5.png)
 
 第六步, 再次右移
 
-![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
 回到步骤四, 直到两边都没有剩余的 **digit** 可以相加为止, 把最后的 carray 存储到 temp 最后一格
 
-![step_final](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_final.png)
+![step_final](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_final.png)
 
 temp 这个变量此时按照 **PyLongObject** 的方式存储了前面两个数的和, 现在细心地你应该发现了, 第一个保留位是为了用来相加或者相减的时候作进位/退位 用的, 并且当 **digit** 和 **digit** 之间按照小端的方式存储的时候, 你做加减法的时候只需要从左到右处理即可
 
 减法的操作和加法类似, 有兴趣的同学可以自己参考源代码
 
-![k](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/k.png)
+![k](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/k.png)
 
 
 ##### small ints
@@ -186,4 +186,4 @@ cpython 同时也使用了一个全局变量叫做 small_ints 来单例化一部
     g = 1313131313131313
     print(id(f), id(g)) # 4484604176 4484604016
 
-![small_ints](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/small_ints.png)
+![small_ints](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/small_ints.png)

@@ -29,7 +29,7 @@
 
 一个空的字符串各个字段的值如下所示
 
-![make new set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/make_new_set.png)
+![make new set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
 * ##### **add**
     * 调用栈
@@ -43,19 +43,19 @@
 
       s = set()
 
-![set_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_empty.png)
+![set_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_empty.png)
 
 **mask** 字段里面的值是真正分配的 setentry 所拥有的内存空间的大小 - 1, 当前他的值是 7
 
     s.add(0) # hash(0) & mask == 0
 
-![set_add_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_0.png)
+![set_add_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_0.png)
 
 增加一个值 5
 
     s.add(5) # hash(5) & mask == 0
 
-![set_add_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_5.png)
+![set_add_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_5.png)
 
 * ###### 哈希碰撞
 
@@ -89,13 +89,13 @@
 
     s.add(16) # hash(16) & mask == 0
 
-![set_add_16](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_16.png)
+![set_add_16](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_16.png)
 
     s.add(32) # hash(32) & mask == 0
 
 第 0 个位置已经被占用了，在 **LINEAR_PROBES** 过程中，第一次找到了第一个位置，发现也被占用了，再往后找一个位置，发现第2个位置是空的，所以直接占用他
 
-![set_add_32](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_32.png)
+![set_add_32](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_32.png)
 
 * ##### **resize**
 
@@ -103,7 +103,7 @@
 
     s.add(64) # hash(64) & mask == 0
 
-![set_add_64](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_64.png)
+![set_add_64](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64.png)
 
 此时, fill 值为 5, mask 值为 7, 触发 resize 的判定条件是 fill*5 !< mask * 3
 
@@ -116,7 +116,7 @@
 这是 resize 之后的图表，此时 32 和 64 依然按照 **LINEAR_PROBES** 过程插入 1 和 2 的位置，由于 mask 变成了 31，hash(16) 能对应到下标为 15 的位置上
 并且 table 指向了新申请的空间
 
-![set_add_64_resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
+![set_add_64_resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
 
 * ##### **为什么采用 LINEAR_PROBES**
     * 更好的利用 cache locality
@@ -132,4 +132,4 @@
 
       s.clear()
 
-![set_clear](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_clear.png)
+![set_clear](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_clear.png)

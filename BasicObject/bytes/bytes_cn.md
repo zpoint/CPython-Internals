@@ -22,7 +22,7 @@
 
 ![memory layout](https://img-blog.csdnimg.cn/20190318160629447.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-**PyBytesObject** 的内存构造和 [tuple的内存构造](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0)/[int的内存构造](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0) 非常相似, 但是实现起来比上面的其他元素要简单一些
+**PyBytesObject** 的内存构造和 [tuple的内存构造](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0)/[int的内存构造](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long_cn.md#%E5%86%85%E5%AD%98%E6%9E%84%E9%80%A0) 非常相似, 但是实现起来比上面的其他元素要简单一些
 
 #### 示例
 
@@ -32,7 +32,7 @@
 
 	s = b""
 
-![empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/empty.png)
+![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
 ##### ascii characters
 
@@ -40,13 +40,13 @@
 
 	s = b"abcdefg123"
 
-![ascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/ascii.png)
+![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
 ##### nonascii characters
 
 	s = "我是帅哥".encode("utf8")
 
-![nonascii](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/nonascii.png)
+![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
 #### 总结
 

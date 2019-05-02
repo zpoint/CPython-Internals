@@ -66,7 +66,7 @@ so the sequence iterator can iter through the target object by calling the objec
         return NULL;
     }
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/layout.png)
 
 #### example
 
@@ -88,7 +88,7 @@ let's iter through an iterator object
 	a = iter(A())
     type(a) # iterator
 
-![iter0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter0.png)
+![iter0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter0.png)
 
 ##### iter1
 
@@ -97,14 +97,14 @@ the **next(a)** calls object[0], and return the result
 	>>> next(a)
 	'index 0'
 
-![iter1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter1.png)
+![iter1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter1.png)
 
 ##### iter2
 
 	>>> next(a)
 	['index 1', 'good boy']
 
-![iter2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter2.png)
+![iter2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter2.png)
 
 ##### iter3
 
@@ -113,21 +113,21 @@ the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 	>>> next(a)
 	4
 
-![iter3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter3.png)
+![iter3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter3.png)
 
 ##### iter4
 
     >>> next(a)
     9
 
-![iter4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter4.png)
+![iter4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter4.png)
 
 ##### iter5
 
     >>> next(a)
     12
 
-![iter5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter5.png)
+![iter5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter5.png)
 
 ##### iter end
 
@@ -141,7 +141,7 @@ the content in **it_index** is still 5, but the content in **it_seq** becomes 0x
       File "<stdin>", line 1, in <module>
     StopIteration
 
-![iterend](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iterend.png)
+![iterend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iterend.png)
 
 notice, if you call next(a) again, the **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**, it lose the way to access the instance of **class A**, and can no longer call the _\_getitem_\_ function
 
@@ -155,7 +155,7 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
 
 #### memory layout citer
 
-![callable_layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/callable_layout.png)
+![callable_layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/callable_layout.png)
 
     static PyObject *
     calliter_iternext(calliterobject *it)
@@ -209,7 +209,7 @@ a callable_iterator calls whatever stores in **it_callable** each time you iter 
     r = iter(A(), 2)
     type(r) # callable_iterator
 
-![citer0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer0.png)
+![citer0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer0.png)
 
 ##### citer1
 
@@ -220,7 +220,7 @@ the next operation won't change any state of the callable_iterator object, the s
     >>> next(r)
     1
 
-![citer1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer1.png)
+![citer1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer1.png)
 
 ##### citer end
 
@@ -233,5 +233,5 @@ so the callable_iterator clears it's state and return NULL to the outer scope, w
       File "<stdin>", line 1, in <module>
     StopIteration
 
-![citerend](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citerend.png)
+![citerend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citerend.png)
 

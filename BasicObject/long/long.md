@@ -26,7 +26,7 @@
 
 After python3, there's only type named **int**, the **long** type in python2.x is **int** type in python3.x
 
-The structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), Obviously there's only one field to store the real **int** value, that's **ob_digit**. But how cpython represent the variable size **int** in byte level?
+The structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), Obviously there's only one field to store the real **int** value, that's **ob_digit**. But how cpython represent the variable size **int** in byte level?
 
 Let's see
 
@@ -36,7 +36,7 @@ Let's see
 
 	i = 0
 
-![0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/0.png)
+![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
 ##### ingeter 1
 
@@ -67,7 +67,7 @@ But when it's going to represent integer 1, **ob_size** becomes 1 and field in *
 
 	i = 1
 
-![1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/1.png)
+![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
 ##### ingeter -1
 
@@ -75,7 +75,7 @@ When i becomes -1, the only difference from the integer 1 is the value in **ob_s
 
 	i = -1
 
-![-1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/-1.png)
+![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
 ##### ingeter 1023
 
@@ -83,19 +83,19 @@ The basic unit is type **digit**, which provide 2 bytes(16bits) for storage. And
 so the value **ob_size** field is still 1.
 
 
-![1023](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/1023.png)
+![1023](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1023.png)
 
 ##### ingeter 32767
 
 The integer 32767 represent in the same way as usual
 
-![32767](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/32767.png)
+![32767](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32767.png)
 
 ##### ingeter 32768
 
 cpython don't use all the 16 bits in **digit** field, the first bit of every **digit** is reserved, we wiil see why later
 
-![32768](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/32768.png)
+![32768](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32768.png)
 
 ##### little endian and big endian
 
@@ -109,7 +109,7 @@ the minus sign is stored in the **ob_size** field
 
 The interger 262143(2^18 = 262144) in binary representation is 00000011 11111111 11111111
 
-![262143](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/262143.png)
+![262143](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/262143.png)
 
 ##### reserved bit
 
@@ -120,47 +120,47 @@ Let's try to add two integer value
 	i = 1073741824 - 1 # 1 << 30 == 1073741824
     j = 1
 
-![before_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/before_add.png)
+![before_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/before_add.png)
 
 	k = i + j
 
 first, initialize a temporary **PyLongObject** with size = max(size(i), size(j)) + 1
 
-![temp_add](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/temp_add.png)
+![temp_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/temp_add.png)
 
 step1, sum the firt **digit** in each **ob_digit** array to a variable named **carray**
 
-![step_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_1.png)
+![step_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_1.png)
 
 step2, set the value in temp[0] to (carry & PyLong_MASK)
 
-![step_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_2.png)
+![step_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_2.png)
 
 step3, right shift the carray up to the left most bit
 
-![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
 step4, add the second **digit** in each **ob_digit** array to the result of **carray**
 
-![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_4.png)
+![step_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_4.png)
 
 step5, set the value in temp[1] to (carry & PyLong_MASK)
 
-![step_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_5.png)
+![step_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_5.png)
 
 step6, right shift the carray again
 
-![step_3_rshift](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
+![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
 go to step4 and repeat until no more **digit** left, set the final carray to the last index of temp
 
-![step_final](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/step_final.png)
+![step_final](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_final.png)
 
 the variable temp contains the sum, now, you see the reserved bit is used for the **carry** or **borrow** when you add/sub an integer, the **digit** in **ob_digit** array are stored in little-endian order so that the add/sub operation can process each **digit** from left to right
 
 the sub operation is similar to the add operation, so you can read the source code directly
 
-![k](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/k.png)
+![k](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/k.png)
 
 
 ##### small ints
@@ -185,4 +185,4 @@ let's see
     g = 1313131313131313
     print(id(f), id(g)) # 4484604176 4484604016
 
-![small_ints](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/small_ints.png)
+![small_ints](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/small_ints.png)

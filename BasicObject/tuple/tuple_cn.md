@@ -24,21 +24,21 @@
 
 	t = tuple()
 
-![tuple_empty](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_empty.png)
+![tuple_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_empty.png)
 
 	t = ("aa", )
 
-![tuple_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_1.png)
+![tuple_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_1.png)
 
 	t = ("aa", "bb", "cc", "dd")
 
 **ob_size** 表示 **PyTupleObject** 的真正大小，因为 tuple 对象是不可变的，**ob_item** 这个字段的位置就是第一个 tuple 元素开始的位置，并且不需要进行 resize 操作
 
-![tuple_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
+![tuple_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
 
 #### free list
 
-这里使用的 free list(缓冲池) 的机制比起 [list 对象里的 free_list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md#delete-%E5%92%8C-free-list) 要有趣一些
+这里使用的 free list(缓冲池) 的机制比起 [list 对象里的 free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md#delete-%E5%92%8C-free-list) 要有趣一些
 
 	#define PyTuple_MAXSAVESIZE     20
     #define PyTuple_MAXFREELIST  2000
@@ -59,7 +59,7 @@
     >>> id(t2) # 和 t 的 id 相同
     4458758208
 
-![delete_0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_0.png)
+![delete_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_0.png)
 
 	>>> t = ("aa", )
     >>> id(t)
@@ -72,13 +72,13 @@
     >>> del t
     >>> del t2
 
-![delete_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_2.png)
+![delete_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_2.png)
 
 num_free[i] 表示 free_list[i] 当前剩下的对象的数量，当你要创建一个大小为 i 的 tuple 对象时，cpython 会重新利用挂在 free_list[i] 的最顶上的元素去(如果num_free[i]大于0的话)
 
 	>>> t = ("aa", )
 
-![delete_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_3.png)
+![delete_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_3.png)
 
 	>>> t2 = ("aa", "bb")
     >>> t3 = ("cc", "dd")
@@ -89,4 +89,4 @@ num_free[i] 表示 free_list[i] 当前剩下的对象的数量，当你要创建
     >>> del t4
     >>> del t5
 
-![delete_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/delete_4.png)
+![delete_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_4.png)

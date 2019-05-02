@@ -66,7 +66,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
         return NULL;
     }
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/layout.png)
 
 #### 示例
 
@@ -88,7 +88,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 	a = iter(A())
     type(a) # iterator
 
-![iter0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter0.png)
+![iter0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter0.png)
 
 ##### iter1
 
@@ -97,14 +97,14 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 	>>> next(a)
 	'index 0'
 
-![iter1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter1.png)
+![iter1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter1.png)
 
 ##### iter2
 
 	>>> next(a)
 	['index 1', 'good boy']
 
-![iter2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter2.png)
+![iter2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter2.png)
 
 ##### iter3
 
@@ -113,21 +113,21 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 	>>> next(a)
 	4
 
-![iter3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter3.png)
+![iter3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter3.png)
 
 ##### iter4
 
     >>> next(a)
     9
 
-![iter4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter4.png)
+![iter4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter4.png)
 
 ##### iter5
 
     >>> next(a)
     12
 
-![iter5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter5.png)
+![iter5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter5.png)
 
 ##### iter end
 
@@ -141,7 +141,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
       File "<stdin>", line 1, in <module>
     StopIteration
 
-![iterend](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iterend.png)
+![iterend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iterend.png)
 
 注意, 如果你再次调用 next(a), **"raise by myself"** 是不会被打印出来的, 当前的 **it_seq** 已经指向了空的指针, 这个迭代器已经丢失了对迭代对象的指针/引用 了, 你没有办法再找到这个被迭代的对象并调用这个对象上面对应的方法
 
@@ -189,7 +189,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 一个 callable 迭代器 在每次迭代的过程中会调用 **it_callable** 里面存储的对象, 直到这个对象返回了和 **it_sentinel** 相同的值或者自己抛出 StopIteration 为止
 
-![callable_layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/callable_layout.png)
+![callable_layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/callable_layout.png)
 
 
 #### 示例 citer
@@ -209,7 +209,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
     r = iter(A(), 2)
     type(r) # callable_iterator
 
-![citer0](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer0.png)
+![citer0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer0.png)
 
 ##### citer1
 
@@ -220,7 +220,7 @@ callable 迭代器 调用了 A 的实例的 _\_call_\_ 方法, 并且用返回�
     >>> next(r)
     1
 
-![citer1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citer1.png)
+![citer1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer1.png)
 
 ##### citer end
 
@@ -233,5 +233,5 @@ callable 迭代器 调用了 A 的实例的 _\_call_\_ 方法, 并且用返回�
       File "<stdin>", line 1, in <module>
     StopIteration
 
-![citerend](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/citerend.png)
+![citerend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citerend.png)
 

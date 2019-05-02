@@ -167,7 +167,7 @@ split table 可以在你对同个class有非常多实例的时候节省很多内
 
 现在就很清晰了
 
-![dictkeys_basic](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
+![dictkeys_basic](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
 
 #### 哈希碰撞与删除
 
@@ -204,26 +204,26 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
 
 这里 indices 是索引, 索引里面 **-1(DKIX_EMPTY)** 表示这个坑位是空的, 现在代码里设置了 d[1] = 1, hash(1) & mask == 1, 会对应到 indices 的下标为 1 的坑位上, 这个坑位原本是 -1(DKIX_EMPTY) 表示没有被占用过, 马上占用他, 把这里的 -1 改成 entries 里面第一个空余的真正的存储 key 和 value 的位置, 这个位置是 0, 所以就把 0 存储到了 indices[1] 里
 
-![hh_1](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_1.png)
+![hh_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_1.png)
 
     d[4] = 4
 
-![hh_2](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_2.png)
+![hh_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_2.png)
 
     d[7] = 111
 
-![hh_3](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_3.png)
+![hh_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_3.png)
 
 	# 删除的时候并不会把索引清除，而是把对应那格的索引标记成 DKIX_DUMMY, DKIX_DUMMY 数字表示为 -2
     # 并且 dk_usable 和 dk_nentries 并没有改变
     del d[4]
 
-![hh_4](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_4.png)
+![hh_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_4.png)
 
 	# 注意, dk_usable 和 dk_nentries 现在变了
 	d[0] = 0
 
-![hh_5](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_5.png)
+![hh_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_5.png)
 
 	d[16] = 16
     # hash (16) & mask == 0
@@ -237,7 +237,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
     # i = (i*5 + perturb + 1) & mask ===> i = 6
     # 此时索引位置 6 是空的，插入
 
-![hh_6](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/hh_6.png)
+![hh_6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_6.png)
 
 #### 表扩展
 
@@ -247,7 +247,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
     # 第一步，表达到了阈值，扩展表，并复制
     # 索引里被标记成 DKIX_DUMMY 不会被复制，所以索引对应的位置后面的元素都会往前移
 
-![resize](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/resize.png)
+![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/resize.png)
 
 	# 第二步， 插入 key: 5, value: 5
 
@@ -258,6 +258,6 @@ indices 数组的大小是可变的，当你的哈希表大小 <= 128 时，索�
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
-cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list_cn.md#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-free-list), cpython set 使用了同样的策略，里面有图片解释
+cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-free-list), cpython set 使用了同样的策略，里面有图片解释
 
 现在，我们大致弄明白了 cpython 字典对象的内部实现了!

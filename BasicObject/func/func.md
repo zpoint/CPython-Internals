@@ -26,9 +26,9 @@
 
 every thing is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
 
-the type **function** indicates the user-defined method/classes, for **builtin_function_or_method** please refer to [method](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/method.md)
+the type **function** indicates the user-defined method/classes, for **builtin_function_or_method** please refer to [method](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
 
 #### field
 

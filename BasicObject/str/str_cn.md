@@ -17,7 +17,7 @@
 
 #### 内存构造
 
-![layout](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/layout.png)
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
 如果你对 c 语言的 bit-fields 有疑问，请参考 [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) 和 [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
@@ -75,19 +75,19 @@
 
 PyUnicode_UTF8
 
-![pyunicode_utf8](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
+![pyunicode_utf8](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/pyunicode_utf8.png)
 
 _PyUnicode_UTF8
 
-![_PyUnicode_UTF8.png](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8.png)
+![_PyUnicode_UTF8.png](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8.png)
 
 _PyUnicode_AsUTF8String
 
-![_PyUnicode_AsUTF8String](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_AsUTF8String.png)
+![_PyUnicode_AsUTF8String](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_AsUTF8String.png)
 
 _PyUnicode_UTF8_LENGTH
 
-![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
+![_PyUnicode_UTF8_LENGTH](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/_PyUnicode_UTF8_LENGTH.png)
 
 
 我们来初始化一个空字符串看看
@@ -97,7 +97,7 @@ _PyUnicode_UTF8_LENGTH
 	s = ""
     # 注意了，因为 s 的 compact 和 ascii 都为 1，所以字段 utf8_length 的地址作为真正存储字符串值的启始地址
 
-![empty_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/empty_s.png)
+![empty_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/empty_s.png)
 
 	s = "s"
     repr(s) # 我像往常一样更改了源代码，可以打印出更多详细信息
@@ -110,12 +110,12 @@ _PyUnicode_UTF8_LENGTH
 
 细心的读者应该注意到了 在 **PyCompactUnicodeObject** 这个对象里面的 **utf8_length** 位置的值是 115, 并且 chr(115) 的值是 's', 这个位置就是标准的以 \0 为结束符的 c 字符串的开始地址
 
-![s_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/s_s.png)
+![s_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/s_s.png)
 
 
 	s = "aaa"
 
-![aaa](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/aaa.png)
+![aaa](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/aaa.png)
 
 #### interned
 
@@ -168,7 +168,7 @@ _PyUnicode_UTF8_LENGTH
     id(s2)
     4519247152
 
-![1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
+![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 
 让我们尝试定义一个包含有 **\u0088** 的字符串
 
@@ -228,7 +228,7 @@ _PyUnicode_UTF8_LENGTH
     PyUnicode_1BYTE_KIND,
 	PyUnicodeObject->latin1: 0x88 0x11 0xf1
 
-![no_ascii_1_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/no_ascii_1_byte_kind.png)
+![no_ascii_1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/no_ascii_1_byte_kind.png)
 
 * PyUnicode_2BYTE_KIND
 	* 16 bits/character
@@ -243,7 +243,7 @@ _PyUnicode_UTF8_LENGTH
 
 现在 **kind** 里的值是 **PyUnicode_2BYTE_KIND** 并且每个字符都需要花费 2个字节去存储
 
-![2_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/2_byte_kind.png)
+![2_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/2_byte_kind.png)
 
 * PyUnicode_4BYTE_KIND
 	* 32 bits/character
@@ -257,7 +257,7 @@ _PyUnicode_UTF8_LENGTH
     kind: PyUnicode_4BYTE_KIND, PyUnicodeObject->ucs4: 00xff 0x10ffff 0x100111 0x10fff1
 
 
-![4_byte_kind](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
+![4_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
 ##### unicode底层存储方式总结
 
@@ -268,7 +268,7 @@ _PyUnicode_UTF8_LENGTH
     # 但是下面这个操作无法在 O(1) 时间内完成了
     s[999999]
 
-![kind_overview](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/kind_overview.png)
+![kind_overview](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/kind_overview.png)
 
 #### compact
 

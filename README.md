@@ -1,5 +1,5 @@
 # Cpython Internals
-* [简体中文](https://github.com/zpoint/Cpython-Internals/blob/master/README_CN.md)
+* [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
 
 This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code
 
@@ -20,19 +20,19 @@ I will only recommend what I've read
 * [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
 
 #### Objects
- - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set.md)
- - [x] [list](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/list/list.md)
- - [x] [dict](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/dict/dict.md)
- - [x] [str/unicode](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/str.md)
- - [x] [tuple](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/tuple/tuple.md)
- - [x] [long/int](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/long/long.md)
- - [x] [bytes](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytes/bytes.md)
- - [x] [bytearray](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
- - [x] [float](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/float/float.md)
- - [x] [func(user-defined)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/func/func.md)
- - [x] [method(builtin)](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/method/method.md)
- - [x] [iter](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/iter/iter.md)
- - [ ] [gen](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/gen/gen.md)
+ - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set.md)
+ - [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
+ - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
+ - [x] [str/unicode](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
+ - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
+ - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
+ - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
+ - [x] [bytearray](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
+ - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md)
+ - [x] [func(user-defined)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+ - [x] [method(builtin)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
+ - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
+ - [ ] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
  - [ ] class
  - [ ] complex
  - [ ] enum
@@ -43,7 +43,7 @@ I will only recommend what I've read
 #### Modules
 
  - [ ] io
- 	- [x] [fileio](https://github.com/zpoint/Cpython-Internals/blob/master/Modules/io/fileio/fileio.md)
+ 	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio.md)
 
 #### Lib
 
