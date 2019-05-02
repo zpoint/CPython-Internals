@@ -14,6 +14,8 @@
 
 以下的资料本人推荐之前都阅读过
 
+页面打不开请自行搭梯子后重试
+
 * [rushter](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 * [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)

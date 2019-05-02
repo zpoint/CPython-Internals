@@ -95,7 +95,7 @@ _PyUnicode_UTF8_LENGTH
 
 	# 初始化一个空字符串
 	s = ""
-    # 注意了，因为 s 的 compact 和 ascii 都为 1，所以 utf8_length j地址既为真正存储字符串值的地址
+    # 注意了，因为 s 的 compact 和 ascii 都为 1，所以字段 utf8_length 的地址作为真正存储字符串值的启始地址
 
 ![empty_s](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/str/empty_s.png)
 
