@@ -10,10 +10,15 @@
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
 
-#### 收藏的博客 && 学习资料
+#### 学习资料
+
+以下的资料本人推荐之前都阅读过
+
 * [rushter](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 * [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
+* [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
+* [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
 
 #### 基本对象
 - [x] [set](https://github.com/zpoint/Cpython-Internals/blob/master/BasicObject/set/set_cn.md)
