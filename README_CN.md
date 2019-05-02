@@ -12,9 +12,9 @@
 
 #### 学习资料
 
-以下的资料本人推荐之前都阅读过
+以下的资料笔者遵循阅读后再推荐的原则
 
-页面打不开请自行搭梯子后重试
+若页面无法打开请自行搭梯子O(∩_∩)O
 
 * [rushter](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
