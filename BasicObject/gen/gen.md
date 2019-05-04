@@ -232,3 +232,79 @@ and states in **gi_exc_state** is restored
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
+#### memory layout coroutine
+
+most parts of the defination of the **coroutine** type and **generator** are the same
+
+the coroutine-only field named **cr_origin**, tracking the trackback of the **coroutine** object, is disabled by default, can be enabled by **sys.set_coroutine_origin_tracking_depth**, for more detail please refer to [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
+
+![layout_coro](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_coro.png)
+
+#### example coroutine
+
+let's try to run an example with **coroutine** type defined to understand each field's meaning
+
+as usual, I've altered the source code so that my **repr** function is able to print all the low level detail of the object
+
+    import sys
+    import time
+    import asyncio
+
+    sys.set_coroutine_origin_tracking_depth(100)
+    cor_list = list()
+
+
+    async def cor(recursive_depth=1):
+        t1 = time.time()
+        try:
+            await asyncio.sleep(3)
+            1 / 0
+        except ZeroDivisionError:
+            if recursive_depth > 0:
+                r = cor(recursive_depth-1)
+                cor_list.append(r)
+                await r
+        t2 = time.time()
+        print("recursive_depth: %d, cost %.2f seconds" % (recursive_depth, t2 - t1))
+
+
+    def pr_cor_list():
+        for index, each in enumerate(cor_list):
+            print("index: %d, id: %d, each.cr_frame.f_lasti: %s" % (index, id(each), "None object" if each.cr_frame is None else str(each.cr_frame.f_lasti)))
+            print(repr(each))
+
+
+    async def test():
+        c = cor()
+        cor_list.append(c)
+        ts = time.time()
+        pending = [c]
+        pr_cor_list()
+        while pending:
+            done, pending = await asyncio.wait(pending, timeout=2)
+            ts_now = time.time()
+            print("%.2f seconds elapse" % (ts_now - ts, ))
+            pr_cor_list()
+
+    if __name__ == "__main__":
+        asyncio.run(test())
+
+if you call a function defined with the **async** keyword, the calling result is a a object of type **coroutine**
+
+    >>> c = cor()
+    >>> type(c)
+    <class 'coroutine'>
+
+in the **test** function, before the first **await** statement at the moment
+
+it's the call stack from the bottom to top
+
+    >>> cor_list[0].cr_origin
+    (('<stdin>', 2, 'test'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/events.py', 81, '_run'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 1765, '_run_once'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 544, 'run_forever'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 576, 'run_until_complete'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/runners.py', 43, 'run'), ('<stdin>', 2, '<module>'))
+
+the content in cr_origin field in my computer
+
+
+
+![example_coro_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_0.png)
+
