@@ -20,12 +20,12 @@ I will only recommend what I've read
 * [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
 
 #### Objects
+ - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
+ - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
+ - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
  - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set.md)
  - [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
- - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
- - [x] [str/unicode](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
  - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
- - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md)

@@ -7,8 +7,10 @@
 	* [memory layout](#memory-layout-generator)
 	* [example generator](#example-generator)
 * [coroutine](#coroutine)
+	* [memory layout](#memory-layout-coroutine)
 	* [example coroutine](#example-coroutine)
 * [async generator](#async-generator)
+	* [memory layout](#memory-layout-async-generator)
 	* [example async generator](#example-async-generator)
 
 ### related file
