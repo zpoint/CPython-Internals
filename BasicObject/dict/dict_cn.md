@@ -233,7 +233,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
     # i = (i*5 + perturb + 1) & mask ===> i = 1
     # 现在, 索引位置 1 依然被 key: 1, value: 1 占用
     # 当前 perturb = 0, PERTURB_SHIFT = 5, i = 1
-    # 所有, perturb >>= PERTURB_SHIFT ===> perturb == 0
+    # 所以, perturb >>= PERTURB_SHIFT ===> perturb == 0
     # i = (i*5 + perturb + 1) & mask ===> i = 6
     # 此时索引位置 6 是空的，插入
 

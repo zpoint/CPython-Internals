@@ -1,26 +1,26 @@
 # gen
 
-### category
+### 目录
 
-* [related file](#related-file)
+* [相关位置文件](#相关位置文件)
 * [generator](#generator)
-	* [memory layout](#memory-layout-generator)
-	* [example generator](#example-generator)
+	* [内存构造](#内存构造-generator)
+	* [示例 generator](#示例-generator)
 * [coroutine](#coroutine)
-	* [memory layout](#memory-layout-coroutine)
-	* [example coroutine](#example-coroutine)
+	* [内存构造](#内存构造-coroutine)
+	* [示例 coroutine](#示例-coroutine)
 * [async generator](#async-generator)
-	* [memory layout](#memory-layout-async-generator)
-	* [example async generator](#example-async-generator)
+	* [内存构造](#内存构造-async-generator)
+	* [示例 async generator](#示例-async-generator)
 	* [free list](#free-list)
 
-### related file
+### 相关位置文件
 * cpython/Objects/genobject.c
 * cpython/Include/genobject.h
 
-#### memory layout generator
+#### 内存构造 generator
 
-there's a common defination among **generator**, **coroutine** and **async generator**
+**generator**, **coroutine** 和 **async generator** 共享一大部分的定义
 
     #define _PyGenObject_HEAD(prefix)                                           \
         PyObject_HEAD                                                           \
@@ -38,14 +38,14 @@ there's a common defination among **generator**, **coroutine** and **async gener
         PyObject *prefix##_qualname;                                            \
         _PyErr_StackItem prefix##_exc_state;
 
-the defination of **generator** object is less than 4 lines
+**generator** 对象实际上的定义仅不到4行代码
 
     typedef struct {
         /* The gi_ prefix is intended to remind of generator-iterator. */
         _PyGenObject_HEAD(gi)
     } PyGenObject;
 
-which can be expanded to
+我们可以把他扩展一下
 
     typedef struct {
         struct _frame *gi_frame;
@@ -57,13 +57,13 @@ which can be expanded to
         _PyErr_StackItem gi_exc_state;
     } PyGenObject;
 
-we can draw the layout according to the code now
+根据扩展后的代码可以直观的画出内存构造
 
 ![layout_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_gen.png)
 
-#### example generator
+#### 示例 generator
 
-let's define and iter through a generator
+我们来定义一个 **generator** 并一步一步的迭代他
 
     def fib(n):
         t = 0
@@ -104,18 +104,18 @@ let's define and iter through a generator
 	>>> f.gi_frame.f_lasti
 	-1
 
-we initialize a new generator, the **f_lasti** in **gi_frame** act as the program counter in the python virtual machine, it indicate the next instruction offset from the code block inside the **gi_code**
+我们初始化了一个新的 **generator**, **gi_frame** 字段的对象里储存的 **f_lasti** 和操作系统概念里的 program counter 有点类似, 你可以把他理解成 python 虚拟机中的 program counter, 他指向当前 **gi_code** 对象里包含的可执行代码块的位置
 
 	>>> fib.__code__
 	<code object fib at 0x1041069c0, file "<stdin>", line 1>
     >>> f.gi_code
     <code object fib at 0x1041069c0, file "<stdin>", line 1>
 
-the **gi_code** inside the f object is the **code** object that represent the function fib
+对象 f 里面的 **gi_code** 正是一个 **code** 对象, 这个对象包含了函数 **fib** 所需的信息
 
-the **gi_running** is 0, indicating the generator is not executing right now
+**gi_running** 为 0, 表示 **generator** 当前没有在运行中
 
-**gi_name** and **gi_qualname** all points to same **unicode** object, all fields in **gi_exc_state** have value 0x00
+**gi_name** 和 **gi_qualname** 都指向同一个 **unicode** 对象, **gi_exc_state** 里面的各个字段的值都为 0x00
 
 ![example_gen_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_0.png)
 
@@ -126,13 +126,13 @@ the **gi_running** is 0, indicating the generator is not executing right now
 	>>> repr(r)
 	'1'
 
-looking into the object f, nothing changed
+对象**f**每个字段的值都没有发生变化
 
-but the **f_lasti** in **gi_frame** now in the position 52(the first place keyword **yield** appears)
+但是 **gi_frame** 中存储的 **f_lasti** 现在指向了 52(第一个 **yield** 出现的位置)
 
 ![example_gen_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_1.png)
 
-step one more time, due to the while loop, the **f_lasti** still points to same position
+迭代多一次, 由于 while 循环的原因, **f_lasti** 仍然指向同个位置
 
     >>> r = f.send("handsome")
     result 'handsome'
@@ -141,7 +141,7 @@ step one more time, due to the while loop, the **f_lasti** still points to same 
 	>>> repr(r)
 	'1'
 
-send again, the **f_lasti** indicate the code offset in the position of second **yield**
+再次调用 send, **f_lasti** 此时指向第二个 **yield** 出现的位置
 
 	>>> r = f.send("handsome2")
 	result 'handsome2'
@@ -150,7 +150,7 @@ send again, the **f_lasti** indicate the code offset in the position of second *
     >>> repr(r)
     '2'
 
-repeat
+重复迭代
 
     >>> r = f.send("handsome3")
     result 'handsome3'
@@ -171,9 +171,9 @@ repeat
     >>> repr(r)
     '8'
 
-now, the while loop terminated by the break statement
+现在, 通过 break 跳出了 while 循环
 
-the **f_lasti** is in the position of the first **except** statement, the **exc_type** points to the type of the exception, **exc_value** points to the instance of the exception, and **exc_traceback** points to the traceback object
+**f_lasti** 指向的位置是 第一个 **except** 发生的位置, **exc_type** 指向这个异常的类型, **exc_value** 指向这个异常的实例, **exc_traceback** 指向异常追踪 traceback 对象
 
     >>> r = f.send("handsome6")
     >>> f.gi_frame.f_lasti
@@ -183,7 +183,7 @@ the **f_lasti** is in the position of the first **except** statement, the **exc_
 
 ![example_gen_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_2.png)
 
-the **f_lasti** is in the position of the second **except** statement, **exc_type**, **exc_value**, and **exc_traceback** now relate to ModuleNotFoundError
+**f_lasti** 在第二个 **except** 的位置上, **exc_type**, **exc_value**, 和 **exc_traceback** 都和异常 ModuleNotFoundError 相关联
 
     >>> r = f.send("handsome7")
     'handsome7'
@@ -194,9 +194,9 @@ the **f_lasti** is in the position of the second **except** statement, **exc_typ
 
 ![example_gen_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_3.png)
 
-the **f_lasti** is in the position of the first **finally** statement, the ModuleNotFoundError is handled properly, at the top of the exception stack is the **ZeroDivisionError**
+**f_lasti** 在第一个 **finally** 的位置上, 异常 ModuleNotFoundError 已经处理完成, 异常堆的堆顶现在是一个 **ZeroDivisionError**
 
-there will be another article talking about the [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception.md) later, the refer link is reserved
+后续会有讲异常处理的文章 [exception](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception_cn.md) (先留个链接)
 
     >>> r = f.send("handsome8")
     result 'handsome8'
@@ -207,13 +207,11 @@ there will be another article talking about the [exception handling](https://git
 
 ![example_gen_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_4.png)
 
-now, the **StopIteration** is raised
+现在 **StopIteration** 被抛出
 
-the frameObject in **gi_frame** field is freed
+**gi_frame** 中的 frameObject 被释放了, 变成了一个空指针, 标明这个 generator 已经结束了
 
-field **gi_frame** points to null pointer, indicating that the generator is terminated
-
-and states in **gi_exc_state** is restored
+并且 **gi_exc_state** 中的各个字段也重置了
 
     >>> r = f.send("handsome9")
     result 'handsome9'
@@ -233,19 +231,21 @@ and states in **gi_exc_state** is restored
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
-#### memory layout coroutine
+#### 内存构造 coroutine
 
-most parts of the defination of the **coroutine** type and **generator** are the same
+**coroutine** 类型和 **generator** 类型的大部分定义是相同的
 
-the coroutine-only field named **cr_origin**, tracking the trackback of the **coroutine** object, is disabled by default, can be enabled by **sys.set_coroutine_origin_tracking_depth**, for more detail please refer to [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
+**coroutine** 独有的一个字段叫做 **cr_origin**, 用来追踪当前的调用栈用的(这里面的数据都是从 **cr_frame** 对象中查找获得)
+
+默认情况下 **cr_origin** 是不启动的, 需要通过 **sys.set_coroutine_origin_tracking_depth** 去启动这个功能, 可以查看文档获得更多细节 [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
 
 ![layout_coro](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_coro.png)
 
-#### example coroutine
+#### 示例 coroutine
 
-let's try to run an example with **coroutine** type defined to understand each field's meaning
+我们可以来跑一个 **coroutine** 类型的示例, 理解一下各个字段的意义
 
-as usual, I've altered the source code so that my **repr** function is able to print all the low level detail of the object
+我向往常一样更改了部分源代码, 所以我的 **repr** 会打印出更多的信息
 
     import sys
     import time
@@ -290,56 +290,56 @@ as usual, I've altered the source code so that my **repr** function is able to p
     if __name__ == "__main__":
         asyncio.run(test())
 
-if you call a function defined with the **async** keyword, the calling result is an object of type **coroutine**
+你调用一个通过 **async** 定义的函数的时候, 产生的是一个类型为 **coroutine** 的对象
 
     >>> c = cor()
     >>> type(c)
     <class 'coroutine'>
 
-in the **test** function, before the first **await** statement at the moment
+在 **test** 函数中, 第一个 **await** 声明之前的瞬间
 
 
     >>> cor_list[0].cr_origin
     (('<stdin>', 2, 'test'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/events.py', 81, '_run'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 1765, '_run_once'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 544, 'run_forever'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 576, 'run_until_complete'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/runners.py', 43, 'run'), ('<stdin>', 2, '<module>'))
 
-the content in field **cr_origin** in my computer is the calling stack from bottom to top
+这是我电脑中字段 **cr_origin** 中的内容, 是自下而上的调用栈信息
 
 ![example_coro_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_0.png)
 
-in the 2.01 seconds, nothing changed, except the **f_lasti** in the **coroutine.cr_frame** now points to the first **await** statement in **cor** function
+在第 2.01 秒时, 各个字段中的内容并未发生改变, 此时 **coroutine.cr_frame** 中的 **f_lasti** 指向了 **cor** 函数中第一个 **await** 的位置
 
 ![example_coro_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_1.png)
 
-in the 4.01 seconds, **f_lasti** in cor_list[0] now points to the **await r** expression, which in position 86
+在第 4.01 秒时, cor_list[0] 中的 **f_lasti** 指向了 **await r** 这个位置, 值为 86
 
-the **exc_type**, **exc_value** and **exc_traceback** holds information about the **ZeroDivisionError**, same as the generator object
+the **exc_type**, **exc_value** and **exc_traceback** 保存了 **ZeroDivisionError** 的信息, 和 **generator** 对象的处理方式相同
 
-the coroutine in cor_list[1] now stuck in the **await asyncio.sleep(3)** expression, the value in **f_lasti** is 20
+cor_list[1] 现在停在了 **await asyncio.sleep(3)** 这个位置上, **f_lasti** 中的值为 20
 
-the **cr_code** is the same as cor_list[0], but the **cr_frame** is different
+cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_frame** 却不同
 
-every function call will create a new frame, the frame mcechanism used here is similar to [Stack frame](http://en.citizendium.org/wiki/Stack_frame)
+每一个函数调用都会产生一个新的 frame 对象与之关联, python 虚拟机中的调用栈机制和 [Stack frame](http://en.citizendium.org/wiki/Stack_frame) 中的类似
 
 ![example_coro_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_2.png)
 
     >>> cor_list[1].cr_origin
     (('<stdin>', 8, 'cor'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/events.py', 81, '_run'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 1765, '_run_once'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 544, 'run_forever'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 576, 'run_until_complete'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/runners.py', 43, 'run'), ('<stdin>', 2, '<module>'))
 
-in the 6.01 seconds, both **cor_list[0]** and **cor_list[1]** returned, and their **cr_frame** field becomes null pointer, the handling process is similar to the **generator** type
+在 6.01 秒时, **cor_list[0]** 和 **cor_list[1]** 都结束并返回了, 他们的 **cr_frame** 都为空指针, 处理方式和 **generator** 类型类似
 
 ![example_coro_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_3.png)
 
-#### memory layout async generator
+#### 内存构造 async generator
 
-the layout of **async generator** is the same as **generator** type, except for the **ag_finalizer**, **ag_hooks_inited** and **ag_closed**
+除了 **ag_finalizer**, **ag_hooks_inited** and **ag_closed** 这三个额外添加的字段, **async generator** 的构造和 **generator** 是相同的
 
 ![layout_async_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_async_gen.png)
 
-#### example async generator
+#### 示例 async generator
 
-the **set_asyncgen_hooks** function is used for set up a **firstiter** and a **finalizer**, **firstiter** will be called before when an asynchronous generator is iterated for the first time, finalizer will be called when asynchronous generator is about to be gc
+**set_asyncgen_hooks** 函数可以设置一个 **firstiter** 和一个 **finalizer**, **firstiter** 会在**async generator** 第一次迭代之前调用, **finalizer** 会在垃圾回收之前进行调用
 
-the **run_forever** function in asyncio base event loop has defined
+**asyncio base event loop** 中的 **run_forever** 函数做了如下定义
 
     def run_forever(self):
         ...
@@ -351,7 +351,7 @@ the **run_forever** function in asyncio base event loop has defined
         finally:
             sys.set_asyncgen_hooks(*old_agen_hooks)
 
-you can define your own event loop to override the default **firstiter** and **finalizer**, refer to [ython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
+你也可以定义你自己的 **firstiter** 和 **finalizer**, 更多详细信息参考 [ython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks)
 
 	# example of set_asyncgen_hooks
     import sys
@@ -371,7 +371,7 @@ you can define your own event loop to override the default **firstiter** and **f
 	in firstiter:  <async_generator object async_fib at 0x10a98f598>
     <async_generator_asend at 0x10a7487c8>
 
-let's define and iter through an async iterator
+我们来定义一个 async iterator 并尝试一步步迭代
 
     import asyncio
 
@@ -411,9 +411,9 @@ let's define and iter through an async iterator
 
 ![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen0.png)
 
-iterate through it
+开始迭代
 
-if you need more detail of _\_aiter_\_, _\_anext_\_ and etc, please refer to [pep-0525](https://www.python.org/dev/peps/pep-0525/)
+如果你需要 _\_aiter_\_, _\_anext_\_ 等函数的相关信息, 可以参考 [pep-0525](https://www.python.org/dev/peps/pep-0525/)
 
     >>> a(None)
     result None
@@ -421,17 +421,15 @@ if you need more detail of _\_aiter_\_, _\_anext_\_ and etc, please refer to [pe
 	>>> a.f.ag_frame.f_lasti
 	68
 
-the **ag_weakreflist** points to a weak reference created by **BaseEventLoop(asyncio->base_events.py)**
+**ag_weakreflist** 指向了一个 **BaseEventLoop(asyncio->base_events.py)** 创建的弱引用, loop 需要保留与之相关的所有 **async generator** 的信息, 这样在出现异常/退出的时候可以把这些活动中的 **async generator** 通通关掉, 可以读这部分代码看看 [source code](https://github.com/python/cpython/blob/3.7/Lib/asyncio/base_events.py)
 
-it's used for shutdown all active asynchronous generators, read the [source code](https://github.com/python/cpython/blob/3.7/Lib/asyncio/base_events.py) for more detail
+**ag_finalizer** n现在指向了一个 **finalizer**, 设个 **finalizer** 是被 BaseEventLoop 通过 **sys.set_asyncgen_hooks** 方法配置的
 
-**ag_finalizer** now points to the **finalizer**, set up by BaseEventLoop(calling the **sys.set_asyncgen_hooks** method)
-
-**ag_hooks_inited** is 1, indicate that hooks is set up
+**ag_hooks_inited** 为 1, 标明当前的 hooks是已配置的状态
 
 ![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen1.png)
 
-in the second time of the while loop, nothing changed
+第二次 while 循环中, 各个字段中的值未发生改变
 
     >>> a("handsome")
     result 'handsome'
@@ -439,7 +437,7 @@ in the second time of the while loop, nothing changed
     >>> a.f.ag_frame.f_lasti
     68
 
-now, the **f_lasti** indicate the position of the second **yield** stateement in the function **async_fib**
+现在 **f_lasti** 指向了函数 **async_fib** 的第二个 **yield** 的位置
 
     >>> a("handsome2")
     result 'handsome2'
@@ -463,15 +461,15 @@ now, the **f_lasti** indicate the position of the second **yield** stateement in
       File "<stdin>", line 6, in make_the_call
     StopAsyncIteration
 
-now, the **ag_closed** is set to 1 because of the termination of the async generator(**StopAsyncIteration** raised or aclose() is called)
+现在 **ag_closed** 被设置为 1(因为这个 async generator 抛出了 **StopAsyncIteration** 异常, 或者 关联的 aclose() 方法被调用额了)
 
-the **ag_frame** is deallocated
+并且 **ag_frame** 被释放了
 
 ![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen3.png)
 
 #### free list
 
-the free list mechanism is used for type **async_generator_asend** and **async_generator_wrapped_value**
+在类型 **async_generator_asend** 和 **async_generator_wrapped_value** 上面使用了free list(缓冲池)机制
 
     #ifndef _PyAsyncGen_MAXFREELIST
     #define _PyAsyncGen_MAXFREELIST 80
@@ -482,11 +480,11 @@ the free list mechanism is used for type **async_generator_asend** and **async_g
     static PyAsyncGenASend *ag_asend_freelist[_PyAsyncGen_MAXFREELIST];
     static int ag_asend_freelist_free = 0;
 
-because they both are short-living objects and are instantiated for every **_\_anext_\_** call, free list are able to
-* boost performance 6-10%
-* reduce memory fragmentation
+因为这两个类型存货的时间一般都很短, 并且在每一个 **_\_anext_\_** 调用的时候都会实例化他们, 缓冲池机制可以
+* 提高 6-10% 的性能
+* 减小内存碎片
 
-the id are the same, the address of previous **async_generator_asend** is reused
+两个 r 的 id 是相同的, 同个**async_generator_asend**  对象被重复的进行了使用
 
     >>> f = async_fib(3)
     >>> r = f.asend(None)

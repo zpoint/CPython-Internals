@@ -35,7 +35,7 @@
 - [x] [func(user-defined)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func_cn.md)
 - [x] [method(builtin)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method_cn.md)
 - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter_cn.md)
-- [ ] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md)
+- [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md)
 - [ ] class
 - [ ] complex
 - [ ] enum

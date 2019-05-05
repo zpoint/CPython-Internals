@@ -32,7 +32,7 @@ I will only recommend what I've read
  - [x] [func(user-defined)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
  - [x] [method(builtin)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
  - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
- - [ ] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
+ - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
  - [ ] class
  - [ ] complex
  - [ ] enum
