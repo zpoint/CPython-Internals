@@ -409,7 +409,7 @@ let's define and iter through an async iterator
 	>>> type(a.f)
 	<class 'async_generator'>
 
-![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen0.png)
+![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_0.png)
 
 iterate through it
 
@@ -429,7 +429,7 @@ it's used for shutdown all active asynchronous generators, read the [source code
 
 **ag_hooks_inited** is 1, indicate that hooks is set up
 
-![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen1.png)
+![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_1.png)
 
 in the second time of the while loop, nothing changed
 
@@ -447,7 +447,7 @@ now, the **f_lasti** indicate the position of the second **yield** stateement in
     >>> a.f.ag_frame.f_lasti
     84
 
-![example_async_gen2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen2.png)
+![example_async_gen2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_2.png)
 
     >>> a("handsome3")
     result 'handsome3'
@@ -467,7 +467,7 @@ now, the **ag_closed** is set to 1 because of the termination of the async gener
 
 the **ag_frame** is deallocated
 
-![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen3.png)
+![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_3.png)
 
 #### free list
 

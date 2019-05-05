@@ -409,7 +409,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 	>>> type(a.f)
 	<class 'async_generator'>
 
-![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen0.png)
+![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_0.png)
 
 开始迭代
 
@@ -427,7 +427,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 
 **ag_hooks_inited** 为 1, 标明当前的 hooks是已配置的状态
 
-![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen1.png)
+![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_1.png)
 
 第二次 while 循环中, 各个字段中的值未发生改变
 
@@ -445,7 +445,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
     >>> a.f.ag_frame.f_lasti
     84
 
-![example_async_gen2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen2.png)
+![example_async_gen2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_2.png)
 
     >>> a("handsome3")
     result 'handsome3'
@@ -465,7 +465,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 
 并且 **ag_frame** 被释放了
 
-![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen3.png)
+![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_3.png)
 
 #### free list
 
