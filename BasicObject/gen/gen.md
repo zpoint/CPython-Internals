@@ -357,7 +357,7 @@ the **run_forever** function in asyncio base event loop has defined
         finally:
             sys.set_asyncgen_hooks(*old_agen_hooks)
 
-you can define your own event loop to override the default **firstiter** and **finalizer**, refer to [ython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
+you can define your own event loop to override the default **firstiter** and **finalizer**, please refer to [oython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
 
 	# example of set_asyncgen_hooks
     import sys

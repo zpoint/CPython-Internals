@@ -357,7 +357,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
         finally:
             sys.set_asyncgen_hooks(*old_agen_hooks)
 
-你也可以定义你自己的 **firstiter** 和 **finalizer**, 更多详细信息参考 [ython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks)
+你也可以定义你自己的 **firstiter** 和 **finalizer**, 更多详细信息参考 [python3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks)
 
 	# example of set_asyncgen_hooks
     import sys

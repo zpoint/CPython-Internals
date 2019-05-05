@@ -13,6 +13,10 @@ Because the **PyDictObject** is a little bit more compilated than other basic ob
 * [variable size indices](#variable-size-indices)
 * [free list](#free-list)
 
+* [delete](#delete)
+	* [why mark as DKIX_DUMMY](#why-mark-as-DKIX_DUMMY)
+	* [delete in entries](#delete-in-entries)
+* [end](#end)
 
 #### related file
 * cpython/Objects/dictobject.c
@@ -100,6 +104,7 @@ In what situation will different dict object shares same keys but different valu
 
 The split table implementation can save a lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
 
+![dict_shares](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_shares.png)
 
 #### indices and entries
 
@@ -245,5 +250,54 @@ Notice, the indices array is variable size. when size of your hash table is <= 1
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
 cpython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
+
+#### delete
+
+the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletiion in dict object
+
+##### why mark as DKIX_DUMMY
+
+why mark as **DKIX_DUMMY** in the indices?
+
+there're totally three kinds of value for each slot in indices, **DKIX_EMPTY**(-1), **DKIX_DUMMY**(-2) and **Active/Pending**(>=0), if you mark as  **DKIX_EMPTY** instead of **DKIX_DUMMY**, the "perturb" strategy for inserting and finding key/values will fail. Imagine you have a hash table in size 8, this is the indices in hash table
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5          6    7     8
+
+when you search for a item with hash value 0, and real position is in entries[4]
+
+this is the searching process according to the "perturb" strategy
+
+	0 -> 1 -> 6 -> 7(found, no need to go on)
+
+if you delete the 6th indices, and mark it as **DKIX_EMPTY**, when you search for the same item again
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5               6        7        8
+
+the searching process now becomes
+
+	0 -> 1 -> 6(it's DKIX_EMPTY, the last inserted item with same hash value must be inserted in indices[1], since no matched result, the item being searched is not in this table)
+
+the item being searched is in indices[7], but "perturb" strategy stopped before indices[7] due to the wrong **DKIX_EMPTY** in indices[6], if we mark deleted as **DKIX_DUMMY**
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5               6        7        8
+
+the searching process becomes
+
+	0 -> 1 -> 6(DKIX_DUMMY, inserted before, but deleted, keep searching) -> 7(found, no need to go on)
+
+also, the indices with **DKIX_DUMMY** can be inserted for new item
+
+##### delete in entries
+
+dict object need to guarantee the [inserted order](https://mail.python.org/pipermail/python-dev/2017-December/151283.html), the delete operation can't shuffle objects in **entries**
+
+leave the entries[i] to empry, and packing these empry entries later in the resize operation can keep the time complexity of delete operation in amortize O(1)
+
+deleting entries from dictionaries is not very common, in some case a little bit slower is acceptable([PyPy Status Blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html))
+
+#### end
 
 now, you understand how python dictionary object work internally.

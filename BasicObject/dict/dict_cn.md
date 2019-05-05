@@ -12,6 +12,10 @@
 * [表扩展](#表扩展)
 * [类型可变的indices数组](#类型可变的indices数组)
 * [free list](#free-list)
+* [删除操作](#删除操作)
+	* [为什么标记成 DKIX_DUMMY](#为什么标记成-DKIX_DUMMY)
+	* [entries 中的删除](#entries-中的删除)
+* [结束](#结束)
 
 
 #### 相关位置文件
@@ -108,6 +112,8 @@
 	4
 
 split table 可以在你对同个class有非常多实例的时候节省很多内存，这些实例在满足上述条件时，都会共享同一个 PyDictKeysObject, 更多关于实现方面的细节请参考 [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
+
+![dict_shares](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_shares.png)
 
 #### indices and entries
 
@@ -259,5 +265,52 @@ indices 数组的大小是可变的，当你的哈希表大小 <= 128 时，索�
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
 cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-free-list), cpython set 使用了同样的策略，里面有图片解释
+
+#### 删除操作
+
+the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletiion in dict object
+
+##### 为什么标记成 DKIX_DUMMY
+
+indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**(-2) 和 **Active/Pending**(>=0). 如果你把删除的对象标记为 **DKIX_EMPTY** 而不是 **DKIX_DUMMY**, **perturb** 策略在插入/搜索这个对象的时候将会出现问题
+
+假设你有一个大小为 8 的哈希表, 他的 indices 如下所示
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5          6    7     8
+
+当你搜索一个哈希值为 0 的对象, 并且这个对象的位置在 entries[4] 时, "perturb" 的搜索过程如下
+
+	0 -> 1 -> 6 -> 7(找到匹配的值, 不需要往下搜索了)
+
+假设你删除掉 indices[6] 上面的对象, 并把他标记为 **DKIX_EMPTY**, 当你再次搜索同一个对象的时候
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5               6        7        8
+
+搜索过程如下所示
+
+	0 -> 1 -> 6(这个位置上的值为 DKIX_EMPTY, 最后一个哈希值相同的对象插入的时候只会插入到上一个perturb的位置, 也就是 indices[1], 如果搜索到第一个 DKIX_EMPTY 还没有发现匹配的值, 说明搜索的这个值不在这张表里)
+
+实际上需要搜索的对象在 indices[7] 上面, 但是由于错误的标记了 **DKIX_EMPTY**, 搜索停留在了 indices[6] 上, 如果我们把他标记成正确的值 **DKIX_DUMMY**
+
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4] [DKIX_EMPTY]
+    index:    0    1         2      3        4           5               6        7        8
+
+搜索过程会变成
+
+	0 -> 1 -> 6(DKIX_DUMMY, 说明这个坑位之前被插入过, 但已经被删除, 也许后面还有同样的哈希值的对象, 继续往下搜索) -> 7(找到匹配的值, 不需要往下搜索了)
+
+当然, 标记为 **DKIX_DUMMY** 的坑位也可以用来插入新的对象
+
+##### entries 中的删除
+
+dict 对象需要保证字典中元素按照[插入顺序](https://mail.python.org/pipermail/python-dev/2017-December/151283.html) 来进行保存, 删除操作不能对 **entries** 中的元素进行排序
+
+把 entries[i] 当成空的值, 在后续表扩展/压缩时再重新压缩这部分空余的空间, 这样做可以保持删除操作的时间复杂度为 O(1)
+
+并且通常情况下字典对象的删除操作并不普遍, 只有部分情况下会导致性能变慢([PyPy Status Blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html))
+
+#### 结束
 
 现在，我们大致弄明白了 cpython 字典对象的内部实现了!
