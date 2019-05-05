@@ -209,7 +209,7 @@
 
 现在 **StopIteration** 被抛出
 
-**gi_frame** 中的 frameObject 被释放了, 变成了一个空指针, 标明这个 generator 已经结束了
+**gi_frame** 中的 frameObject 被释放了, 变成了一个空指针, 表明这个 generator 已经结束了
 
 并且 **gi_exc_state** 中的各个字段也重置了
 
@@ -298,11 +298,11 @@
 
 在 **test** 函数中, 第一个 **await** 声明之前的瞬间
 
+这是我电脑中字段 **cr_origin** 中的内容, 是自下而上的调用栈信息
 
     >>> cor_list[0].cr_origin
     (('<stdin>', 2, 'test'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/events.py', 81, '_run'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 1765, '_run_once'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 544, 'run_forever'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/base_events.py', 576, 'run_until_complete'), ('/Users/zpoint/Desktop/cpython/Lib/asyncio/runners.py', 43, 'run'), ('<stdin>', 2, '<module>'))
 
-这是我电脑中字段 **cr_origin** 中的内容, 是自下而上的调用栈信息
 
 ![example_coro_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_0.png)
 
@@ -312,7 +312,7 @@
 
 在第 4.01 秒时, cor_list[0] 中的 **f_lasti** 指向了 **await r** 这个位置, 值为 86
 
-the **exc_type**, **exc_value** and **exc_traceback** 保存了 **ZeroDivisionError** 的信息, 和 **generator** 对象的处理方式相同
+**exc_type**, **exc_value** and **exc_traceback** 保存了 **ZeroDivisionError** 的信息, 和 **generator** 对象的处理方式相同
 
 cor_list[1] 现在停在了 **await asyncio.sleep(3)** 这个位置上, **f_lasti** 中的值为 20
 
@@ -461,7 +461,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
       File "<stdin>", line 6, in make_the_call
     StopAsyncIteration
 
-现在 **ag_closed** 被设置为 1(因为这个 async generator 抛出了 **StopAsyncIteration** 异常, 或者 关联的 aclose() 方法被调用额了)
+现在 **ag_closed** 被设置为 1(只有在 async generator 抛出了 **StopAsyncIteration** 异常, 或者 关联的 aclose() 方法被调用的情况下会被设置为 1)
 
 并且 **ag_frame** 被释放了
 
