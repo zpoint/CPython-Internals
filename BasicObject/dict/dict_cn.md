@@ -268,7 +268,7 @@ cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对�
 
 #### 删除操作
 
-the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletiion in dict object
+字典中元素的删除使用的是 [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) 策略(上面已展示过)
 
 ##### 为什么标记成 DKIX_DUMMY
 
@@ -305,9 +305,9 @@ indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**
 
 ##### entries 中的删除
 
-dict 对象需要保证字典中元素按照[插入顺序](https://mail.python.org/pipermail/python-dev/2017-December/151283.html) 来进行保存, 删除操作不能对 **entries** 中的元素进行排序
+dict 对象需要保证字典中元素按照 [插入顺序](https://mail.python.org/pipermail/python-dev/2017-December/151283.html) 来进行保存, 删除操作不能对 **entries** 中的元素进行排序
 
-把 entries[i] 当成空的值, 在后续表扩展/压缩时再重新压缩这部分空余的空间, 这样做可以保持删除操作的时间复杂度为 O(1)
+把 entries[i] 当成空的值, 在后续表扩展/压缩时再重新压缩这部分空余的空间, 这样做可以保持删除操作的平均时间复杂度为 O(1)
 
 并且通常情况下字典对象的删除操作并不普遍, 只有部分情况下会导致性能变慢([PyPy Status Blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html))
 
