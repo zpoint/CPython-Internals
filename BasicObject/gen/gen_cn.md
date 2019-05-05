@@ -18,6 +18,8 @@
 * cpython/Objects/genobject.c
 * cpython/Include/genobject.h
 
+### generator
+
 #### 内存构造 generator
 
 **generator**, **coroutine** 和 **async generator** 共享一大部分的定义
@@ -231,6 +233,8 @@
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
+### coroutine
+
 #### 内存构造 coroutine
 
 **coroutine** 类型和 **generator** 类型的大部分定义是相同的
@@ -328,6 +332,8 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 在 6.01 秒时, **cor_list[0]** 和 **cor_list[1]** 都结束并返回了, 他们的 **cr_frame** 都为空指针, 处理方式和 **generator** 类型类似
 
 ![example_coro_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_3.png)
+
+### async generator
 
 #### 内存构造 async generator
 

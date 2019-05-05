@@ -18,6 +18,8 @@
 * cpython/Objects/genobject.c
 * cpython/Include/genobject.h
 
+### generator
+
 #### memory layout generator
 
 there's a common defination among **generator**, **coroutine** and **async generator**
@@ -233,6 +235,8 @@ and states in **gi_exc_state** is restored
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
+### coroutine
+
 #### memory layout coroutine
 
 most parts of the defination of the **coroutine** type and **generator** are the same
@@ -328,6 +332,8 @@ every function call will create a new frame, the frame mcechanism used here is s
 in the 6.01 seconds, both **cor_list[0]** and **cor_list[1]** returned, and their **cr_frame** field becomes null pointer, the handling process is similar to the **generator** type
 
 ![example_coro_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_3.png)
+
+### async generator
 
 #### memory layout async generator
 
