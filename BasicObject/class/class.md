@@ -215,11 +215,11 @@ we can see the _\_get_\_ function of classmethod object
         return PyMethod_New(cm->cm_callable, type);
     }
 
-when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, the lambda function object
+when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, the bounded-PyMethodObject object
 
 ##### staticmethod
 
-the **@classmethod** changes type of **c1.fs** to [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+the **@staticmethod** changes type of **c1.fs** to [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
 
     >>> type(c1.fs)
     <class 'function'>

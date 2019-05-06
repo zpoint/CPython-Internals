@@ -215,11 +215,11 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         return PyMethod_New(cm->cm_callable, type);
     }
 
-当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了 **cm_callable** 里的东西, 也就是一个 **lambda** 函数对象
+当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了 **cm_callable** 里的东西, 也就是一个 bounded-PyMethodObject 对象
 
 ##### staticmethod
 
-**@classmethod** 装饰器把 **c1.fs** 的类型更改为了 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+**@staticmethod** 装饰器把 **c1.fs** 的类型更改为了 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
 
     >>> type(c1.fs)
     <class 'function'>
