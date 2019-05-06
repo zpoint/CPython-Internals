@@ -8,6 +8,9 @@
 	* [im_func](#im_func)
 	* [im_self](#im_self)
 * [free_list](#free_list)
+* [classmethod and staticmethod](#classmethod-and-staticmethod)
+	* [classmethod](#classmethod)
+	* [staticmethod](#staticmethod)
 
 #### related file
 * cpython/Objects/classobject.c
@@ -23,7 +26,7 @@ the **PyMethodObject** represents the type **method** in c-level
 
     >>> c = C()
     >>> type(c.f1)
-    method
+    <class 'method'>
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/layout.png)
 
@@ -120,3 +123,150 @@ assume the free_list is empty now
     4529849392
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list2.png)
+
+#### classmethod and staticmethod
+
+let's define an object with **classmethod** and **staticmethod**
+
+    class C(object):
+        def f1(self, val):
+            return val
+
+        @staticmethod
+        def fs():
+            pass
+
+        @classmethod
+        def fc(cls):
+            return cls
+
+    >>> c1 = C()
+    >>> type(c1.fs)
+    <class 'function'>
+    >>> type(c1.fc)
+    <class 'method'>
+
+##### classmethod
+
+the **@classmethod** keeps type of **c1.fc** as **method**
+
+**c.fc** is another instance of  **PyMethodObject**, with **im_func** bind to the actual callable object, and **im_self** bind to the `<class '__main__.C'>`
+
+    >>> C
+    <class '__main__.C'>
+
+![classmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod.png)
+
+how **classmethod** work internally ?
+
+**classmethod** is a **type** in python3
+
+    typedef struct {
+        PyObject_HEAD
+        PyObject *cm_callable;
+        PyObject *cm_dict;
+    } classmethod;
+
+![classmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod1.png)
+
+let's see what's under the hood
+
+    fc = classmethod(lambda self : self)
+
+    class C(object):
+        fc1 = fc
+
+    >>> cc = C()
+    >>> type(fc)
+    >>> <class 'classmethod'>
+    >>> type(cc.fc1)
+    >>> <class 'method'>
+
+    >>> fc.__dict__["b"] = "c"
+    >>> cc.fc1
+    <bound method <lambda> of <class '__main__.C'>>
+
+when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different path to get the attribute in the following step
+* call _\_getattribute_\_ of the object cc
+* C._\_dict_\_["fc1"] is a data descriptor?
+	* yes, return C._\_dict_\_['fc1']._\_get_\_(instance, Class)
+	* no, return cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
+		* C._\_dict_\_['fc1']._\_get_\_(instance, klass) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
+* if not found in above steps, call c._\_getattr_\_("fc1")
+
+for more detail, please refer to [class-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#class-attribute-lookup)
+
+![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
+
+we can see the _\_get_\_ function of classmethod object
+
+    static PyObject *
+    cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+    {
+        classmethod *cm = (classmethod *)self;
+
+        if (cm->cm_callable == NULL) {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "uninitialized classmethod object");
+            return NULL;
+        }
+        if (type == NULL)
+            type = (PyObject *)(Py_TYPE(obj));
+        return PyMethod_New(cm->cm_callable, type);
+    }
+
+when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, the lambda function object
+
+##### staticmethod
+
+the **@classmethod** changes type of **c1.fs** to [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+
+    >>> type(c1.fs)
+    <class 'function'>
+
+![staticmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod.png)
+
+    typedef struct {
+        PyObject_HEAD
+        PyObject *sm_callable;
+        PyObject *sm_dict;
+    } staticmethod;
+
+this is the layout of **staticmethod** object
+
+![staticmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod1.png)
+
+    fs = staticmethod(lambda : None)
+
+    class C(object):
+        fs1 = fs
+
+    >>> fs.__dict__["a"] = "b"
+    >>> cc = C()
+    >>> type(fs)
+    >>> <class 'staticmethod'>
+    >>> type(cc.fs1)
+    >>> <class 'function'>
+
+    >>> cc.fs1
+    <function <lambda> at 0x1047d9f40>
+
+![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
+
+we can see the _\_get_\_ function of staticmethod object
+
+    static PyObject *
+    sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+    {
+        staticmethod *sm = (staticmethod *)self;
+
+        if (sm->sm_callable == NULL) {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "uninitialized staticmethod object");
+            return NULL;
+        }
+        Py_INCREF(sm->sm_callable);
+        return sm->sm_callable;
+    }
+
+so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happened again, C._\_dict_\_["fs1"]_\_get_\_(instance, Class) returns the **lambda** function

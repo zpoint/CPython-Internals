@@ -8,6 +8,9 @@
 	* [im_func](#im_func)
 	* [im_self](#im_self)
 * [free_list(缓冲池)](#free_list)
+* [classmethod 和 staticmethod](#classmethod-和-staticmethod)
+	* [classmethod](#classmethod)
+	* [staticmethod](#staticmethod)
 
 #### 相关位置文件
 * cpython/Objects/classobject.c
@@ -23,7 +26,7 @@
 
     >>> c = C()
     >>> type(c.f1)
-    method
+    <class 'method'>
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/layout.png)
 
@@ -120,3 +123,150 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
     4529849392
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list2.png)
+
+#### classmethod 和 staticmethod
+
+我们来定义一个有 **classmethod** 和 **staticmethod** 的对象看看
+
+    class C(object):
+        def f1(self, val):
+            return val
+
+        @staticmethod
+        def fs():
+            pass
+
+        @classmethod
+        def fc(cls):
+            return cls
+
+    >>> c1 = C()
+    >>> type(c1.fs)
+    <class 'function'>
+    >>> type(c1.fc)
+    <class 'method'>
+
+##### classmethod
+
+**@classmethod** 装饰器使得 **c1.fc** 的结果仍然为类型 **method** 的对象
+
+**c.fc** 是另一个  **PyMethodObject** 的实例, 其中的 **im_func** 指向即将调用的函数对象, 而 **im_self** 指向了 `<class '__main__.C'>`
+
+    >>> C
+    <class '__main__.C'>
+
+![classmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod.png)
+
+**classmethod** 内部是如何实现的呢 ?
+
+**classmethod** 在 python3 中是一个类型
+
+    typedef struct {
+        PyObject_HEAD
+        PyObject *cm_callable;
+        PyObject *cm_dict;
+    } classmethod;
+
+![classmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod1.png)
+
+我们来尝试理解一下
+
+    fc = classmethod(lambda self : self)
+
+    class C(object):
+        fc1 = fc
+
+    >>> cc = C()
+    >>> type(fc)
+    >>> <class 'classmethod'>
+    >>> type(cc.fc1)
+    >>> <class 'method'>
+
+    >>> fc.__dict__["b"] = "c"
+    >>> cc.fc1
+    <bound method <lambda> of <class '__main__.C'>>
+
+当你尝试通过实例 cc 访问属性 **fc1** 时, **descriptor protocol** 会通过好几种不同的方式去尝试获得一个结果, 并把这个结果返回给你, 比如
+* 调用 cc 的 _\_getattribute_\_
+* 判断 C._\_dict_\_["fc1"] 是否为 data descriptor?
+	* 是, 返回 C._\_dict_\_['fc1']._\_get_\_(instance, Class)
+	* 否, 返回 cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
+		* C._\_dict_\_['fc1']._\_get_\_(instance, klass) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
+* 如果上面的步骤都没找到, 调用 c._\_getattr_\_("fc1") 返回
+
+有兴趣的同学可以参考这篇博客 [class-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#class-attribute-lookup)
+
+![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
+
+我们可以看看 **classmethod** 类型的 _\_get_\_ 函数的实现
+
+    static PyObject *
+    cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+    {
+        classmethod *cm = (classmethod *)self;
+
+        if (cm->cm_callable == NULL) {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "uninitialized classmethod object");
+            return NULL;
+        }
+        if (type == NULL)
+            type = (PyObject *)(Py_TYPE(obj));
+        return PyMethod_New(cm->cm_callable, type);
+    }
+
+当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了 **cm_callable** 里的东西, 也就是一个 **lambda** 函数对象
+
+##### staticmethod
+
+**@classmethod** 装饰器把 **c1.fs** 的类型更改为了 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+
+    >>> type(c1.fs)
+    <class 'function'>
+
+![staticmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod.png)
+
+    typedef struct {
+        PyObject_HEAD
+        PyObject *sm_callable;
+        PyObject *sm_dict;
+    } staticmethod;
+
+这是 **staticmethod** 对象的构造
+
+![staticmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod1.png)
+
+    fs = staticmethod(lambda : None)
+
+    class C(object):
+        fs1 = fs
+
+    >>> fs.__dict__["a"] = "b"
+    >>> cc = C()
+    >>> type(fs)
+    >>> <class 'staticmethod'>
+    >>> type(cc.fs1)
+    >>> <class 'function'>
+
+    >>> cc.fs1
+    <function <lambda> at 0x1047d9f40>
+
+![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
+
+我们可以看看 **staticmethod** 类型的 _\_get_\_ 函数的实现
+
+    static PyObject *
+    sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+    {
+        staticmethod *sm = (staticmethod *)self;
+
+        if (sm->sm_callable == NULL) {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "uninitialized staticmethod object");
+            return NULL;
+        }
+        Py_INCREF(sm->sm_callable);
+        return sm->sm_callable;
+    }
+
+当你通过 **cc.fs1** 访问属性 **fs1** 时, **descriptor protocol** 再一次的调用了 C._\_dict_\_["fs1"]_\_get_\_(instance, Class) 并返回了对应的 **lambda** 函数对象

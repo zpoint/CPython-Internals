@@ -33,7 +33,7 @@ I will only recommend what I've read
  - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
  - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
  - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
- - [ ] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
+ - [x] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [ ] complex
  - [ ] enum
  - [ ] file

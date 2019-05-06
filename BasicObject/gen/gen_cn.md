@@ -486,11 +486,11 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
     static PyAsyncGenASend *ag_asend_freelist[_PyAsyncGen_MAXFREELIST];
     static int ag_asend_freelist_free = 0;
 
-因为这两个类型存货的时间一般都很短, 并且在每一个 **_\_anext_\_** 调用的时候都会实例化他们, 缓冲池机制可以
+因为这两个类型存活的时间一般都很短, 并且在每一个 **_\_anext_\_** 调用的时候都会实例化他们, 缓冲池机制可以
 * 提高 6-10% 的性能
 * 减小内存碎片
 
-两个 r 的 id 是相同的, 同个**async_generator_asend**  对象被重复的进行了使用
+两个 r 的 id 是相同的, 同个 **async_generator_asend**  对象被重复的进行了使用
 
     >>> f = async_fib(3)
     >>> r = f.asend(None)
