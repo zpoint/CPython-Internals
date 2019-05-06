@@ -17,6 +17,8 @@
 
 #### 内存构造
 
+你可以先读一下这篇 [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) 了解一下 **unicode** 对象的大致存储方式
+
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
 如果你对 c 语言的 bit-fields 有疑问，请参考 [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) 和 [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
@@ -151,22 +153,14 @@ _PyUnicode_UTF8_LENGTH
 		* ascii flag 值为 1: U+0000-U+007F
 		* ascii flag 值为 0: 至少一个字符在 U+0080-U+00FF 里
 
-**utf8_length** 这个地方仍然存储了 \0 终结形式的c字符串，但是 **interned** 这个值并不为 0, 只有在特定字符区间范围内的字符串会存储到 **interned** 全局字典
+**utf8_length** 这个地方仍然存储了 \0 终结形式的c字符串，但是 **interned** 这个值为 0, 只有在特定字符区间范围内的字符串会存储到 **interned** 全局字典
 
-	s = "\u007F\u0000"
-    id(s)
-    4519246896
-    del s
-    s = "\u007F\u0000" # same id as previous one, 即使 interned 为 0, id 也与前一个相同
-    4519246896
-    del s
-    gc.collect() # gc.collect 会把 interned 为 1 的也一并删除
-    s = "\u007F\u0000"
-    id(s)
-    4519245680
-    s2 = "\u007F\u0000"
-    id(s2)
-    4519247152
+    >>> s1 = "\u007F\u0000"
+    >>> id(s1)
+    4472458224
+    >>> s2 = "\u007F\u0000"
+    >>> id(s2) # “interned” 值为 0, 不会全局共享同个对象
+    4472458608
 
 ![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 

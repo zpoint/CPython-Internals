@@ -17,6 +17,8 @@
 
 #### memory layout
 
+you can read [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) first to have an overview of how **unicode** stored internally
+
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
 For those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
@@ -156,20 +158,12 @@ I haven't found a way to define an unicode object represent with **PyUnicode_WCH
 
 the **utf8_length** field still stores the null terminated c style string, except the interned field is 0, only the characters in specific range wiill cpython store the unicode object in the interned dictionary.
 
-	s = "\u007F\u0000"
-    id(s)
-    4519246896
-    del s
-    s = "\u007F\u0000" # same id as previous one, even if the interned field is 0
-    4519246896
-    del s
-    gc.collect() # gc.collect also will free oject which field interned is 1
-    s = "\u007F\u0000"
-    id(s)
-    4519245680
-    s2 = "\u007F\u0000"
-    id(s2)
-    4519247152
+    >>> s1 = "\u007F\u0000"
+    >>> id(s1)
+    4472458224
+    >>> s2 = "\u007F\u0000"
+    >>> id(s2) # bacause “interned” field is 0, the unicode object will not be shared
+    4472458608
 
 ![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 
