@@ -26,6 +26,12 @@
 
 在 python 中, 一切皆对象, 包括函数对象, 一个函数对象在 c 语言中被定义为 **PyFunctionObject**
 
+    def f(a, b=2):
+        print(a, b)
+
+    >>> type(f)
+    function
+
 类型 **function** 表示用户自定义函数/对象, 对于那种内建函数/对象, 他们是不同的类型, 请参考 [method](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method_cn.md)
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
@@ -41,9 +47,6 @@
 一段代码块相关信息会包括对应 python 虚拟机的指令, 这个函数的参数数量, 参数内容等信息
 
 后续会有文章讲 **PyCodeObject**
-
-	def f(a, b=2):
-    	print(a, b)
 
 	>>> f.__code__
 	<code object f at 0x1078015d0, file "<stdin>", line 1>

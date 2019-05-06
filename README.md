@@ -29,11 +29,11 @@ I will only recommend what I've read
  - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md)
- - [x] [func(user-defined)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
- - [x] [method(builtin)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
+ - [x] [func(user-defined method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
+ - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
  - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
  - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
- - [ ] class
+ - [ ] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [ ] complex
  - [ ] enum
  - [ ] file

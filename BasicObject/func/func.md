@@ -26,6 +26,12 @@
 
 every thing is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
 
+    def f(a, b=2):
+        print(a, b)
+
+    >>> type(f)
+    function
+
 the type **function** indicates the user-defined method/classes, for **builtin_function_or_method** please refer to [method](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
@@ -42,9 +48,6 @@ A code block must contains python virtual machine's instruction, argument number
 body and etc
 
 I will explain **PyCodeObject** in other article
-
-	def f(a, b=2):
-    	print(a, b)
 
 	>>> f.__code__
 	<code object f at 0x1078015d0, file "<stdin>", line 1>
