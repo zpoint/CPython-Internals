@@ -2,7 +2,7 @@
 
 ### category
 
-Because the **PyDictObject** is a little bit more compilated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
+Because the **PyDictObject** is a little bit more complicated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
