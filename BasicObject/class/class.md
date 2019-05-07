@@ -215,7 +215,7 @@ we can see the _\_get_\_ function of classmethod object
         return PyMethod_New(cm->cm_callable, type);
     }
 
-when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, the bounded-PyMethodObject object
+when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, wrapped by **PyMethod_New()** function, which makes the return object a new bounded-PyMethodObject
 
 ##### staticmethod
 

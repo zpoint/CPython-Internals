@@ -215,7 +215,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         return PyMethod_New(cm->cm_callable, type);
     }
 
-当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了 **cm_callable** 里的东西, 也就是一个 bounded-PyMethodObject 对象
+当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了一个新的创建的 **PyMethodObject** 对象(通过 **PyMethod_New**), 这个 **PyMethodObject** 里面包的的 **im_func** 就是 **cm_callable** 里当前锁存储的函数对象(这里是个 lambda)
 
 ##### staticmethod
 
