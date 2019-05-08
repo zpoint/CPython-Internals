@@ -36,6 +36,8 @@
 
 ##### 整数 0
 
+注意, 当要表示的整数的值为 0 时, **ob_digit** 这个数组为空, 不存储任何东西, **ob_size** 中的 0 就直接表示这个整数的值为 0, 这是一种特殊情况
+
 	i = 0
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
@@ -62,8 +64,6 @@
     #define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
 
 我把源代码里的 **PYLONG_BITS_IN_DIGIT** 的值写死成了 15, 这样我下面所有的示例都是以 **unsigned short** 定义的 **digit**
-
-注意, 当要表示的整数的值为 0 时, **ob_digit** 这个数组为空, 不存储任何东西, **ob_size** 中的 0 就直接表示这个整数的值为 0, 这是一种特殊情况
 
 当我们需要表示整数 1 的时候, **ob_size** 的值变成了1, 这个时候 **ob_size** 表示 **ob_digit** 的长度, 并且 **ob_digit** 里以 **unsigned short** 的表示方式存储了整数1
 

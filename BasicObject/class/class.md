@@ -186,17 +186,21 @@ let's see what's under the hood
     >>> cc.fc1
     <bound method <lambda> of <class '__main__.C'>>
 
+get different result when access the same object in different way, why ?
+
 when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different path to get the attribute in the following step
-* call _\_getattribute_\_ of the object cc
+* call _\_getattribute_\_ of the object C
 * C._\_dict_\_["fc1"] is a data descriptor?
 	* yes, return C._\_dict_\_['fc1']._\_get_\_(instance, Class)
 	* no, return cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
 		* C._\_dict_\_['fc1']._\_get_\_(instance, klass) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
 * if not found in above steps, call c._\_getattr_\_("fc1")
 
-for more detail, please refer to [class-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#class-attribute-lookup)
+for more detail, please refer to this blog [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
+
+because **classmethod** implements _\_get_\_ and _\_set_\_, it's a data descriptor, when you try to access attribute **cc.fc1**, you will actually call **fc1._\_get_\_**, and caller will get whatever it returns
 
 we can see the _\_get_\_ function of classmethod object
 

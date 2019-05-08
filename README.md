@@ -34,7 +34,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
  - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
  - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
- - [x] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
+ - [x] [class(bound method/classmethod/staticmethod)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
 

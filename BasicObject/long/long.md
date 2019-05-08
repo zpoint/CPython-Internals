@@ -34,6 +34,8 @@ Let's see
 
 ##### ingeter 0
 
+Notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
+
 	i = 0
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
@@ -60,8 +62,6 @@ There are two differenct type of **ob_digit** depends on your system.
     #define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
 
 I've modified the source code to change the value of **PYLONG_BITS_IN_DIGIT** to 15
-
-Notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
 
 But when it's going to represent integer 1, **ob_size** becomes 1 and field in **ob_digit** represent the value 1 with type **unsigned short**
 

@@ -186,17 +186,21 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
     >>> cc.fc1
     <bound method <lambda> of <class '__main__.C'>>
 
+同样的变量, 通过不用的方式获取得到的结果不同, 这是怎么一回事呢 ?
+
 当你尝试通过实例 cc 访问属性 **fc1** 时, **descriptor protocol** 会通过好几种不同的方式去尝试获得一个结果, 并把这个结果返回给你, 比如
-* 调用 cc 的 _\_getattribute_\_
+* 调用 C 的 _\_getattribute_\_
 * 判断 C._\_dict_\_["fc1"] 是否为 data descriptor?
 	* 是, 返回 C._\_dict_\_['fc1']._\_get_\_(instance, Class)
 	* 否, 返回 cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
 		* C._\_dict_\_['fc1']._\_get_\_(instance, klass) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
 * 如果上面的步骤都没找到, 调用 c._\_getattr_\_("fc1") 返回
 
-有兴趣的同学可以参考这篇博客 [class-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#class-attribute-lookup)
+有兴趣的同学可以参考这篇博客的这个部分 [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
+
+由于 **classmethod** 类型同时实现了 _\_get_\_ 和 _\_set_\_, 所以这个类型的示例为 data descriptor, 通过类属性访问 **cc.fc1** 会调用 **fc1._\_get_\_** 函数, 并返回这个函数所返回的对象给调用者
 
 我们可以看看 **classmethod** 类型的 _\_get_\_ 函数的实现
 
@@ -215,7 +219,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         return PyMethod_New(cm->cm_callable, type);
     }
 
-当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了一个新的创建的 **PyMethodObject** 对象(通过 **PyMethod_New**), 这个 **PyMethodObject** 里面包的的 **im_func** 就是 **cm_callable** 里当前锁存储的函数对象(这里是个 lambda)
+当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了一个新的创建的 **PyMethodObject** 对象(通过 **PyMethod_New**), 这个 **PyMethodObject** 里面包的的 **im_func** 就是当前 **classmethod** 的 **cm_callable** 里所存储的函数对象(这里是个 lambda)
 
 ##### staticmethod
 
@@ -252,6 +256,8 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
     <function <lambda> at 0x1047d9f40>
 
 ![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
+
+同理  **staticmethod** 也是一个 data descriptor
 
 我们可以看看 **staticmethod** 类型的 _\_get_\_ 函数的实现
 
