@@ -193,14 +193,14 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 * 判断 C._\_dict_\_["fc1"] 是否为 data descriptor?
 	* 是, 返回 C._\_dict_\_['fc1']._\_get_\_(instance, Class)
 	* 否, 返回 cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
-		* C._\_dict_\_['fc1']._\_get_\_(instance, klass) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
+		* C._\_dict_\_['fc1']._\_get_\_(instance, Class) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
 * 如果上面的步骤都没找到, 调用 c._\_getattr_\_("fc1") 返回
 
 有兴趣的同学可以参考这篇博客的这个部分 [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
 
-由于 **classmethod** 类型同时实现了 _\_get_\_ 和 _\_set_\_, 所以这个类型的示例为 data descriptor, 通过类属性访问 **cc.fc1** 会调用 **fc1._\_get_\_** 函数, 并返回这个函数所返回的对象给调用者
+由于 **classmethod** 类型同时实现了 _\_get_\_ 和 _\_set_\_, 所以这个类型/类型的实例为 **data descriptor**, 通过类属性访问 **cc.fc1** 会调用 **fc1._\_get_\_** 函数, 并返回这个函数所返回的对象给调用者
 
 我们可以看看 **classmethod** 类型的 _\_get_\_ 函数的实现
 
@@ -257,7 +257,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 ![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
 
-同理  **staticmethod** 也是一个 data descriptor
+同理  **staticmethod** 也是一个 **data descriptor**
 
 我们可以看看 **staticmethod** 类型的 _\_get_\_ 函数的实现
 
