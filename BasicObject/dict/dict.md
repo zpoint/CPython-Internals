@@ -261,8 +261,8 @@ why mark as **DKIX_DUMMY** in the indices?
 
 there're totally three kinds of value for each slot in indices, **DKIX_EMPTY**(-1), **DKIX_DUMMY**(-2) and **Active/Pending**(>=0), if you mark as  **DKIX_EMPTY** instead of **DKIX_DUMMY**, the "perturb" strategy for inserting and finding key/values will fail. Imagine you have a hash table in size 8, this is the indices in hash table
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5          6    7     8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4]
+    index:    0    1         2      3        4           5          6    7
 
 when you search for a item with hash value 0, and real position is in entries[4]
 
@@ -272,8 +272,8 @@ this is the searching process according to the "perturb" strategy
 
 if you delete the 6th indices, and mark it as **DKIX_EMPTY**, when you search for the same item again
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5               6        7        8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4]
+    index:    0    1         2      3        4           5               6        7
 
 the searching process now becomes
 
@@ -281,8 +281,8 @@ the searching process now becomes
 
 the item being searched is in indices[7], but "perturb" strategy stopped before indices[7] due to the wrong **DKIX_EMPTY** in indices[6], if we mark deleted as **DKIX_DUMMY**
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5               6        7        8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4]
+    index:    0    1         2      3        4           5               6        7
 
 the searching process becomes
 

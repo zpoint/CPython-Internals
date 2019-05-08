@@ -276,8 +276,8 @@ indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**
 
 假设你有一个大小为 8 的哈希表, 他的 indices 如下所示
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5          6    7     8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [3]  [4]
+    index:    0    1         2      3        4           5          6    7
 
 当你搜索一个哈希值为 0 的对象, 并且这个对象的位置在 entries[4] 时, "perturb" 的搜索过程如下
 
@@ -285,8 +285,8 @@ indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**
 
 假设你删除掉 indices[6] 上面的对象, 并把他标记为 **DKIX_EMPTY**, 当你再次搜索同一个对象的时候
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5               6        7        8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_EMPTY]  [4]
+    index:    0    1         2      3        4           5               6        7
 
 搜索过程如下所示
 
@@ -294,8 +294,8 @@ indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**
 
 实际上需要搜索的对象在 indices[7] 上面, 但是由于错误的标记了 **DKIX_EMPTY**, 搜索停留在了 indices[6] 上, 如果我们把他标记成正确的值 **DKIX_DUMMY**
 
-	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4] [DKIX_EMPTY]
-    index:    0    1         2      3        4           5               6        7        8
+	indices: [0]  [1] [DKIX_EMPTY] [2] [DKIX_EMPTY] [DKIX_EMPTY]   [DKIX_DUMMY]  [4]
+    index:    0    1         2      3        4           5               6        7
 
 搜索过程会变成
 
