@@ -44,7 +44,7 @@
 
 #### 库
 
- - [ ] re
+ - [ ] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re_cn.md)
  - [ ] asyncio
 
 #### 解释器相关
@@ -56,6 +56,7 @@
  - [ ] module
  - [ ] namespace
  - [ ] GIL
+ - [ ] gc
 
 #### 学习资料
 

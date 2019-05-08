@@ -45,7 +45,7 @@ Trying to illustrate every detail of cpython implementation
 
 #### Lib
 
- - [ ] re
+ - [ ] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
  - [ ] asyncio
 
 #### Interpreter
@@ -57,6 +57,7 @@ Trying to illustrate every detail of cpython implementation
  - [ ] module
  - [ ] namespace
  - [ ] GIL
+ - [ ] gc
 
 #### learning material
 
