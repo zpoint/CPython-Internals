@@ -1,4 +1,5 @@
 # Cpython Internals
+
 * [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
 
 This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code
@@ -9,15 +10,15 @@ Trying to illustrate every detail of cpython implementation
     cd cpython
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
-#### learning material
 
-I will only recommend what I've read
+### Table of Contents
 
-* [rushter](https://rushter.com/)
-* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
-* [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
-* [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
-* [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
+* [Objects](#Objects)
+* [Modules](#Modules)
+* [Lib](#Lib)
+* [Interpreter](#Interpreter)
+* [learning material](#learning-material)
+
 
 #### Objects
  - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
@@ -35,7 +36,7 @@ I will only recommend what I've read
  - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
  - [x] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
- - [ ] enum
+ - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
  - [ ] file
  - [ ] range
  - [ ] slice
@@ -60,3 +61,12 @@ I will only recommend what I've read
  - [ ] namespace
  - [ ] GIL
 
+#### learning material
+
+I will only recommend what I've read
+
+* [rushter](https://rushter.com/)
+* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
+* [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
+* [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
+* [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)

@@ -1,6 +1,6 @@
 # enum
 
-### category
+### contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -33,7 +33,7 @@
     >>> type(e)
     <class 'enumerate'>
 
-before iter through the object **e**, the **en_index** field is 0, **en_sit** stores the actual generator object being iterated, **en_result** stores the previous result
+before iter through the object **e**, the **en_index** field is 0, **en_sit** stores the actual generator object being iterated, **en_result** points a tuple object with two empty value
 
 we will see the meaning of **en_longindex** later
 
@@ -45,7 +45,7 @@ we will see the meaning of **en_longindex** later
     >>> id(t1)
     4469348888
 
-now, the **en_index** becomes 1, the tuple in **en_result** is the last tuple object returned, the elements in the tuple are changed, but the address **en_result** doesn't change, not because of the [free-list mechanism in tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#free-list)
+now, the **en_index** becomes 1, the tuple in **en_result** is the last tuple object returned, the elements in the tuple are changed, but the address in **en_result** doesn't change, not because of the [free-list mechanism in tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#free-list)
 
 it's a trick in the **enumerate** iterating function
 
@@ -85,7 +85,9 @@ it's a trick in the **enumerate** iterating function
         return result;
     }
 
-it's clear, because only the current enumerate object keep a reference to the old `tuple object -> (None, None)` **enum_next** reset the 0th element in the tuple to 0, and 1th element in the tuple to 'I', so the address **en_result** points to is the same
+it's clear, because only the current enumerate object keep a reference to the old `tuple object -> (None, None)` object
+
+**enum_next** reset the 0th element in the tuple to 0, and 1th element in the tuple to 'I', so the address **en_result** points to is the same
 
 ![example1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/example1.png)
 
@@ -148,3 +150,4 @@ what **en_longindex** points to is a [PyLongObject(python type int)](https://git
 	>>> e = enumerate(gen(), (1 << 63) + 100)
 
 ![longindex1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/longindex1.png)
+

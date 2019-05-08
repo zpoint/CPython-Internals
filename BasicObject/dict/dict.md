@@ -1,6 +1,6 @@
 # dict
 
-### category
+### contents
 
 Because the **PyDictObject** is a little bit more complicated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
 

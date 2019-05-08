@@ -1,4 +1,5 @@
 # Cpython Internals
+
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录/博客
@@ -9,18 +10,18 @@
     cd cpython
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
+### 目录
 
-#### 学习资料
+* [基本对象](#基本对象)
+* [模块](#模块)
+* [库](#库)
+* [解释器相关](#解释器相关)
+* [学习资料](#学习资料)
 
-以下的资料笔者遵循先阅读后推荐的原则
+#### 概述
 
-若页面无法打开请自行搭梯子O(∩_∩)O
 
-* [rushter](https://rushter.com/)
-* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
-* [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
-* [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
-* [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
+
 
 #### 基本对象
 - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_cn.md)
@@ -38,7 +39,7 @@
 - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md)
 - [x] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class_cn.md)
 - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex_cn.md)
-- [ ] enum
+- [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum_cn.md)
 - [ ] file
 - [ ] range
 - [ ] slice
@@ -63,5 +64,15 @@
  - [ ] namespace
  - [ ] GIL
 
+#### 学习资料
 
+以下的资料笔者遵循先阅读后推荐的原则
+
+若页面无法打开请自行搭梯子O(∩_∩)O
+
+* [rushter](https://rushter.com/)
+* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
+* [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
+* [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
+* [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
 

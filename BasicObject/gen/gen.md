@@ -1,6 +1,6 @@
 # gen
 
-### category
+### contents
 
 * [related file](#related-file)
 * [generator](#generator)

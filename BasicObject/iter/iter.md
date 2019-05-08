@@ -1,6 +1,6 @@
 # iter
 
-### category
+### contents
 
 * [related file](#related-file)
 * [iterator](#iterator)
