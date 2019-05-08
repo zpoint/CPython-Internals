@@ -18,10 +18,6 @@
 * [解释器相关](#解释器相关)
 * [学习资料](#学习资料)
 
-#### 概述
-
-
-
 
 #### 基本对象
 - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_cn.md)
@@ -40,9 +36,6 @@
 - [x] [class(bound method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class_cn.md)
 - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex_cn.md)
 - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum_cn.md)
-- [ ] file
-- [ ] range
-- [ ] slice
 
 #### 模块
 
