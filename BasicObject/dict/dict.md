@@ -2,7 +2,7 @@
 
 ### contents
 
-Because the **PyDictObject** is a little bit more complicated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
+because the **PyDictObject** is a little bit more complicated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -35,7 +35,7 @@ this is an entry, which points to a hash table inside the python dictionary obje
 
 ![entry_before](https://img-blog.csdnimg.cn/20190311111041784.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-If you have many large sparse hash table, it will waste lots of memory. In order to represent the hash table in a more compact way, we split indices and real key value object inside the hashtable(After python3.6)
+If you have many large sparse hash table, it will waste lots of memory. In order to represent the hash table in a more compact way, you can split indices and real key-value object inside the hashtable(After python3.6)
 
 ![entry_after](https://img-blog.csdnimg.cn/20190311114021201.png)
 
@@ -164,7 +164,7 @@ now, the overview is clear
 
 #### hash collisions and delete
 
-how pyrthon handle hash collisions in dict object? Instead of depending on a good hash function, python uses "perturb" strategy, let's read some source code and have a try
+how cpython handle hash collisions in dict object? Instead of depending on a good hash function, python uses "perturb" strategy, let's read some source code and have a try
 
 
 	j = ((5*j) + 1) mod 2**i
