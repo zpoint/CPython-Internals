@@ -24,7 +24,7 @@ what happened when you executing the following script ?
     import re
     re.search("abc\dabc", "xxabc123abcd") # re.DEBUG)
 
-This is the call stack
+this is the call stack
 
 ![call_stack](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/call_stack.png)
 
