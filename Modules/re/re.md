@@ -23,7 +23,7 @@
 
 #### how regex work
 
-what happened when you executing the following script ?
+what happened when you execute the following code ?
 
     import re
     re.search("abc\dabc", "xxabc123abcd") # re.DEBUG)
@@ -32,13 +32,15 @@ the call stack
 
 ![call_stack](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/call_stack.png)
 
-the overview of **re.search**
+the overview of different phases of **re.search**
 
 ![overview](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/overview.png)
 
 let's see what's going on in each step
 
 ##### parse
+
+
 
 ##### compile
 
@@ -103,7 +105,7 @@ which will be expanded to three different form
     inline Py_ssize_t sre_ucs2_search(SRE_STATE* state, SRE_CODE* pattern)
     inline Py_ssize_t sre_ucs4_search(SRE_STATE* state, SRE_CODE* pattern)
 
-when I go inside the expanded **sre_ucs1_search**, I found the [match](#match) pharse
+when I go inside the expanded **sre_ucs1_search**, I found the [match](#match) phase
 
 
 

@@ -1,6 +1,7 @@
 # Cpython Internals
 
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
+* 点击 **watching**, 当有文章更新时会在 issue 发布, 你也会第一时间收到通知
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录/博客
 
