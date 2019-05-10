@@ -46,12 +46,12 @@ Trying to illustrate every detail of cpython implementation
 
 #### Lib
 
- - [ ] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
+ - [x] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
  - [ ] asyncio
 
 #### Interpreter
 
- - [ ] frame
+ - [ ] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [ ] code
  - [ ] descr
  - [ ] exception
@@ -59,6 +59,7 @@ Trying to illustrate every detail of cpython implementation
  - [ ] namespace
  - [ ] GIL
  - [ ] gc
+ - [ ] memory management
 
 #### learning material
 

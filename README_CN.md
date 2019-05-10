@@ -50,7 +50,7 @@
 
 #### 解释器相关
 
- - [ ] frame
+ - [ ] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [ ] code
  - [ ] descr
  - [ ] exception
@@ -58,6 +58,7 @@
  - [ ] namespace
  - [ ] GIL
  - [ ] gc
+ - [ ] memory management
 
 #### 学习资料
 
