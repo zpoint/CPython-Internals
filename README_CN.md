@@ -44,7 +44,7 @@
 
 #### 库
 
- - [ ] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re_cn.md)
+ - [ ] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
  - [ ] asyncio
 
 #### 解释器相关
