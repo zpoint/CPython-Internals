@@ -322,7 +322,7 @@ the coroutine in cor_list[1] now stuck in the **await asyncio.sleep(3)** express
 
 the **cr_code** is the same as cor_list[0], but the **cr_frame** is different
 
-every function call will create a new frame, the frame mcechanism used here is similar to [Stack frame](http://en.citizendium.org/wiki/Stack_frame)
+every function call will create a new frame, more information about [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
 
 ![example_coro_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_2.png)
 

@@ -322,7 +322,7 @@ cor_list[1] 现在停在了 **await asyncio.sleep(3)** 这个位置上, **f_last
 
 cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_frame** 却不同
 
-每一个函数调用都会产生一个新的 frame 对象与之关联, python 虚拟机中的调用栈机制和 [Stack frame](http://en.citizendium.org/wiki/Stack_frame) 中的类似
+每一个函数调用都会产生一个新的 frame 对象与之关联, frame 对象可以参考这篇 [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
 
 ![example_coro_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_2.png)
 
