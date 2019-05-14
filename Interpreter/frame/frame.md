@@ -6,6 +6,8 @@
 * [memory layout](#memory-layout)
 * [example](#example)
 	* [f_valuestack/f_stacktop/f_localsplus](#f_valuestack/f_stacktop/f_localsplus)
+	* [f_blockstack](#f_blockstack)
+	* [f_back](#f_back)
 * [free_list](#free_list)
 
 #### related file
@@ -28,6 +30,7 @@ it's not intuitive to trace a frame object in the middle of a function, I will u
 
 you can always get the frame of the current environment by executing `sys._current_frames()`
 
+if you need the meaning of each field, please refer to [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) or read source code directly
 
 ##### f_valuestack/f_stacktop/f_localsplus
 
@@ -134,7 +137,7 @@ the value in **f_stacktop** is the same as the previous picture, but the element
     '3'
 
 
-the opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` and `10 LOAD_FAST                2 (c)` in line 3 pushes **str**(parameter str is stored in the frame-f_code->>co_names field), **b**(int 1) and **c**(int 2) to **f_valuestack**, opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack**(**b** and **c**), sum these two values, store to the top of the **f_valuestack**, this is what the **f_valuestack** looks like after `12 BINARY_ADD`
+the opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` and `10 LOAD_FAST                2 (c)` in line 3 pushes **str**(parameter str is stored in the frame-f_code->co_names field), **b**(int 1) and **c**(int 2) to **f_valuestack**, opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack**(**b** and **c**), sum these two values, store to the top of the **f_valuestack**, this is what the **f_valuestack** looks like after `12 BINARY_ADD`
 
 ![example1_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2.png)
 
@@ -144,7 +147,7 @@ after the function call, result `'3'` is pushed onto the stack
 
 ![example1_2_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_1.png)
 
-opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_valuestack** and stores into the 2th of the **f_localsplus**
+opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_valuestack** and stores it into the 2th position of the **f_localsplus**
 
 ![example1_2_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_2.png)
 
@@ -154,6 +157,142 @@ field **f_lasti** is 20, indicate that it's current executing the opcode `20 YIE
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example2.png)
 
+after `24 LOAD_GLOBAL              1 (range)` and `26 LOAD_CONST               1 (3)`
+
+![example1_3_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_1.png)
+
+after `28 CALL_FUNCTION            1`
+
+![example1_3_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_2.png)
+
+after `30 STORE_FAST               3 (new_g)`
+
+![example1_3_3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_3.png)
+
+after `32 LOAD_FAST                3 (new_g)`
+
+![example1_3_4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_4.png)
+
+the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable object
+
+`36 LOAD_CONST               0 (None)` pushes `None` onto the stack
+
     >>> next(gg)
     0
+
+field **f_lasti** is 36, indicate that it's before the `38 YIELD_FROM`
+
+![example3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example3.png)
+
+the frame object deallocated after the **StopIteration** raised (the opcode `44 RETURN_VALUE` also executed)
+
+    >>> next(gg)
+    1
+    >>> next(gg)
+    2
+    >>> next(gg)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    StopIteration
+    >>> repr(gg.gi_frame)
+    'None'
+
+##### f_blockstack
+
+f_blockstack is an array, element type is **PyTryBlock**, size is **CO_MAXBLOCKS**(20)
+
+the definition of **PyTryBlock**
+
+    typedef struct {
+        int b_type;                 /* what kind of block this is */
+        int b_handler;              /* where to jump to find handler */
+        int b_level;                /* value stack level to pop to */
+    } PyTryBlock;
+
+let's define a generator with some blocks
+
+    def g3():
+        try:
+            yield 1
+            1 / 0
+        except ZeroDivisionError:
+            yield 2
+            try:
+                yield 3
+                import no
+            except ModuleNotFoundError:
+                for i in range(3):
+                    yield i + 4
+                yield 4
+            finally:
+                yield 100
+
+
+	>>> gg = g3()
+
+![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
+
+in the first **yield** statement, the first **try block** is set up
+
+**f_iblock** is 1, indicate that there's currently one block
+
+**b_type** 122 is the opcode `SETUP_FINALLY`, **b_handler** 20 is the opcode location of the `except ZeroDivisionError`, **b_level** 0 is the stack pointer's position to use
+
+    >>> next(gg)
+    1
+
+![blockstack1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack1.png)
+
+**b_type** 257 is the opcode `EXCEPT_HANDLER`, `EXCEPT_HANDLER` has a special meanin g
+
+    /* EXCEPT_HANDLER is a special, implicit block type which is created when
+       entering an except handler. It is not an opcode but we define it here
+       as we want it to be available to both frameobject.c and ceval.c, while
+       remaining private.*/
+    #define EXCEPT_HANDLER 257
+
+**b_handler** set to -1, since already in the processing of the try block
+
+**b_level** doesn't change
+
+    >>> next(gg)
+    2
+
+![blockstack2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack2.png)
+
+**f_iblock** is 3, the second try block comes from `finally:`(opcode position 116), and the third try block comes from `except ModuleNotFoundError:`(opcode position 62)
+
+    >>> next(gg)
+    3
+
+![blockstack3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack3.png)
+
+    >>> next(gg)
+    4
+
+**b_type** of the third try block becomes 257 and **b_handler** becomes -1, means this block is currently being handling
+
+![blockstack4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack4.png)
+
+the other two try block is handled properly
+
+    >>> next(gg)
+    5
+    >>> next(gg)
+    6
+    >>> next(gg)
+    4
+    >>> next(gg)
+    100
+
+![blockstack5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack5.png)
+
+frame object deallocated
+
+    >>> next(gg)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    StopIteration
+
+##### f_back
 
