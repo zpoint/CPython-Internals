@@ -51,7 +51,7 @@ Trying to illustrate every detail of cpython implementation
 
 #### Interpreter
 
- - [ ] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
+ - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [ ] code
  - [ ] descr
  - [ ] exception

@@ -50,7 +50,7 @@
 
 #### 解释器相关
 
- - [ ] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
+ - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [ ] code
  - [ ] descr
  - [ ] exception

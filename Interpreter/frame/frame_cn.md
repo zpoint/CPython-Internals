@@ -10,7 +10,7 @@
 	* [f_back](#f_back)
 * [free_list 机制](#free_list-机制)
 	* [zombie frame](#zombie-frame)
-	* [free_list](#free_list-sub)
+	* [free_list(缓冲池)](#free_list-sub)
 
 #### 相关位置文件
 * cpython/Objects/frameobject.c
@@ -18,35 +18,35 @@
 
 #### 内存构造
 
-the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the current executing code object, parameters, variables in different scope, try block info and etc
+**PyFrameObject** 是 python 虚拟机使用的栈帧对象, 它包含了当前所执行的代码所需要的空间, 参数, 不同作用域的变量, try 的信息等
 
-for more information please refer to [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
+需要更多有关栈帧的信息请参考 [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/layout.png)
 
-#### example
+#### 示例
 
-every time you make a function call, a new **PyFrameObject** will be created and attached to the current function call
+每当你在解释器中做一次函数调用时, 会相应的创建一个新的 **PyFrameObject** 对象, 这个对象就是当前函数调用的栈帧对象
 
-it's not intuitive to trace a frame object in the middle of a function, I will use a [generator object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md) to do the explanation
+在一个函数调用中追踪栈帧的变化不是很直观, 我会用一个 [generator 对象](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md) 来追踪栈帧的变化
 
-you can always get the frame of the current environment by executing `sys._current_frames()`
+你可以通过以下命令获得当前执行环境中的栈帧对象 `sys._current_frames()`
 
-if you need the meaning of each field, please refer to [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) or read source code directly
+如果你想知道 **PyFrameObject** 中每个字段的意义, 请参考 [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) 或者直接阅读源代码
 
 ##### f_valuestack/f_stacktop/f_localsplus
 
-**PyFrameObject** object is variable-sized object, it can be cast to type **PyVarObject**, the real **ob_size** is decided by the **code** object
+**PyFrameObject** 对象的大小是不固定的, 你可以把它强制转换为类型 **PyVarObject**, **ob_size** 存储这个对象动态分配部分的大小, 这部分是所关联的 **code** 对象决定的
 
     Py_ssize_t extras, ncells, nfrees;
     ncells = PyTuple_GET_SIZE(code->co_cellvars);
     nfrees = PyTuple_GET_SIZE(code->co_freevars);
     extras = code->co_stacksize + code->co_nlocals + ncells + nfrees;
-    /* omit */
+    /* 忽略 */
     if (free_list == NULL) { /* omit */
         f = PyObject_GC_NewVar(PyFrameObject, &PyFrame_Type, extras);
     }
-    else { /* omit */
+    else { /* 忽略 */
     	PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
     }
     extras = code->co_nlocals + ncells + nfrees;
@@ -54,19 +54,19 @@ if you need the meaning of each field, please refer to [Junnplus' blog](https://
     for (i=0; i<extras; i++)
         f->f_localsplus[i] = NULL;
 
-the **ob_size** is the sum of code->co_stacksize, code->co_nlocals, code->co_cellvars and code->co_freevars
+**ob_size** 是 code->co_stacksize, code->co_nlocals, code->co_cellvars 和 code->co_freevars 的和
 
-**code->co_stacksize**: a integer that represent the maximum amount stack space that the function will use. It's computed when the code object generated
+**code->co_stacksize**: 一个整形, 表示函数执行时会使用到的最大的堆栈空间, 这个值是 **code** 对象生成时预先计算好的
 
-**code->co_nlocals**: number of local variables
+**code->co_nlocals**: 局部变量的数量
 
-**code->co_cellvars**: a tuple containing the names of all variables in the function that are also used in a nested function
+**code->co_cellvars**: 一个元组, 包含了自己用到并且内嵌函数也用到的所有的变量名称
 
-**code->nfrees**: the names of all variables used in the function that are defined in an enclosing function scope
+**code->nfrees**: 自己是内嵌函数的情况下, 包含了外部函数和自己同时用到的变量名称
 
-for more information about **PyCodeObject** please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) and [code object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)(reserved)
+更多关于 **PyCodeObject** 的信息请参考 [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) 和 [code 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)(预留位置)
 
-let's see an example
+我们来看一个示例
 
     def g2(a, b=1, c=2):
         yield a
@@ -75,7 +75,7 @@ let's see an example
         new_g = range(3)
         yield from new_g
 
-the **dis** result
+**dis** 的结果如下
 
 	  # ./python.exe -m dis frame_dis.py
       1           0 LOAD_CONST               5 ((1, 2))
@@ -115,20 +115,19 @@ the **dis** result
                  42 LOAD_CONST               0 (None)
                  44 RETURN_VALUE
 
-let's iter through the generator
+我们来迭代一遍这个迭代器
 
 	>>> gg = g2("param a")
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example0.png)
 
-after the first **next** returns, the first **opcode** `0 LOAD_FAST                0 (a)` will be executed and the current execution flow is in the middle of the second **opcode** `2 YIELD_VALUE`
+第一次 **next** 返回时, **opcode** `0 LOAD_FAST                0 (a)` 已经被执行了, 并且当前的执行位置是在 `2 YIELD_VALUE` 中
 
-the field **f_lasti** is 2, indicate that the virtual program counter is in `2 YIELD_VALUE`
+字段 **f_lasti** 的值为 2, 表示 python 虚拟机当前的 program counter 在 `2 YIELD_VALUE` 这个位置
 
-the **opcode** `LOAD_FAST` will push the paramter to the **f_valuestack**, and **opcode** `YIELD_VALUE` will **pop** the top element in the **f_valuestack**, the defination of **pop** is `#define BASIC_POP()       (*--stack_pointer)`
+**opcode** `LOAD_FAST` 会把对应的参数推到堆 **f_valuestack** 中, 并且 **opcode** `YIELD_VALUE` 会弹出 **f_valuestack** 顶的元素, **pop** 的定义如下 `#define BASIC_POP()       (*--stack_pointer)`
 
-the value in **f_stacktop** is the same as the previous picture, but the element is the first **f_valuestack** is not null
-
+**f_stacktop** 中的值和前一幅图的值相同, 但是 **f_valuestack** 由于入栈和出栈(出栈并不清空当前的格子)的原因, 里面存储的值已经不为空了
 
     >>> next(gg)
     'param a'
@@ -139,54 +138,54 @@ the value in **f_stacktop** is the same as the previous picture, but the element
     '3'
 
 
-the opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` and `10 LOAD_FAST                2 (c)` in line 3 pushes **str**(parameter str is stored in the frame-f_code->co_names field), **b**(int 1) and **c**(int 2) to **f_valuestack**, opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack**(**b** and **c**), sum these two values, store to the top of the **f_valuestack**, this is what the **f_valuestack** looks like after `12 BINARY_ADD`
+在第三行代码的 opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` 和 `10 LOAD_FAST                2 (c)` 分别把 **str**(str 存储在了 frame-f_code->co_names 这个字段中), **b**(int 1) 和 **c**(int 2) 推入 **f_valuestack**, opcode `12 BINARY_ADD` 弹出 **f_valuestack**(**b** and **c**) 顶部的两个元素, 相加之后存储回 **f_valuestack** 的顶部, 下图的 **f_valuestack** 为 `12 BINARY_ADD` 执行之后的样子
 
 ![example1_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2.png)
 
-the opcode `14 CALL_FUNCTION            1` will pop the function and argument off the stack and delegate the actual function call
+opcode `14 CALL_FUNCTION            1` 会弹出可执行对象和可执行对象对应的参数, 并用这些参数传递给可执行对象, 之后执行
 
-after the function call, result `'3'` is pushed onto the stack
+执行完成之后, 执行结果 `'3'` 会被压回堆中
 
 ![example1_2_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_1.png)
 
-opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_valuestack** and stores it into the 2th position of the **f_localsplus**
+opcode `16 STORE_FAST               2 (c)` 弹出 **f_valuestack** 顶部的元素, 并把它存储到了 **f_localsplus** 下标为 2 的位置中
 
 ![example1_2_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_2.png)
 
-opcode `18 LOAD_FAST                2 (c)` push the 2th element in the **f_localsplus** onto the **f_valuestack**, and  `20 YIELD_VALUE ` pops it and send it to the caller
+opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 2 的元素推入 **f_valuestack**, 之后  `20 YIELD_VALUE ` 弹出这个元素并把它传递给调用者
 
-field **f_lasti** is 20, indicate that it's current executing the opcode `20 YIELD_VALUE`
+字段 **f_lasti** 位置的值为 20, 表明当前正在 opcode `20 YIELD_VALUE` 的位置
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example2.png)
 
-after `24 LOAD_GLOBAL              1 (range)` and `26 LOAD_CONST               1 (3)`
+在 `24 LOAD_GLOBAL              1 (range)` 和 `26 LOAD_CONST               1 (3)` 之后
 
 ![example1_3_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_1.png)
 
-after `28 CALL_FUNCTION            1`
+在 `28 CALL_FUNCTION            1` 之后
 
 ![example1_3_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_2.png)
 
-after `30 STORE_FAST               3 (new_g)`
+在 `30 STORE_FAST               3 (new_g)` 之后
 
 ![example1_3_3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_3.png)
 
-after `32 LOAD_FAST                3 (new_g)`
+在 `32 LOAD_FAST                3 (new_g)` 之后
 
 ![example1_3_4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_4.png)
 
-the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable object
+ opcode `34 GET_YIELD_FROM_ITER` 作用是保证堆顶的元素是一个可迭代对象
 
-`36 LOAD_CONST               0 (None)` pushes `None` onto the stack
+`36 LOAD_CONST               0 (None)` 把 `None` 推到了堆中
 
     >>> next(gg)
     0
 
-field **f_lasti** is 36, indicate that it's before the `38 YIELD_FROM`
+字段 **f_lasti** 现在值是 36, 表明他在 `38 YIELD_FROM` 之前
 
 ![example3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example3.png)
 
-the frame object deallocated after the **StopIteration** raised (the opcode `44 RETURN_VALUE` also executed)
+栈帧对象在 **StopIteration** 抛出后就进入了回收流程(opcode `44 RETURN_VALUE` 也执行了)
 
     >>> next(gg)
     1
@@ -201,17 +200,17 @@ the frame object deallocated after the **StopIteration** raised (the opcode `44 
 
 ##### f_blockstack
 
-f_blockstack is an array, element type is **PyTryBlock**, size is **CO_MAXBLOCKS**(20)
+f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组大小为 **CO_MAXBLOCKS**(20)
 
-the definition of **PyTryBlock**
+这是 **PyTryBlock** 的定义
 
     typedef struct {
-        int b_type;                 /* what kind of block this is */
-        int b_handler;              /* where to jump to find handler */
-        int b_level;                /* value stack level to pop to */
+        int b_type;                 /* block 类型 */
+        int b_handler;              /* block 处理机制的位置 */
+        int b_level;                /* 堆位置 */
     } PyTryBlock;
 
-let's define a generator with some blocks
+我们来定义一个有许多 block 的迭代器
 
     def g3():
         try:
@@ -234,35 +233,38 @@ let's define a generator with some blocks
 
 ![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
 
-in the first **yield** statement, the first **try block** is set up
+在第一个 **yield** 声明时, 第一个 **try block** 已经设置好了
 
-**f_iblock** is 1, indicate that there's currently one block
+**f_iblock** 值为 1, 表明当前只有一个 block
 
-**b_type** 122 is the opcode `SETUP_FINALLY`, **b_handler** 20 is the opcode location of the `except ZeroDivisionError`, **b_level** 0 is the stack pointer's position to use
+**b_type** 122 是 opcode `SETUP_FINALLY` 的值, **b_handler** 20 是 `except ZeroDivisionError` 这个opcode 的位置, **b_level** 0 是即将使用的堆的位置
 
     >>> next(gg)
     1
 
 ![blockstack1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack1.png)
 
-**b_type** 257 is the opcode `EXCEPT_HANDLER`, `EXCEPT_HANDLER` has a special meaning
+**b_type** 257 是 opcode `EXCEPT_HANDLER` 的值, opcode `EXCEPT_HANDLER` 有特殊的含义
 
     /* EXCEPT_HANDLER is a special, implicit block type which is created when
        entering an except handler. It is not an opcode but we define it here
        as we want it to be available to both frameobject.c and ceval.c, while
        remaining private.*/
+    /* 翻译一下: EXCEPT_HANDLER 是一个特殊的 opcode,
+    表示一个 try block 已经进入对应的处理机制, 他实际上不是一个传统意义上的 opcode,
+    我们在这里定义这个值是为了 frameobject.c 和 ceval.c 能看见它 */
     #define EXCEPT_HANDLER 257
 
-**b_handler** set to -1, since already in the processing of the try block
+**b_handler** 值为 -1, 表示当前的 try block 已经在处理中
 
-**b_level** doesn't change
+**b_level** 的值没有改变
 
     >>> next(gg)
     2
 
 ![blockstack2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack2.png)
 
-**f_iblock** is 3, the second try block comes from `finally:`(opcode position 116), and the third try block comes from `except ModuleNotFoundError:`(opcode position 62)
+**f_iblock** 值为 3, 第二个 try block 来自 `finally:`(opcode 位置 116), 第三个来自 `except ModuleNotFoundError:`(opcode 位置 62)
 
     >>> next(gg)
     3
@@ -272,11 +274,11 @@ in the first **yield** statement, the first **try block** is set up
     >>> next(gg)
     4
 
-**b_type** of the third try block becomes 257 and **b_handler** becomes -1, means this block is currently being handling
+第三个 try block 的 **b_type**  变为了 257 并且 **b_handler** 变为 -1, 表明当前的 block 正在处理中
 
 ![blockstack4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack4.png)
 
-the other two try block is handled properly
+另外两个 try block 也正确的处理完了
 
     >>> next(gg)
     5
@@ -289,7 +291,7 @@ the other two try block is handled properly
 
 ![blockstack5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack5.png)
 
-frame object deallocated
+frame 对象进入释放阶段
 
     >>> next(gg)
     Traceback (most recent call last):
@@ -298,7 +300,7 @@ frame object deallocated
 
 ##### f_back
 
-**f_back** is a pointer which points to the previous frame, it makes a the related frame a single linked list
+**f_back** 是一个指向前一个 frame 的指针, 他把相关联的 frame 对象串联成一个单链表
 
 	import inspect
 
@@ -311,7 +313,7 @@ frame object deallocated
 
     g4(3)
 
-output
+输出
 
     depth 3
     <frame at 0x7fedc2f2e9a8, file '<input>', line 3, code g4> <frame at 0x7fedc2cab468, file '<input>', line 1, code <module>>
@@ -328,9 +330,9 @@ output
 
 ##### zombie frame
 
-the first time a code object attached to a frame object, after the execution of the code block, the frame object will not be freed, it becomes a "zombie" frame, next time the code block execute again, it will reuse the same frame object
+第一次 code 对象和一个 frame 对象绑定时, 在这段代码段执行完成后, frame 对象不会被释放, 它会进入一个 "zombie" frame 状态, 下一次同个代码段执行时, 这个 frame 对象会优先被复用
 
-the strategy saves malloc/realloc overhead and some field initialisation
+这个策略可以节省 malloc/realloc 的开销, 也可以避免某些字段/值的重复的初始化
 
     def g5():
         yield 1
@@ -351,26 +353,26 @@ the strategy saves malloc/realloc overhead and some field initialisation
 
 ##### free_list
 
-there's a single linked list stores the deallocated frame object, it saves malloc/free overhead
+有一个单链表存储了部分即将进入回收状态的 frame 对象, 这个机制也可以节省 malloc/free 开销
 
     static PyFrameObject *free_list = NULL;
     static int numfree = 0;         /* number of frames currently in free_list */
     /* max value for numfree */
     #define PyFrame_MAXFREELIST 200
 
-When a **PyFrameObject** is on the free list, only the following members have a meaning
+当一个 **PyFrameObject** 对象在 free_list 上时, 只有下面几个字段的值是有意义的
 
     ob_type             == &Frametype
     f_back              next item on free list, or NULL
     f_stacksize         size of value stack
     ob_size             size of localsplus
 
-the creating process will check if the stack size is enough
+如果是从 free_list 中获取到的 frame 对象, 创建的函数会检测这个取出的 frame 是否有足够的堆空间
 
     if (Py_SIZE(f) < extras) {
         PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
 
-let's see an example
+我们来看一个示例
 
     import inspect
 
@@ -383,9 +385,9 @@ let's see an example
 
 ![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list0.png)
 
-the frame attached to variable **gg** is deallocated, because it's the first frame execute the code block, it becomes the "zombie" frame of the **code** object
+和 **gg** 对象关联的 frame 进入了回收阶段, 因为当前的 **code** 对象 "zombie" frame 字段为空, 所以这个 frame 成为了 **code** 对象的 "zombie" frame
 
-because the **code** object still contains reference count to the frame object("zombie" frame), the frame object won't goes to the free_list or trigger gc
+所以这个 frame 不会进入到 free_list 或者 gc 阶段(**code** 还关联着这个 frame 的引用计数 "zombie" frame)
 
     >>> next(gg)
     ("<frame at 0x1052d83a0, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)

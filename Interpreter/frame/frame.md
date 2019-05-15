@@ -298,7 +298,7 @@ frame object deallocated
 
 ##### f_back
 
-**f_back** is a pointer which points to the previous frame, it makes a the related frame a single linked list
+**f_back** is a pointer which points to the previous frame, it makes the related frames a single linked list
 
 	import inspect
 
