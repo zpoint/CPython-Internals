@@ -36,7 +36,7 @@
 
 ##### f_valuestack/f_stacktop/f_localsplus
 
-**PyFrameObject** 对象的大小是不固定的, 你可以把它强制转换为类型 **PyVarObject**, **ob_size** 存储这个对象动态分配部分的大小, 这部分是所关联的 **code** 对象决定的
+**PyFrameObject** 对象的大小是不固定的, 你可以把它强制转换为类型 **PyVarObject**, **ob_size** 存储这个对象动态分配部分的大小, 这个大小是所关联的 **code** 对象决定的
 
     Py_ssize_t extras, ncells, nfrees;
     ncells = PyTuple_GET_SIZE(code->co_cellvars);
@@ -56,7 +56,7 @@
 
 **ob_size** 是 code->co_stacksize, code->co_nlocals, code->co_cellvars 和 code->co_freevars 的和
 
-**code->co_stacksize**: 一个整形, 表示函数执行时会使用到的最大的堆栈空间, 这个值是 **code** 对象生成时预先计算好的
+**code->co_stacksize**: 一个整型, 表示函数执行时会使用到的最大的堆栈空间, 这个值是 **code** 对象生成时预先计算好的
 
 **code->co_nlocals**: 局部变量的数量
 
@@ -185,7 +185,7 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
 
 ![example3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example3.png)
 
-栈帧对象在 **StopIteration** 抛出后就进入了回收流程(opcode `44 RETURN_VALUE` 也执行了)
+栈帧对象在 **StopIteration** 抛出后就进入了释放阶段(opcode `44 RETURN_VALUE` 执行之后)
 
     >>> next(gg)
     1
@@ -252,7 +252,7 @@ f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组
        remaining private.*/
     /* 翻译一下: EXCEPT_HANDLER 是一个特殊的 opcode,
     表示一个 try block 已经进入对应的处理机制, 他实际上不是一个传统意义上的 opcode,
-    我们在这里定义这个值是为了 frameobject.c 和 ceval.c 能看见它 */
+    我们在这里定义这个值是为了 frameobject.c 和 ceval.c 能引用他 */
     #define EXCEPT_HANDLER 257
 
 **b_handler** 值为 -1, 表示当前的 try block 已经在处理中
@@ -348,7 +348,7 @@ frame 对象进入释放阶段
     StopIteration
 
     >>> gg3 = g5()
-    >>> gg3.gi_frame # id same as previous one, the same frame object in the same code block is reused
+    >>> gg3.gi_frame # id s和之前的对象相同, 同样的 frame 对象在同一个 code block 中复用了
     <frame at 0x10224c970, file '<stdin>', line 1, code g5>
 
 ##### free_list
