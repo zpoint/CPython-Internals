@@ -351,7 +351,7 @@ frame 对象进入释放阶段
     >>> gg3.gi_frame # id s和之前的对象相同, 同样的 frame 对象在同一个 code block 中复用了
     <frame at 0x10224c970, file '<stdin>', line 1, code g5>
 
-##### free_list
+##### free_list sub
 
 有一个单链表存储了部分即将进入回收状态的 frame 对象, 这个机制也可以节省 malloc/free 开销
 

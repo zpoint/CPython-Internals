@@ -349,7 +349,7 @@ the strategy saves malloc/realloc overhead and some field initialisation
     >>> gg3.gi_frame # id same as previous one, the same frame object in the same code block is reused
     <frame at 0x10224c970, file '<stdin>', line 1, code g5>
 
-##### free_list
+##### free_list sub
 
 there's a single linked list stores the deallocated frame object, it saves malloc/free overhead
 
