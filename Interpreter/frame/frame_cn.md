@@ -387,7 +387,7 @@ frame 对象进入释放阶段
 
 和 **gg** 对象关联的 frame 进入了回收阶段, 因为当前的 **code** 对象 "zombie" frame 字段为空, 所以这个 frame 成为了 **code** 对象的 "zombie" frame
 
-所以这个 frame 不会进入到 free_list 或者 gc 阶段(**code** 还关联着这个 frame 的引用计数 "zombie" frame)
+这个 frame 不会进入到 free_list 或者 gc 阶段(**code** 还持有着这个 frame 对象的引用计数 "zombie" frame)
 
     >>> next(gg)
     ("<frame at 0x1052d83a0, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)

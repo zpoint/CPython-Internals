@@ -52,7 +52,7 @@ Trying to illustrate every detail of cpython implementation
 #### Interpreter
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
- - [ ] code
+ - [ ] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
  - [ ] descr
  - [ ] exception
  - [ ] module
