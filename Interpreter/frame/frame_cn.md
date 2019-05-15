@@ -1,22 +1,22 @@
 # frame
 
-### contents
+### 目录
 
-* [related file](#related-file)
-* [memory layout](#memory-layout)
-* [example](#example)
+* [相关位置文件](#相关位置文件)
+* [内存构造](#内存构造)
+* [示例](#示例)
 	* [f_valuestack/f_stacktop/f_localsplus](#f_valuestack/f_stacktop/f_localsplus)
 	* [f_blockstack](#f_blockstack)
 	* [f_back](#f_back)
-* [free_list mechanism](#free_list-mechanism)
+* [free_list 机制](#free_list-机制)
 	* [zombie frame](#zombie-frame)
 	* [free_list](#free_list-sub)
 
-#### related file
+#### 相关位置文件
 * cpython/Objects/frameobject.c
 * cpython/Include/frameobject.h
 
-#### memory layout
+#### 内存构造
 
 the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the current executing code object, parameters, variables in different scope, try block info and etc
 
@@ -324,7 +324,7 @@ output
 
 ![f_back](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/f_back.png)
 
-#### free_list mechanism
+#### free_list 机制
 
 ##### zombie frame
 
