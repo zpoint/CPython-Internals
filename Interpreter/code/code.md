@@ -125,7 +125,81 @@ it's related to the **f_valuestack** in [frame object](https://github.com/zpoint
 
 ##### co_code
 
+when you enter the command  `.\python.exe -m dis code.py`
+
+the **_unpack_opargs** in `Lib/dis.py` will do the translation
+
+if you check the file in `Include\opcode.h`, you will find `#define HAVE_ARGUMENT            90` and `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)`, which means opcode with value greater than **90** has arguments, while opcode with value less than **90** doesn't
+
+    def _unpack_opargs(code):
+        # code example: b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
+        extended_arg = 0
+        for i in range(0, len(code), 2):
+            op = code[i]
+            if op >= HAVE_ARGUMENT:
+                arg = code[i+1] | extended_arg
+                extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+            else:
+                arg = None
+            # yield example: 0 100 1
+            yield (i, op, arg)
+
+so, **co_code** is the opcode and argument stores in binary format
+
+    >>> c = b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
+    >>> c = list(bytearray(c))
+    >>> c
+    [100, 1, 125, 0, 116, 0, 136, 1, 136, 0, 124, 0, 131, 3, 1, 0, 100, 0, 83, 0]
+
+the binary format can be translated to
+
+    0 100 1  (LOAD_CONST)
+    2 125 0  (STORE_FAST)
+    4 116 0  (LOAD_GLOBAL)
+    6 136 1  (LOAD_DEREF)
+    8 136 0  (LOAD_DEREF)
+    10 124 0 (LOAD_FAST)
+    12 131 3 (CALL_FUNCTION)
+    14 1 None(POP_TOP)
+    16 100 0 (LOAD_CONST)
+    18 83 None(RETURN_VALUE)
+
 ##### co_lnotab and co_firstlineno
+
+**co_firstlineno**
+
+> The 1-indexed line number of the beginning of the Python code from which the code object was generated. In combination with co_lnotab, this is used to compute line information in places like exception tracebacks
+
+**co_lnotab**
+
+> This means line number table, and stores a compressed mapping of bytecode instructions to line numbers.
+
+let's see an example
+
+the first pair (0, 1) in **co_lnotab** means byteoffset 0, line offset: 1 + co_firstlineno(7) == 8
+
+the second pair (4, 1) in **co_lnotab** means byteoffset 4, line offset 1 + 8(previous offset) == 9
+
+    import dis
+
+    def f1(x):
+        x = 3
+        y = 4
+
+    def f2(x):
+        x = 3
+        y = 4
+
+    print(f2.__code__.co_firstlineno) # 7
+    print(repr(list(bytearray(f2.__code__.co_lnotab)))) # [0, 1, 4, 1]
+    print(dis.dis(f2))
+    """
+    0 LOAD_CONST               1 (3)
+    2 STORE_FAST               0 (x)
+    4 LOAD_CONST               2 (4)
+    6 STORE_FAST               1 (y)
+    8 LOAD_CONST               0 (None)
+    """
 
 ##### co_zombieframe
 
