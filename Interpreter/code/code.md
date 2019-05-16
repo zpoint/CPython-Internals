@@ -6,6 +6,10 @@
 * [memory layout](#memory-layout)
 * [fields](#fields)
 	* [example](#example)
+	* [co_code](#co_code)
+	* [co_lnotab and co_firstlineno](#co_lnotab-and-co_firstlineno)
+	* [co_zombieframe](#co_zombieframe)
+	* [co_extra](#co_extra)
 
 #### related file
 * cpython/Objects/codeobject.c
@@ -85,9 +89,11 @@ from the output and the answers in [What is a code object in Python?](https://ww
 
 **co_kwonlyargcount**
 
-> The number of keyword-only arguments
+> The number of [keyword-only arguments](https://www.python.org/dev/peps/pep-3102/)
 
 **co_nlocals**
+
+it's related to the **f_localsplus** in [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
 
 > The number of local variables in the function. As far as I can tell this is just the length of co_varnames. This is presumably used in order to decide how much space to allocate for local variables when the function is called.
 
@@ -101,6 +107,10 @@ it's related to the **f_valuestack** in [frame object](https://github.com/zpoint
 
 > an integer that combines a number of boolean flags about the function
 
+**co_consts**
+
+> This is a tuple of all constants used in the function, like integers, strings, and booleans. It is used by the LOAD_CONST opcode, which takes an argument indicating the index in the co_consts tuple to load from.
+
 **co_names**
 
 > A tuple of strings used in the code object as attributes, global variable names, and imported names. Opcodes that use one of these names (e.g., LOAD_ATTR) take as an argument an integer index into this tuple. These are in order of first use.
@@ -113,3 +123,10 @@ it's related to the **f_valuestack** in [frame object](https://github.com/zpoint
 
 > These two are used for implementing nested function scopes. co_cellvars is a tuple containing the names of all variables in the function that are also used in a nested function, and co_freevars has the names of all variables used in the function that are defined in an enclosing function scope.
 
+##### co_code
+
+##### co_lnotab and co_firstlineno
+
+##### co_zombieframe
+
+##### co_extra
