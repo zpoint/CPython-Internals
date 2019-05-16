@@ -85,7 +85,7 @@ from the output and the answers in [What is a code object in Python?](https://ww
 
 **co_argcount**
 
-> The number of arguments that the function takes, excluding any *args and **kwargs. Function calls in bytecode work by pushing all of the arguments onto the stack and then invoking CALL_FUNCTION; the co_argcount can then be used to determine whether the function was passed the right number of variables.
+> The number of arguments that the function takes, excluding any *args and *\**kwargs. Function calls in bytecode work by pushing all of the arguments onto the stack and then invoking CALL_FUNCTION; the co_argcount can then be used to determine whether the function was passed the right number of variables.
 
 **co_kwonlyargcount**
 
@@ -203,4 +203,23 @@ the second pair (4, 1) in **co_lnotab** means byteoffset 4, line offset 1 + 8(pr
 
 ##### co_zombieframe
 
+you can read the following comment from `Objects/frameobject.c`
+
+for more detail, please refer to [frame object(zombie frame)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md#zombie-frame)
+
+> each code object will hold a single "zombie" frame. This retains the allocated and initialised frame object from an invocation of the code object. The zombie is reanimated the next time we need a frame object for that code object. Doing this saves the malloc/ realloc required when using a free_list frame that isn't the correct size. It also saves some field initialisation.
+
 ##### co_extra
+
+this field stores a pointer to a **_PyCodeObjectExtra** object
+
+    typedef struct {
+        Py_ssize_t ce_size;
+        void *ce_extras[1];
+    } _PyCodeObjectExtra;
+
+since it has a size field and a array of (void *) pointer, it can stores almost everything
+
+usually it's a function pointer related to interpreter for debug or JIT usage
+
+for more detail please refer to [PEP 523 -- Adding a frame evaluation API to CPython](https://www.python.org/dev/peps/pep-0523/)
