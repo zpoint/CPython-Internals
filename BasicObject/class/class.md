@@ -196,6 +196,8 @@ when you trying to access the **fc1** in instance cc, the **descriptor protocol*
 		* C._\_dict_\_['fc1']._\_get_\_(instance, Class) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
 * if not found in above steps, call c._\_getattr_\_("fc1")
 
+![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)
+
 for more detail, please refer to this blog [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
