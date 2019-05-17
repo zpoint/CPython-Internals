@@ -52,7 +52,7 @@
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [ ] descr
+ - [ ] [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
  - [ ] exception
  - [ ] module
  - [ ] namespace
