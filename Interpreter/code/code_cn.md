@@ -128,11 +128,11 @@
 
 ##### co_code
 
-当你执行这个命令时  `.\python.exe -m dis code.py`
+当你执行这个命令时  `./python.exe -m dis code.py`
 
 在 `Lib/dis.py` 中的函数 **_unpack_opargs** 会做如下转换
 
-你打开这个文件 `Include\opcode.h`, 能看 `#define HAVE_ARGUMENT            90` 和 `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)` 这两个定义, 表示值大于 **90** 的字节码是含有参数的字节码, 而值小于 **90** 的字节码是不含参数的字节码
+你打开这个文件 `Include/opcode.h`, 能看 `#define HAVE_ARGUMENT            90` 和 `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)` 这两个定义, 表示值大于 **90** 的字节码是含有参数的字节码, 而值小于 **90** 的字节码是不含参数的字节码
 
     def _unpack_opargs(code):
         # code 示例: b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'

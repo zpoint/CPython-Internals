@@ -12,7 +12,6 @@ because the **PyDictObject** is a little bit more complicated than other basic o
 * [resize](#resize)
 * [variable size indices](#variable-size-indices)
 * [free list](#free-list)
-
 * [delete](#delete)
 	* [why mark as DKIX_DUMMY](#why-mark-as-DKIX_DUMMY)
 	* [delete in entries](#delete-in-entries)
