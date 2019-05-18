@@ -198,7 +198,7 @@ when you trying to access the **fc1** in instance cc, the **descriptor protocol*
 
 ![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)
 
-for more detail, please refer to this blog [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
+for more detail, please refer to this blog [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup) or [descr object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
 

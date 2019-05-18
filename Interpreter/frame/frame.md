@@ -64,7 +64,7 @@ the **ob_size** is the sum of code->co_stacksize, code->co_nlocals, code->co_cel
 
 **code->nfrees**: the names of all variables used in the function that are defined in an enclosing function scope
 
-for more information about **PyCodeObject** please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) and [code object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)(reserved)
+for more information about **PyCodeObject** please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) and [code object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
 
 let's see an example
 

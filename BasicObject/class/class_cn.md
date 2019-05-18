@@ -198,7 +198,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 ![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)
 
-有兴趣的同学可以参考这篇博客的这个部分 [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup)
+有兴趣的同学可以参考这篇博客的这个部分 [object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/#object-attribute-lookup) 或者 [descr 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
 

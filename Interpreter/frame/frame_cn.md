@@ -64,7 +64,7 @@
 
 **code->nfrees**: 自己是内嵌函数的情况下, 包含了外部函数和自己同时用到的变量名称
 
-更多关于 **PyCodeObject** 的信息请参考 [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) 和 [code 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)(预留位置)
+更多关于 **PyCodeObject** 的信息请参考 [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) 和 [code 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
 
 我们来看一个示例
 
