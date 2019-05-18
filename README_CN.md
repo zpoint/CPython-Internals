@@ -28,12 +28,12 @@
 - [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md)
 - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md)
 - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes_cn.md)
-- [x] [bytearray](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
+- [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
 - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float_cn.md)
 - [x] [func(user-defined method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func_cn.md)
 - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method_cn.md)
 - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter_cn.md)
-- [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md)
+- [x] [gen(generator/coroutine/async generator)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen_cn.md)
 - [x] [class(bound method/classmethod/staticmethod)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class_cn.md)
 - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex_cn.md)
 - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum_cn.md)
@@ -45,14 +45,14 @@
 
 #### 库
 
- - [x] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re_cn.md)
+ - [x] [re(正则)](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re_cn.md)
  - [ ] asyncio
 
 #### 解释器相关
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [ ] [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
+ - [ ] [descr(获取一个对象的属性时发生了什么)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
  - [ ] exception
  - [ ] module
  - [ ] namespace

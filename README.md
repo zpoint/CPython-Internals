@@ -29,12 +29,12 @@ Trying to illustrate every detail of cpython implementation
  - [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
  - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
- - [x] [bytearray](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
+ - [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
  - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md)
  - [x] [func(user-defined method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
  - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
  - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
- - [x] [gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
+ - [x] [gen(generator/coroutine/async generator)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
  - [x] [class(bound method/classmethod/staticmethod)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
@@ -46,14 +46,14 @@ Trying to illustrate every detail of cpython implementation
 
 #### Lib
 
- - [x] [re](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
+ - [x] [re(regex)](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
  - [ ] asyncio
 
 #### Interpreter
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
- - [ ] [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
+ - [ ] [descr(how does attribute access work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
  - [ ] exception
  - [ ] module
  - [ ] namespace
