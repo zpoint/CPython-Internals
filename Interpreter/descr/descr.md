@@ -370,4 +370,4 @@ there exists various descriptor type
 #### read more
 * [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
 * [understanding-python-metaclasses](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses)
-[The Python 2.3 Method Resolution Order(MRO)](https://www.python.org/download/releases/2.3/mro/)
+* [The Python 2.3 Method Resolution Order(MRO)](https://www.python.org/download/releases/2.3/mro/)
