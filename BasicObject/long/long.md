@@ -26,9 +26,9 @@
 
 after python3, there's only type named **int**, the **long** type in python2.x is **int** type in python3.x
 
-the structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), Obviously there's only one field to store the real **int** value, that's **ob_digit**. But how cpython represent the variable size **int** in byte level?
+the structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), obviously there's only one field to store the real **int** value, that's **ob_digit**
 
-let's see
+But how does cpython represent the variable size **int** in byte level? Let's see
 
 #### how element stored inside
 
