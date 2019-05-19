@@ -53,7 +53,7 @@
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [ ] [descr(获取一个对象的属性时发生了什么)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
+ - [x] [descr(访问(类/实例)属性时发生了什么/______get______/______set______)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
  - [ ] exception
  - [ ] module
  - [ ] namespace
