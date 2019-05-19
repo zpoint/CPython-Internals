@@ -21,11 +21,11 @@ you can read [How Python saves memory when storing strings](https://rushter.com/
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
-For those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
+for those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
 #### conversion
 
-Before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
+before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
 
     /* Whenever I try to covert PyUnicodeObject to const char* pointer,
        which can be passed to c printf function
@@ -113,7 +113,7 @@ let's initialize an empty string
     calling PyUnicode_AsUTF8(unicode): s
 
 
-Have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's', yes, this is the begin address of the c style null terminate string
+have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's', yes, this is the begin address of the c style null terminate string
 
 ![s_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/s_s.png)
 
@@ -171,11 +171,11 @@ let's define an unicode object with the a character **\u0088** inside
 
 	s = "\u0088\u0011\u00f1"
 
-Now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the **char *utf8** field, and that's 0
+now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the **char *utf8** field, and that's 0
 
 if **PyUnicode_UTF8(unicode)** is zero, where is the three bytes located?
 we haven't used the data field in **PyUnicodeObject**, let's print whatever inside **data** field.
-It took me sometime to figure out how to print those bytes in the latin1 field.
+it took me sometime to figure out how to print those bytes in the latin1 field.
 
     static PyObject *
     unicode_repr(PyObject *unicode)
@@ -271,6 +271,6 @@ we now konw that there are three kinds of storage mechanism, how many bytes cpyt
 #### compact
 
 if flag in **compact** field in 1, it means all characters are stored within **PyUnicodeObject**, no matter what **kind** field is. The example above all have **compact** field set to 1. Otherwise, the data block will not stored inside the **PyUnicodeObject** object directly, the data block will be a newly malloced location.
-The difference bwtween **compact** 0 and **compact** 1 is the same as the difference bwtween redis string encoding **raw** and **embstr**
+the difference bwtween **compact** 0 and **compact** 1 is the same as the difference bwtween redis string encoding **raw** and **embstr**
 
 now, we understand most of the unicode implementations in cpython, for more detail, you can directly refer to source code
