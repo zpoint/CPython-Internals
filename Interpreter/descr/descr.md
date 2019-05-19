@@ -59,14 +59,14 @@ if we **dis** the `print(type(str.center))`
 
 	./python.exe -m dis test.py
       1           0 LOAD_NAME                0 (print)
-      2 LOAD_NAME                1 (type)
-      4 LOAD_NAME                2 (str)
-      6 LOAD_ATTR                3 (center)
-      8 CALL_FUNCTION            1
-     10 CALL_FUNCTION            1
-     12 POP_TOP
-     14 LOAD_CONST               0 (None)
-     16 RETURN_VALUE
+                  2 LOAD_NAME                1 (type)
+                  4 LOAD_NAME                2 (str)
+                  6 LOAD_ATTR                3 (center)
+                  8 CALL_FUNCTION            1
+                 10 CALL_FUNCTION            1
+                 12 POP_TOP
+                 14 LOAD_CONST               0 (None)
+                 16 RETURN_VALUE
 
 we can see that the core **opcode** is `LOAD_ATTR`, follow the `LOAD_ATTR` to the `Python/ceval.c`, we can find the defination
 

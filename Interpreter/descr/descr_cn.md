@@ -58,14 +58,14 @@
 
 	./python.exe -m dis test.py
       1           0 LOAD_NAME                0 (print)
-      2 LOAD_NAME                1 (type)
-      4 LOAD_NAME                2 (str)
-      6 LOAD_ATTR                3 (center)
-      8 CALL_FUNCTION            1
-     10 CALL_FUNCTION            1
-     12 POP_TOP
-     14 LOAD_CONST               0 (None)
-     16 RETURN_VALUE
+                  2 LOAD_NAME                1 (type)
+                  4 LOAD_NAME                2 (str)
+                  6 LOAD_ATTR                3 (center)
+                  8 CALL_FUNCTION            1
+                 10 CALL_FUNCTION            1
+                 12 POP_TOP
+                 14 LOAD_CONST               0 (None)
+                 16 RETURN_VALUE
 
 我们可以看到核心的 **opcode** 就是 `LOAD_ATTR`, 到 `Python/ceval.c` 中可以找到 `LOAD_ATTR` 的如下定义
 
@@ -91,7 +91,7 @@
                          name->ob_type->tp_name);
             return NULL;
         }
-        /* f首先尝试调用 __getattribute__ 方法 */
+        /* 首先尝试调用 __getattribute__ 方法 */
         if (tp->tp_getattro != NULL)
             return (*tp->tp_getattro)(v, name);
         /* 如果 __getattribute__ 失败了, 则尝试调用 __getattr__ 方法 */
@@ -135,7 +135,7 @@
         0,                            /* tp_setattro */
         ...
 
-我们可以发现, 它使用了一个通用的默认方法 `PyObject_GenericGetAttr` 放在它的 `tp_getattro` (` __getattribute__` 在 c 中的名称) 字段中, 我们在 `Objects/object.c` 中可以看到这个方法的定义
+我们可以发现, 它使用了一个通用的默认方法 `PyObject_GenericGetAttr` 放在它的 `tp_getattro` (在 python 中的名称为 ` __getattribute__` ) 字段中, 我们在 `Objects/object.c` 中可以看到这个方法的定义
 
     PyObject *
     PyObject_GenericGetAttr(PyObject *obj, PyObject *name)
@@ -175,7 +175,7 @@
             Py_INCREF(descr);
             /* 获取到 descr 对象对应的 tp_descr_get 字段, 在 python 中这个字段叫做 __get__ */
             f = descr->ob_type->tp_descr_get;
-            /* 检查这个对象是否是 ata descriptor, PyDescr_IsData 的定义是  #define PyDescr_IsData(d) (Py_TYPE(d)->tp_descr_set != NULL) */
+            /* 检查这个对象是否是 data descriptor, PyDescr_IsData 的定义是  #define PyDescr_IsData(d) (Py_TYPE(d)->tp_descr_set != NULL) */
             if (f != NULL && PyDescr_IsData(descr)) {
             	/* 检查通过, 这个对象同时包含了 __get__ 和 __set__ 属性 */
                 /* 如果这个对象是 data descriptor, 尝试调用它的 __get__ 方法并把返回的东西存储在 res 中  */
@@ -256,7 +256,7 @@
 
 ![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
-到了这里, 我发现我弄错了一个地方, 执行命令 `str.center` 的时候, `PyUnicode_Type` 中的 `tp_getattro`(` __getattribute__` 在 c 中的名称) 实际上是不会被调用的. 相反, 他们会在命令 `"str".center` 的过程中被调用, 下面的代码可以在表面看到这两个方式的不同
+到了这里, 我发现我弄错了一个地方, 执行命令 `str.center` 的时候, `PyUnicode_Type` 中的 `tp_getattro`(在 python 中的名称为 ` __getattribute__` ) 实际上是不会被调用的. 相反, 他们会在命令 `"str".center` 的过程中被调用, 下面的代码可以在表面看到这两个方式的不同
 
     >>> type("str")
     <class 'str'>
@@ -323,7 +323,7 @@
     {
         PyObject *res;
         /* descr_check 检查 descr 对象是通过自己或者自己的继承类往上的对象中找到的 */
-        /* 直接翻译有点绕口, 和 cpython 内部的实现有关, 通俗的讲, 和 inspect.isclass() 作用类似
+        /* 直接翻译有点绕口, 和 cpython 内部的实现有关, 通俗的讲, 和 inspect.isclass() 作用类似 */
         if (descr_check((PyDescrObject *)descr, obj, &res))
         	/* str.center 会进到这里, 这里返回的对象类型是 PyMethodDescrObject */
             return res;
