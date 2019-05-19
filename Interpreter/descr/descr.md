@@ -4,7 +4,11 @@
 
 * [related file](#related-file)
 * [how does attribute access work in python?](#how-does-attribute-access-work-in-python?)
-
+	* [instance attribute access](#instance-attribute-access)
+	* [class attribute access](#class-attribute-access)
+* [method_descriptor](#method_descriptor)
+	* [memory layout](#memory-layout)
+* [read more](#read-more)
 
 #### related file
 
@@ -12,14 +16,19 @@
 * cpython/Include/descrobject.h
 * cpython/Objects/object.c
 * cpython/Include/object.h
+* cpython/Objects/typeobject.c
+* cpython/Include/cpython/object.h
 
 #### how does attribute access work in python?
 
 let's see an example first before we look into how descriptor object implements
 
 	print(type(str.center)) # <class 'method_descriptor'>
+    print(type("str".center)) # <class 'builtin_function_or_method'>
 
-what is type **method_descriptor** ? why will the str.center returns a **method_descriptor** object ? how does attribute access work in python ?
+what is type **method_descriptor** ? why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ? how does attribute access work in python ?
+
+##### instance attribute access
 
 this is the defination of `inspect.ismethoddescriptor` and `inspect.isdatadescriptor`
 
@@ -253,7 +262,7 @@ it's using the most widely used c function `PyObject_GenericGetAttr` as it's `tp
 
 we can draw the process according to the code above
 
-![attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/attribute_access.md)
+![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
 until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in `PyUnicode_Type` will not be called in `str.center`, otherwise it will be called in `"str".center`, you can tell the differences in the folloing codes
 
@@ -266,16 +275,82 @@ until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in
 
     >>> type(str)
     <class 'type'>
-    >>> str.center # it may calls the tp_getattro in a type named PyType_Type
+    >>> str.center # it calls the tp_getattro in a type named PyType_Type
     <method 'center' of 'str' objects>
     >>> type(str.center)
 	<class 'method_descriptor'>
 
-let's find the defination of `<class 'type'>`
+so, the procedure above describes the attribute access of `"str".center`
 
-for more information please refer to [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
+##### class attribute access
 
-    from datetime import datetime
-    dt = datetime.date
-    print(type(dt))
+let's find the defination of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
 
+for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(alias of `__getattribute__`)
+
+    PyTypeObject PyType_Type = {
+        PyVarObject_HEAD_INIT(&PyType_Type, 0)
+        "type",                                     /* tp_name */
+        sizeof(PyHeapTypeObject),                   /* tp_basicsize */
+        sizeof(PyMemberDef),                        /* tp_itemsize */
+        (destructor)type_dealloc,                   /* tp_dealloc */
+        0,                                          /* tp_print */
+        0,                                          /* tp_getattr */
+        0,                                          /* tp_setattr */
+        0,                                          /* tp_reserved */
+        (reprfunc)type_repr,                        /* tp_repr */
+        0,                                          /* tp_as_number */
+        0,                                          /* tp_as_sequence */
+        0,                                          /* tp_as_mapping */
+        0,                                          /* tp_hash */
+        (ternaryfunc)type_call,                     /* tp_call */
+        0,                                          /* tp_str */
+        (getattrofunc)type_getattro,                /* tp_getattro */
+        (setattrofunc)type_setattro,                /* tp_setattro */
+        0,                                          /* tp_as_buffer */
+        ...
+    }
+
+    static PyObject *
+    type_getattro(PyTypeObject *type, PyObject *name)
+    {
+    	/*
+            logic mostly same as _PyObject_GenericGetAttrWithDict,
+            for thoes who are interested, read Objects/typeobject.c directly
+        */
+    }
+
+![str_attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/str_attribute_access.png)
+
+from the above pictures and codes, we can know that even if the `__getattribute__` method of `str` and `"str"` are different, they both calls the same `tp_descr_get` (alias of `__get__`) defined in a type named `method_descriptor`
+
+	/* in cpython/Objects/descrobject.c */
+    static PyObject *
+    method_get(PyMethodDescrObject *descr, PyObject *obj, PyObject *type)
+    {
+        PyObject *res;
+        /* descr_check checks whether the descriptor was found on the target object itself (or a base) */
+        if (descr_check((PyDescrObject *)descr, obj, &res))
+        	/* str.center goes into this branch, returns the type of PyMethodDescrObject */
+            return res;
+        /* while "str".center goes into this branch, returns a type of PyCFunction */
+        return PyCFunction_NewEx(descr->d_method, obj, NULL);
+    }
+
+now, we have the answers of
+* why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ?
+* how does attribute access work in python ?
+
+#### method_descriptor
+
+let's find out the answer of
+* what is type **method_descriptor** ?
+
+it's defined in `Include/descrobject.h`
+
+##### memory layout
+
+
+#### read more
+* [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
+* [understanding-python-metaclasses](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses)
