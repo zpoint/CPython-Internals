@@ -3,7 +3,7 @@
 ### contents
 
 * [related file](#related-file)
-* [how does attribute access work in python?](#how-does-attribute-access-work-in-python?)
+* [how does attribute access work in python?](#how-does-attribute-access-work-in-python)
 	* [instance attribute access](#instance-attribute-access)
 	* [class attribute access](#class-attribute-access)
 * [method_descriptor](#method_descriptor)
@@ -19,7 +19,7 @@
 * cpython/Objects/typeobject.c
 * cpython/Include/cpython/object.h
 
-#### how does attribute access work in python?
+#### how does attribute access work in python
 
 let's see an example first before we look into how descriptor object implements
 

@@ -3,7 +3,7 @@
 ### 目录
 
 * [相关位置文件](#相关位置文件)
-* [python 中的属性访问机制是如何运作的?](#python-中的属性访问机制是如何运作的?)
+* [python 中的属性访问机制是如何运作的?](#python-中的属性访问机制是如何运作的)
 	* [实例属性访问](#实例属性访问)
 	* [类属性访问](#类属性访问)
 * [method_descriptor](#method_descriptor)
@@ -19,7 +19,7 @@
 * cpython/Objects/typeobject.c
 * cpython/Include/cpython/object.h
 
-#### python 中的属性访问机制是如何运作的?
+#### python 中的属性访问机制是如何运作的
 
 在查看 descriptor 对象是如何实现之前我们先来看一个示例
 
