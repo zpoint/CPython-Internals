@@ -2,7 +2,7 @@
 
 ### contents
 
-because the **PyDictObject** is a little bit more complicated than other basic object, I will not show _\_setitem_\_/_\_getitem_\_ step by step, instead, I will illustrate in the middle of some concept
+because the **PyDictObject** is a little bit more complicated than other basic object, I will not show `__setitem__`/`__getitem__` step by step, instead, I will illustrate in the middle of some concept
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -252,7 +252,7 @@ cpython also use free_list to reuse the deleted hash table, to avoid memory frag
 
 #### delete
 
-the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletiion in dict object
+the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletion in dict object
 
 ##### why mark as DKIX_DUMMY
 
