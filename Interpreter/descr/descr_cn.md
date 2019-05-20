@@ -8,6 +8,7 @@
 	* [类属性访问](#类属性访问)
 * [method_descriptor](#method_descriptor)
 	* [内存构造](#内存构造)
+* [如何更改属性访问机制的行为?](#如何更改属性访问机制的行为)
 * [相关阅读](#相关阅读)
 
 #### 相关位置文件
@@ -358,6 +359,58 @@
 **PyMemberDescrObject**: 包装了 **PyMemberDef** 对象
 
 **PyGetSetDescrObject**: 包装了 **PyGetSetDef** 对象
+
+####如何更改属性访问机制的行为
+
+我们现在知道了当你尝试访问一个对象的属性时, python 虚拟机会执行以下操作
+
+1. 执行 opcode `LOAD_ATTR`
+2. `LOAD_ATTR` 会尝试调用该对象的 `__getattribute__` 方法, 如果成功返回跳转到 5
+3. 调用该对象的 `__getattr__` 方法, 如果成功返回跳转到 5
+4. 抛出一个异常
+5. 返回前面函数返回的东西给调用者
+
+默认的 `__getattribute__` 是用 C 写好的, 它实现了 **descriptor protocol**(我们在前面已经通过源码学习过了)
+
+当我们定义一个 python 对象时, 并且我们想更改这个对象的属性访问的行为时该怎么做呢?
+
+我们没有办法更改 opcode `LOAD_ATTR` 的行为, 它是用 C 语言写好的并集成在了 python 虚拟机内
+
+我们可以提供自定义的 `__getattribute__` 和 `__getattr__` 函数覆写默认的 `tp_getattro`(C 中的名称) 和 `tp_getattr`(C 中的名称)
+
+注意, 提供你自定义的 `__getattribute__` 大概率会破坏 **descriptor protocol**, 我不建议你这么做, 一般你只用提供 `__getattr__` 就够了
+
+    class A(object):
+        def __getattribute__(self, item):
+            print("in __getattribute__", item)
+            if item in ("noA", "noB"):
+                raise AttributeError
+            return "__getattribute__" + str(item)
+
+        def __getattr__(self, item):
+            print("in __getattr__", item)
+            if item == "noB":
+                raise AttributeError
+            return "__getattr__" + str(item)
+
+    >>> a = A()
+
+    >>> a.x
+    in __getattribute__ x
+    '__getattribute__x'
+
+    >>> a.noA
+    in __getattribute__ noA
+    in __getattr__ noA
+    '__getattr__noA'
+
+    >>> a.noB
+    in __getattribute__ noB
+    in __getattr__ noB
+    Traceback (most recent call last):
+      File "<input>", line 1, in <module>
+      File "<input>", line 11, in __getattr__
+    AttributeError
 
 #### 相关阅读
 * [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)

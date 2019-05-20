@@ -8,6 +8,7 @@
 	* [class attribute access](#class-attribute-access)
 * [method_descriptor](#method_descriptor)
 	* [memory layout](#memory-layout)
+* [how to change behaviour of attribute access?](#how-to-change-behaviour-of-attribute-access)
 * [read more](#read-more)
 
 #### related file
@@ -366,6 +367,58 @@ there exists various descriptor type
 **PyMemberDescrObject**: wrapper of **PyMemberDef**
 
 **PyGetSetDescrObject**: wrapper of **PyGetSetDef**
+
+#### how to change behaviour of attribute access
+
+we know that when you try to access the attribute of an object, the python virtual machine will
+
+1. execute the opcode `LOAD_ATTR`
+2. `LOAD_ATTR` will try to call `__getattribute__` method of the object, if success go to 5
+3. call `__getattr__` method of the object, if success go to 5
+4. raise an exception
+5. return what's returned
+
+the default `__getattribute__` is written in C, it implements the **descriptor protocol** which we learned above from the source code
+
+when we define a python object, if we need to change the behabiour of attribute access
+
+we are not able to change the behaviour of opcode `LOAD_ATTR`, it's written in C
+
+instead, we can provide our own `__getattribute__` and `__getattr__` instead of the default `tp_getattro`(in C) and `tp_getattr`(in C)
+
+notice, provide your own `__getattribute__` may violate the **descriptor protocol**, I will not recommend you to do that(usually we only need to define our own `__getattr__`)
+
+    class A(object):
+        def __getattribute__(self, item):
+            print("in __getattribute__", item)
+            if item in ("noA", "noB"):
+                raise AttributeError
+            return "__getattribute__" + str(item)
+
+        def __getattr__(self, item):
+            print("in __getattr__", item)
+            if item == "noB":
+                raise AttributeError
+            return "__getattr__" + str(item)
+
+    >>> a = A()
+
+    >>> a.x
+    in __getattribute__ x
+    '__getattribute__x'
+
+    >>> a.noA
+    in __getattribute__ noA
+    in __getattr__ noA
+    '__getattr__noA'
+
+    >>> a.noB
+    in __getattribute__ noB
+    in __getattr__ noB
+    Traceback (most recent call last):
+      File "<input>", line 1, in <module>
+      File "<input>", line 11, in __getattr__
+    AttributeError
 
 #### read more
 * [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
