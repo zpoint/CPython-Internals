@@ -127,7 +127,7 @@
 
 **opcode** `LOAD_FAST` 会把对应的参数推到堆 **f_valuestack** 中, 并且 **opcode** `YIELD_VALUE` 会弹出 **f_valuestack** 顶的元素, **pop** 的定义如下 `#define BASIC_POP()       (*--stack_pointer)`
 
-**f_stacktop** 中的值和前一幅图的值相同, 但是 **f_valuestack** 由于入栈和出栈(出栈并不清空当前的格子)的原因, 里面存储的值已经不为空了
+**f_valuestack** 中的值和前一幅图的值相同, 但是 **f_valuestack** 由于入栈和出栈(出栈并不清空当前的格子中的值)的原因, 里面存储的值已经不为空了
 
     >>> next(gg)
     'param a'

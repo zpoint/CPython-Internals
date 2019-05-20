@@ -127,8 +127,7 @@ the field **f_lasti** is 2, indicate that the virtual program counter is in `2 Y
 
 the **opcode** `LOAD_FAST` will push the paramter to the **f_valuestack**, and **opcode** `YIELD_VALUE` will **pop** the top element in the **f_valuestack**, the defination of **pop** is `#define BASIC_POP()       (*--stack_pointer)`
 
-the value in **f_stacktop** is the same as the previous picture, but the element is the first **f_valuestack** is not null
-
+the value(address 0x100a5b538) in **f_valuestack** is the same as the previous step(previous picture), but the first element the address(0x100a5b538) pointed to is different, currently it's a pointer to a PyUnicodeObject('param a') or an invalid address(if the PyUnicodeObject is deallocated))
 
     >>> next(gg)
     'param a'
