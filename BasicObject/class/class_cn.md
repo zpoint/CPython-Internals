@@ -150,7 +150,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 **@classmethod** 装饰器使得 **c1.fc** 的结果仍然为类型 **method** 的对象
 
-**c.fc** 是另一个  **PyMethodObject** 的实例, 其中的 **im_func** 指向即将调用的函数对象, 而 **im_self** 指向了 `<class '__main__.C'>`
+**c1.fc** 是另一个  **PyMethodObject** 的实例, 其中的 **im_func** 指向即将调用的函数对象, 而 **im_self** 指向了 `<class '__main__.C'>`
 
     >>> C
     <class '__main__.C'>
@@ -189,12 +189,12 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 同样的变量, 通过不用的方式获取得到的结果不同, 这是怎么一回事呢 ?
 
 当你尝试通过实例 cc 访问属性 **fc1** 时, **descriptor protocol** 会通过好几种不同的方式去尝试获得一个结果, 并把这个结果返回给你, 比如
-* 调用 C 的 _\_getattribute_\_
-* 判断 C._\_dict_\_["fc1"] 是否为 data descriptor?
-	* 是, 返回 C._\_dict_\_['fc1']._\_get_\_(instance, Class)
-	* 否, 返回 cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
-		* C._\_dict_\_['fc1']._\_get_\_(instance, Class) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
-* 如果上面的步骤都没找到, 调用 c._\_getattr_\_("fc1") 返回
+* 调用 C 的 `__getattribute__`
+* 判断 `C.__dict__["fc1"]` 是否为 data descriptor ?
+	* 是, 返回 `C.__dict__['fc1'].__get__(instance, Class)`
+	* 否, 返回 `cc.__dict__['fc1']` if 'fc1' in `cc.__dict__` else
+		* `C.__dict__['fc1'].__get__(instance, Class)` if hasattr(`C.__dict__['fc1']`, `__get__`) else `C.__dict__['fc1']`
+* 如果上面的步骤都没找到, 调用 `c.__getattr__("fc1")` 返回
 
 ![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)
 
@@ -202,9 +202,9 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
 
-由于 **classmethod** 类型同时实现了 _\_get_\_ 和 _\_set_\_, 所以这个类型/类型的实例为 **data descriptor**, 通过类属性访问 **cc.fc1** 会调用 **fc1._\_get_\_** 函数, 并返回这个函数所返回的对象给调用者
+由于 **classmethod** 类型同时实现了 `__get__` 和 `__set__`, 所以这个类型/类型的实例为 **data descriptor**, 通过类属性访问 **cc.fc1** 会调用 `fc1.__get__` 函数, 并返回这个函数所返回的对象给调用者
 
-我们可以看看 **classmethod** 类型的 _\_get_\_ 函数的实现
+我们可以看看 **classmethod** 类型的 `__get__` 函数的实现
 
     static PyObject *
     cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
@@ -261,7 +261,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 同理  **staticmethod** 也是一个 **data descriptor**
 
-我们可以看看 **staticmethod** 类型的 _\_get_\_ 函数的实现
+我们可以看看 **staticmethod** 类型的 `__get__` 函数的实现
 
     static PyObject *
     sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
@@ -277,4 +277,4 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         return sm->sm_callable;
     }
 
-当你通过 **cc.fs1** 访问属性 **fs1** 时, **descriptor protocol** 再一次的调用了 C._\_dict_\_["fs1"]_\_get_\_(instance, Class) 并返回了对应的 **lambda** 函数对象
+当你通过 **cc.fs1** 访问属性 **fs1** 时, **descriptor protocol** 再一次的调用了 `C.__dict__["fs1"]__get__(instance, Class)` 并返回了对应的 **lambda** 函数对象

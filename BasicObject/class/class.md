@@ -32,13 +32,13 @@ the **PyMethodObject** represents the type **method** in c-level
 
 #### fields
 
-the layout of **c.f**
+the layout of **c.f1**
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/example0.png)
 
 ##### im_func
 
-as you can see from the layout, field **im_func** stores the [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md) object that implementing the method
+as you can see from the layout, field **im_func** stores the [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md) object that implements the method
 
     >>> C.f1
     <function C.f1 at 0x10b80f040>
@@ -150,7 +150,7 @@ let's define an object with **classmethod** and **staticmethod**
 
 the **@classmethod** keeps type of **c1.fc** as **method**
 
-**c.fc** is another instance of  **PyMethodObject**, with **im_func** bind to the actual callable object, and **im_self** bind to the `<class '__main__.C'>`
+**c1.fc** is another instance of  **PyMethodObject**, with **im_func** bind to the actual callable object, and **im_self** bind to the `<class '__main__.C'>`
 
     >>> C
     <class '__main__.C'>
@@ -189,12 +189,12 @@ let's see what's under the hood
 get different result when access the same object in different way, why ?
 
 when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different path to get the attribute in the following step
-* call _\_getattribute_\_ of the object C
-* C._\_dict_\_["fc1"] is a data descriptor?
-	* yes, return C._\_dict_\_['fc1']._\_get_\_(instance, Class)
-	* no, return cc._\_dict_\_['fc1'] if 'fc1' in cc._\_dict_\_ else
-		* C._\_dict_\_['fc1']._\_get_\_(instance, Class) if hasattr(C._\_dict_\_['fc1'], _\_get_\_) else C._\_dict_\_['fc1']
-* if not found in above steps, call c._\_getattr_\_("fc1")
+* call `__getattribute__` of the object C
+* `C.__dict__["fc1"]` is a data descriptor?
+	* yes, return `C.__dict__['fc1'].__get__(instance, Class)`
+	* no, return `cc.__dict__['fc1']` if 'fc1' in `cc.__dict__` else
+		* `C.__dict__['fc1'].__get__(instance, Class)` if hasattr(`C.__dict__['fc1']`, `__get__`) else `C.__dict__['fc1']`
+* if not found in above steps, call `c.__getattr__("fc1")`
 
 ![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)
 
@@ -202,9 +202,9 @@ for more detail, please refer to this blog [object-attribute-lookup](https://blo
 
 ![classmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod2.png)
 
-because **classmethod** implements _\_get_\_ and _\_set_\_, it's a data descriptor, when you try to access attribute **cc.fc1**, you will actually call **fc1._\_get_\_**, and caller will get whatever it returns
+because **classmethod** implements `__get__` and `__set__`, it's a data descriptor, when you try to access attribute **cc.fc1**, you will actually call `fc1.__get__`, and caller will get whatever it returns
 
-we can see the _\_get_\_ function of classmethod object
+we can see the `__get__` function of classmethod object(defined as `cm_descr_get` in C)
 
     static PyObject *
     cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
@@ -259,7 +259,7 @@ this is the layout of **staticmethod** object
 
 ![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
 
-we can see the _\_get_\_ function of staticmethod object
+we can see the `__get__` function of staticmethod object
 
     static PyObject *
     sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
@@ -275,4 +275,4 @@ we can see the _\_get_\_ function of staticmethod object
         return sm->sm_callable;
     }
 
-so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happened again, C._\_dict_\_["fs1"]_\_get_\_(instance, Class) returns the **lambda** function
+so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happened again, `C.__dict__["fs1"]__get__(instance, Class)` returns the **lambda** function
