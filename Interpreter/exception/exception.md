@@ -156,7 +156,7 @@ let's define an example
 and try to compile it
 
 	python.exe -m dis .\test.py
-    1           0 LOAD_CONST               0 (<code object t at 0x05949BD0, file ".\test.py", line 1>)
+    1             0 LOAD_CONST               0 (<code object t at 0x05949BD0, file ".\test.py", line 1>)
                   2 LOAD_CONST               1 ('t')
                   4 MAKE_FUNCTION            0
                   6 STORE_NAME               0 (t)
@@ -234,3 +234,36 @@ and try to compile it
      12     >>  110 END_FINALLY
                 112 LOAD_CONST               0 (None)
                 114 RETURN_VALUE
+
+we can see that the opcode `0 SETUP_FINALLY          108 (to 110)` maps to the most outer `finally` statement, 0 is the byte offset of opcode, 108 is the parameter of the `SETUP_FINALLY`, the real handler offset is calculated as `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode, `oparg` is the parameter 108), which is 110 in result
+
+`2 SETUP_FINALLY           12 (to 16)` maps to the first `except` statement, 2 is the byte offset of opcode, 12 is the parameter of the `SETUP_FINALLY`, 12(parameter) + 4(opcode offset) is 16
+
+what does `SETUP_FINALLY` do ?
+
+	/* cpython/Python/ceval.c
+    case TARGET(SETUP_FINALLY): {
+        /* NOTE: If you add any new block-setup opcodes that
+           are not try/except/finally handlers, you may need
+           to update the PyGen_NeedsFinalizing() function.
+           */
+
+        PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
+                           STACK_LEVEL());
+        DISPATCH();
+    }
+
+
+	/* cpython/Objects/frameobject.c */
+    void PyFrame_BlockSetup(PyFrameObject *f, int type, int handler, int level)
+    {
+        PyTryBlock *b;
+        if (f->f_iblock >= CO_MAXBLOCKS)
+            Py_FatalError("XXX block stack overflow");
+        b = &f->f_blockstack[f->f_iblock++];
+        b->b_type = type;
+        b->b_level = level;
+        b->b_handler = handler;
+    }
+
+for those who need detail of frame object, please refer to [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
