@@ -5,12 +5,12 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [fields](#fields)
-	* [im_func](#im_func)
-	* [im_self](#im_self)
+    * [im_func](#im_func)
+    * [im_self](#im_self)
 * [free_list](#free_list)
 * [classmethod and staticmethod](#classmethod-and-staticmethod)
-	* [classmethod](#classmethod)
-	* [staticmethod](#staticmethod)
+    * [classmethod](#classmethod)
+    * [staticmethod](#staticmethod)
 
 #### related file
 * cpython/Objects/classobject.c
@@ -52,8 +52,8 @@ field **im_self** stores the instance object this method bound to
 
 when you call
 
-	>>> c.f1(123)
-	123
+    >>> c.f1(123)
+    123
 
 the **PyMethodObject** delegate the real call to **im_func** with **im_self** as the first argument
 
@@ -61,15 +61,15 @@ the **PyMethodObject** delegate the real call to **im_func** with **im_self** as
     method_call(PyObject *method, PyObject *args, PyObject *kwargs)
     {
         PyObject *self, *func;
-		/* get im_self */
+        /* get im_self */
         self = PyMethod_GET_SELF(method);
         if (self == NULL) {
             PyErr_BadInternalCall();
             return NULL;
         }
-		/* get im_func */
+        /* get im_func */
         func = PyMethod_GET_FUNCTION(method);
-		/* call im_func with im_self as the first argument */
+        /* call im_func with im_self as the first argument */
         return _PyObject_Call_Prepend(func, self, args, kwargs);
     }
 
@@ -102,8 +102,8 @@ the **PyMethodObject** will be created when you trying to access the bound-metho
 
 now, let's see an example of free_list
 
-	>>> c1_f1_1 = c1.f1
-	>>> c1_f1_2 = c1.f1
+    >>> c1_f1_1 = c1.f1
+    >>> c1_f1_2 = c1.f1
     >>> id(c1_f1_1)
     4529762024
     >>> id(c1_f1_2)
@@ -157,7 +157,7 @@ the **@classmethod** keeps type of **c1.fc** as **method**
 
 ![classmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod.png)
 
-how **classmethod** work internally ?
+how **classmethod** work internally?
 
 **classmethod** is a **type** in python3
 
@@ -186,14 +186,14 @@ let's see what's under the hood
     >>> cc.fc1
     <bound method <lambda> of <class '__main__.C'>>
 
-get different result when access the same object in different way, why ?
+get a different result when access the same object in a different way, why?
 
-when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different path to get the attribute in the following step
+when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different paths to get the attribute in the following step
 * call `__getattribute__` of the object C
 * `C.__dict__["fc1"]` is a data descriptor?
-	* yes, return `C.__dict__['fc1'].__get__(instance, Class)`
-	* no, return `cc.__dict__['fc1']` if 'fc1' in `cc.__dict__` else
-		* `C.__dict__['fc1'].__get__(instance, Class)` if hasattr(`C.__dict__['fc1']`, `__get__`) else `C.__dict__['fc1']`
+    * yes, return `C.__dict__['fc1'].__get__(instance, Class)`
+    * no, return `cc.__dict__['fc1']` if 'fc1' in `cc.__dict__` else
+        * `C.__dict__['fc1'].__get__(instance, Class)` if hasattr(`C.__dict__['fc1']`, `__get__`) else `C.__dict__['fc1']`
 * if not found in above steps, call `c.__getattr__("fc1")`
 
 ![object-attribute-lookup](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/object-attribute-lookup.png)

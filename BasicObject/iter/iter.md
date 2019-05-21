@@ -17,9 +17,9 @@
 * [callable iterator](#callable-iterator)
     * [memory layout](#memory-layout-citer)
     * [example](#example-citer)
-    	* [citer0](#citer0)
-    	* [citer1](#citer1)
-    	* [citer-end](#citer-end)
+        * [citer0](#citer0)
+        * [citer1](#citer1)
+        * [citer-end](#citer-end)
 
 ### related file
 * cpython/Objects/iterobject.c
@@ -85,7 +85,7 @@ let's iter through an iterator object
                 return ["index 1", "good boy"]
             return index * 2 if index < 3 else index * 3
 
-	a = iter(A())
+    a = iter(A())
     type(a) # iterator
 
 ![iter0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter0.png)
@@ -94,15 +94,15 @@ let's iter through an iterator object
 
 the **next(a)** calls object[0], and return the result
 
-	>>> next(a)
-	'index 0'
+    >>> next(a)
+    'index 0'
 
 ![iter1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter1.png)
 
 ##### iter2
 
-	>>> next(a)
-	['index 1', 'good boy']
+    >>> next(a)
+    ['index 1', 'good boy']
 
 ![iter2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter2.png)
 
@@ -110,8 +110,8 @@ the **next(a)** calls object[0], and return the result
 
 the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 
-	>>> next(a)
-	4
+    >>> next(a)
+    4
 
 ![iter3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter3.png)
 
@@ -143,7 +143,7 @@ the content in **it_index** is still 5, but the content in **it_seq** becomes 0x
 
 ![iterend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iterend.png)
 
-notice, if you call next(a) again, the **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**, it lose the way to access the instance of **class A**, and can no longer call the _\_getitem_\_ function
+notice, if you call next(a) again, the **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**, it loses the way to access the instance of **class A**, and can no longer call the _\_getitem_\_ function
 
     >>> next(a)
     Traceback (most recent call last):
@@ -213,7 +213,7 @@ a callable_iterator calls whatever stores in **it_callable** each time you iter 
 
 ##### citer1
 
-the callable_iterator calls the _\_call_\_ method of instance of A, and compare the result with the sentinal **2**
+the callable_iterator calls the _\_call_\_ method of the instance of A, and compare the result with the sentinel **2**
 
 the next operation won't change any state of the callable_iterator object, the state inside **it_callable** is changed anyway
 
@@ -226,7 +226,7 @@ the next operation won't change any state of the callable_iterator object, the s
 
 this time the instance of A returns PyLongObject 2, which is the same as the object stored inside **it_sentinel** field,
 
-so the callable_iterator clears it's state and return NULL to the outer scope, which raise a StopIteration
+so the callable_iterator clears its state and return NULL to the outer scope, which raise a StopIteration
 
     >>> next(r)
     Traceback (most recent call last):

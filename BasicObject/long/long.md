@@ -5,14 +5,14 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [how element stored inside](#how-element-stored-inside)
-	* [ingeter 0](#ingeter-0)
-	* [ingeter 1](#ingeter-1)
-	* [ingeter -1](#ingeter--1)
-	* [ingeter 1023](#ingeter-1023)
-	* [ingeter 32767](#ingeter-32767)
-	* [ingeter 32768](#ingeter-32768)
-	* [little endian and big endian](#little-endian-and-big-endian)
-	* [reserved bit](#reserved-bit)
+    * [ingeter 0](#ingeter-0)
+    * [ingeter 1](#ingeter-1)
+    * [ingeter -1](#ingeter--1)
+    * [ingeter 1023](#ingeter-1023)
+    * [ingeter 32767](#ingeter-32767)
+    * [ingeter 32768](#ingeter-32768)
+    * [little endian and big endian](#little-endian-and-big-endian)
+    * [reserved bit](#reserved-bit)
 * [small ints](#small-ints)
 
 #### related file
@@ -26,9 +26,9 @@
 
 after python3, there's only type named **int**, the **long** type in python2.x is **int** type in python3.x
 
-the structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), obviously there's only one field to store the real **int** value, that's **ob_digit**
+the structure of **long object** looks like the structure of [tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout), obviously, there's only one field to store the real **int** value, that's **ob_digit**
 
-But how does cpython represent the variable size **int** in byte level? Let's see
+But how does CPython represent the variable size **int** in byte level? Let's see
 
 #### how element stored inside
 
@@ -36,13 +36,13 @@ But how does cpython represent the variable size **int** in byte level? Let's se
 
 notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
 
-	i = 0
+    i = 0
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
 ##### ingeter 1
 
-there are two differenct type of **ob_digit** depends on your system.
+there are two different types of **ob_digit** depends on your system.
 
     #if PYLONG_BITS_IN_DIGIT == 30
     typedef uint32_t digit;
@@ -65,21 +65,21 @@ I've modified the source code to change the value of **PYLONG_BITS_IN_DIGIT** to
 
 but when it's going to represent integer 1, **ob_size** becomes 1 and field in **ob_digit** represent the value 1 with type **unsigned short**
 
-	i = 1
+    i = 1
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
 ##### ingeter -1
 
-when i becomes -1, the only difference from the integer 1 is the value in **ob_size** field, cpython interpret **ob_size** as signed type to differ the positive and negitive sign
+when i becomes -1, the only difference from the integer 1 is the value in **ob_size** field, CPython interpret **ob_size** as a signed type to differ the positive and negative sign
 
-	i = -1
+    i = -1
 
 ![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
 ##### ingeter 1023
 
-the basic unit is type **digit**, which provide 2 bytes(16bits) for storage. And 1023 takes the right most 10 bits,
+the basic unit is type **digit**, which provide 2 bytes(16bits) for storage. And 1023 takes the rightmost 10 bits,
 so the value **ob_size** field is still 1.
 
 
@@ -93,13 +93,13 @@ the integer 32767 represent in the same way as usual
 
 ##### ingeter 32768
 
-cpython don't use all the 16 bits in **digit** field, the first bit of every **digit** is reserved, we wiil see why later
+CPython don't use all the 16 bits in **digit** field, the first bit of every **digit** is reserved, we will see why later
 
 ![32768](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32768.png)
 
 ##### little endian and big endian
 
-notice, because the **digit** is the smallest unit in the cpython abstract level, order between bytes inside a single ob_digit are represent in most-important-bit-in-the-left-most order(big endian order)
+notice, because the **digit** is the smallest unit in the CPython abstract level, order between bytes inside a single ob_digit are represent in most-important-bit-in-the-left-most order(big-endian order)
 
 order between **digit** in the **ob_digit** array are represent in most-important-digit-in-the-right-most order(little endian order)
 
@@ -113,16 +113,16 @@ the interger 262143(2^18 = 262144) in binary representation is 00000011 11111111
 
 ##### reserved bit
 
-why the left-most bit in **digit** is reserved? Why order between **digit** in the **ob_digit** array are represent as little-endian?
+why the left-most bit in **digit** is reserved? Why order between **digit** in the **ob_digit** array are represented as little-endian?
 
 let's try to add two integer value
 
-	i = 1073741824 - 1 # 1 << 30 == 1073741824
+    i = 1073741824 - 1 # 1 << 30 == 1073741824
     j = 1
 
 ![before_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/before_add.png)
 
-	k = i + j
+    k = i + j
 
 first, initialize a temporary **PyLongObject** with size = max(size(i), size(j)) + 1
 
@@ -136,7 +136,7 @@ step2, set the value in temp[0] to (carry & PyLong_MASK)
 
 ![step_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_2.png)
 
-step3, right shift the carray up to the left most bit
+step3, right shift the carray up to the leftmost bit
 
 ![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
@@ -165,16 +165,16 @@ the sub operation is similar to the add operation, so you can read the source co
 
 ##### small ints
 
-cpython alse use a buffer pool to stored the frequently used integer
+CPython also use a buffer pool to store the frequently used integer
 
 
-	#define NSMALLPOSINTS           257
-	#define NSMALLNEGINTS           5
+    #define NSMALLPOSINTS           257
+    #define NSMALLNEGINTS           5
     static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
 
 let's see
 
-	c = 0
+    c = 0
     d = 0
     e = 0
     print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400

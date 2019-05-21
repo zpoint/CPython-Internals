@@ -5,8 +5,8 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [normal](#normal)
-	* [en_longindex](#en_longindex)
+    * [normal](#normal)
+    * [en_longindex](#en_longindex)
 
 #### related file
 * cpython/Objects/enumobject.c
@@ -52,11 +52,11 @@ it's a trick in the **enumerate** iterating function
     static PyObject *
     enum_next(enumobject *en)
     {
-    	/* omit */
+        /* omit */
         PyObject *result = en->en_result;
-		/* omit */
+        /* omit */
         if (result->ob_refcnt == 1) {
-        	/* reference count of the tuple object is 1
+            /* reference count of the tuple object is 1
               the only count is from the current enumerate object
               since we no longer need the old two element in tuple
               we can reset it instead of creating a new one
@@ -95,16 +95,16 @@ because the reference count of the tuple object `(0, 'I') # id(4469348888)` now 
 
 the **en_index** incremented, and **en_result** points to the old tuple object`(0, 'I') # id(4469348888)`
 
-	>>> next(e)
-	(1, 'am')
+    >>> next(e)
+    (1, 'am')
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/example2.png)
 
 after `del t1`, the reference count of tuple object `(0, 'I') # id(4469348888)` becomes 1, so **enum_next** will reset the tuple **en_result** pointed to and returns it again
 
-	>>> del t1 # decrement the reference count of the object referenced by t1
-	>>> next(e)
-	(2, 'handsome')
+    >>> del t1 # decrement the reference count of the object referenced by t1
+    >>> next(e)
+    (2, 'handsome')
 
 ![example3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/example3.png)
 
@@ -131,11 +131,11 @@ usually, the **index** of enumerate object is stored in the **en_index** field, 
 
 most time it's a **ssize_t**, which is type **int** in 32-bit os and **long int** in 64-bit os
 
-in my machine it's type **long int**
+in my machine, it's type **long int**
 
-what if the index is so big that a signed 64-bit can't hold ?
+what if the index is so big that a signed 64-bit can't hold?
 
-	e = enumerate(gen(), 1 << 62)
+    e = enumerate(gen(), 1 << 62)
 
 the **en_index** can hold the value
 
@@ -143,11 +143,11 @@ the **en_index** can hold the value
 
 the max value **en_index** can represent is ((1 << 63) - 1) (PY_SSIZE_T_MAX)
 
-now the actual index is larger than PY_SSIZE_T_MAX, so the **en_longindex** is used for represent the actual index
+now the actual index is larger than PY_SSIZE_T_MAX, so the **en_longindex** is used to represent the actual index
 
 what **en_longindex** points to is a [PyLongObject(python type int)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md), which can represent variable size integer
 
-	>>> e = enumerate(gen(), (1 << 63) + 100)
+    >>> e = enumerate(gen(), (1 << 63) + 100)
 
 ![longindex1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/longindex1.png)
 

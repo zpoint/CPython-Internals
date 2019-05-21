@@ -5,12 +5,12 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [f_valuestack/f_stacktop/f_localsplus](#f_valuestack/f_stacktop/f_localsplus)
-	* [f_blockstack](#f_blockstack)
-	* [f_back](#f_back)
+    * [f_valuestack/f_stacktop/f_localsplus](#f_valuestack/f_stacktop/f_localsplus)
+    * [f_blockstack](#f_blockstack)
+    * [f_back](#f_back)
 * [free_list mechanism](#free_list-mechanism)
-	* [zombie frame](#zombie-frame)
-	* [free_list](#free_list-sub)
+    * [zombie frame](#zombie-frame)
+    * [free_list](#free_list-sub)
 
 #### related file
 * cpython/Objects/frameobject.c
@@ -18,7 +18,7 @@
 
 #### memory layout
 
-the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the current executing code object, parameters, variables in different scope, try block info and etc
+the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the currently executing code object, parameters, variables in different scope, try block info and etc
 
 for more information please refer to [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
 
@@ -47,7 +47,7 @@ if you need the meaning of each field, please refer to [Junnplus' blog](https://
         f = PyObject_GC_NewVar(PyFrameObject, &PyFrame_Type, extras);
     }
     else { /* omit */
-    	PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
+        PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
     }
     extras = code->co_nlocals + ncells + nfrees;
     f->f_valuestack = f->f_localsplus + extras;
@@ -56,13 +56,13 @@ if you need the meaning of each field, please refer to [Junnplus' blog](https://
 
 the **ob_size** is the sum of code->co_stacksize, code->co_nlocals, code->co_cellvars and code->co_freevars
 
-**code->co_stacksize**: a integer that represent the maximum amount stack space that the function will use. It's computed when the code object generated
+**code->co_stacksize**: an integer that represents the maximum amount stack space that the function will use. It's computed when the code object generated
 
 **code->co_nlocals**: number of local variables
 
 **code->co_cellvars**: a tuple containing the names of all variables in the function that are also used in a nested function
 
-**code->nfrees**: the names of all variables used in the function that are defined in an enclosing function scope
+**code->nfrees**: the names of all variables used in the function that is defined in an enclosing function scope
 
 for more information about **PyCodeObject** please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) and [code object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
 
@@ -77,7 +77,7 @@ let's see an example
 
 the **dis** result
 
-	  # ./python.exe -m dis frame_dis.py
+      # ./python.exe -m dis frame_dis.py
       1           0 LOAD_CONST               5 ((1, 2))
                   2 LOAD_CONST               2 (<code object g2 at 0x10c495030, file "frame_dis.py", line 1>)
                   4 LOAD_CONST               3 ('g2')
@@ -117,7 +117,7 @@ the **dis** result
 
 let's iter through the generator
 
-	>>> gg = g2("param a")
+    >>> gg = g2("param a")
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example0.png)
 
@@ -154,7 +154,7 @@ opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_v
 
 opcode `18 LOAD_FAST                2 (c)` push the 2th element in the **f_localsplus** onto the **f_valuestack**, and  `20 YIELD_VALUE ` pops it and send it to the caller
 
-field **f_lasti** is 20, indicate that it's current executing the opcode `20 YIELD_VALUE`
+field **f_lasti** is 20, indicate that it's currently executing the opcode `20 YIELD_VALUE`
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example2.png)
 
@@ -229,7 +229,7 @@ let's define a generator with some blocks
                 yield 100
 
 
-	>>> gg = g3()
+    >>> gg = g3()
 
 ![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
 
@@ -299,7 +299,7 @@ frame object deallocated
 
 **f_back** is a pointer which points to the previous frame, it makes the related frames a single linked list
 
-	import inspect
+    import inspect
 
     def g4(depth):
         print("depth", depth)
@@ -327,9 +327,9 @@ output
 
 ##### zombie frame
 
-the first time a code object attached to a frame object, after the execution of the code block, the frame object will not be freed, it becomes a "zombie" frame, next time the code block execute again, it will reuse the same frame object
+the first time a code object attached to a frame object, after the execution of the code block, the frame object will not be freed, it becomes a "zombie" frame, next time the code block executes again, it will reuse the same frame object
 
-the strategy saves malloc/realloc overhead and some field initialisation
+the strategy saves malloc/realloc overhead and some field initialization
 
     def g5():
         yield 1
@@ -350,7 +350,7 @@ the strategy saves malloc/realloc overhead and some field initialisation
 
 ##### free_list sub
 
-there's a single linked list stores the deallocated frame object, it saves malloc/free overhead
+there's a single linked list store the deallocated frame object, it saves malloc/free overhead
 
     static PyFrameObject *free_list = NULL;
     static int numfree = 0;         /* number of frames currently in free_list */
@@ -384,7 +384,7 @@ let's see an example
 
 the frame attached to variable **gg** is deallocated, because it's the first frame execute the code block, it becomes the "zombie" frame of the **code** object
 
-because the **code** object still contains reference count to the frame object("zombie" frame), the frame object won't goes to the free_list or trigger gc
+because the **code** object still contains reference count to the frame object("zombie" frame), the frame object won't go to the free_list or trigger gc
 
     >>> next(gg)
     ("<frame at 0x1052d83a0, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
@@ -405,7 +405,7 @@ because the **code** object still contains reference count to the frame object("
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list2.png)
 
     >>> next(gg2)
-	("<frame at 0x105482d00, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
+    ("<frame at 0x105482d00, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
     >>> next(gg2)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>

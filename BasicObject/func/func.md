@@ -5,17 +5,17 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [field](#field)
-	* [func_code](#func_code)
-	* [func_globals](#func_globals)
-	* [func_defaults](#func_defaults)
-	* [func_kwdefaults](#func_kwdefaults)
-	* [func_closure](#func_closure)
-	* [func_doc](#func_doc)
-	* [func_name](#func_name)
-	* [func_dict](#func_dict)
-	* [func_module](#func_module)
-	* [func_annotations](#func_annotations)
-	* [func_qualname](#func_qualname)
+    * [func_code](#func_code)
+    * [func_globals](#func_globals)
+    * [func_defaults](#func_defaults)
+    * [func_kwdefaults](#func_kwdefaults)
+    * [func_closure](#func_closure)
+    * [func_doc](#func_doc)
+    * [func_name](#func_name)
+    * [func_dict](#func_dict)
+    * [func_module](#func_module)
+    * [func_annotations](#func_annotations)
+    * [func_qualname](#func_qualname)
 
 #### related file
 * cpython/Objects/funcobject.c
@@ -24,7 +24,7 @@
 
 #### memory layout
 
-every thing is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
+everything is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
 
     def f(a, b=2):
         print(a, b)
@@ -44,20 +44,20 @@ let's figure out the meaning of each field in the **PyFunctionObject**
 
 **func_code** field stores an instance of **PyCodeObject**, which contains information of a code block
 
-A code block must contains python virtual machine's instruction, argument number, argument
+A code block must contain python virtual machine's instruction, argument number, argument
 body and etc
 
 I will explain **PyCodeObject** in other article
 
-	>>> f.__code__
-	<code object f at 0x1078015d0, file "<stdin>", line 1>
+    >>> f.__code__
+    <code object f at 0x1078015d0, file "<stdin>", line 1>
 
 ##### func_globals
 
 the global namespace attached to the function object
 
-	>>> type(f.__globals__)
-	<class 'dict'>
+    >>> type(f.__globals__)
+    <class 'dict'>
     >>> f.__globals__
     {'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': None, '__annotations__': {}, '__builtins__': <module 'builtins' (built-in)>, 'f': <function f at 0x10296eac0>}
 
@@ -65,8 +65,8 @@ the global namespace attached to the function object
 
 a tuple stores all the default argument of the function object
 
-	>>> f.__defaults__
-	(2,)
+    >>> f.__defaults__
+    (2,)
 
 ##### func_kwdefaults
 
@@ -93,8 +93,8 @@ the **func_closure** field is a tuple, indicate all the enclosing level of the c
     def my_func():
         print("my func")
 
-	>>> my_func.__closure__
-	(<cell at 0x10911c928: function object at 0x1092b3c40>,)
+    >>> my_func.__closure__
+    (<cell at 0x10911c928: function object at 0x1092b3c40>,)
     >>> my_func
     <function wrapper.<locals>.func_inside at 0x1092b3b40>
     >>> wrapper
@@ -143,7 +143,7 @@ let's see an example with more _\_closure_\_
 
 ##### func_doc
 
-usually, it's an **unicode** object for explaintion
+usually, it's an **unicode** object for explanation
 
     def f():
         """
@@ -162,15 +162,15 @@ the name of the **PyFunctionObject** object
 
     print(i_have_a_very_long_long_long_name.__name__)
 
-	# output
+    # output
     # i_have_a_very_long_long_long_name
 
 ##### func_dict
 
 **func_dict** field stores the attribute of the function object
 
-	>>> f.__dict__
-	{}
+    >>> f.__dict__
+    {}
     >>> f.a = 3
     >>> f.__dict__
     {'a': 3}
@@ -179,8 +179,8 @@ the name of the **PyFunctionObject** object
 
 **func_module** field indicate the module which the **PyFunctionObject** attached to
 
-	>>> f.__module__
-	'__main__'
+    >>> f.__module__
+    '__main__'
     >>> from urllib.parse import urlencode
     >>> urlencode.__module__
     'urllib.parse'
@@ -189,23 +189,23 @@ the name of the **PyFunctionObject** object
 
 you can read [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/pep-3107/) for more detail
 
-	def a(x: "I am a int" = 3, y: "I am a float" = 4) -> "return a list":
-    	pass
+    def a(x: "I am a int" = 3, y: "I am a float" = 4) -> "return a list":
+        pass
 
-	>>> a.__annotations__
-	{'x': 'I am a int', 'y': 'I am a float', 'return': 'return a list'}
+    >>> a.__annotations__
+    {'x': 'I am a int', 'y': 'I am a float', 'return': 'return a list'}
 
 ##### func_qualname
 
 it's used for nested class/function representation, it contains a dotted path leading to the object from the module top-level, refer [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
 
-	def f():
-    	def g():
-        	pass
+    def f():
+        def g():
+            pass
         return g
 
-	>>> f.__qualname__
-	'f'
+    >>> f.__qualname__
+    'f'
     >>> f().__qualname__
     'f.<locals>.g'
 

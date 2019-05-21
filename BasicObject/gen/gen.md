@@ -4,15 +4,15 @@
 
 * [related file](#related-file)
 * [generator](#generator)
-	* [memory layout](#memory-layout-generator)
-	* [example generator](#example-generator)
+    * [memory layout](#memory-layout-generator)
+    * [example generator](#example-generator)
 * [coroutine](#coroutine)
-	* [memory layout](#memory-layout-coroutine)
-	* [example coroutine](#example-coroutine)
+    * [memory layout](#memory-layout-coroutine)
+    * [example coroutine](#example-coroutine)
 * [async generator](#async-generator)
-	* [memory layout](#memory-layout-async-generator)
-	* [example async generator](#example-async-generator)
-	* [free list](#free-list)
+    * [memory layout](#memory-layout-async-generator)
+    * [example async generator](#example-async-generator)
+    * [free list](#free-list)
 
 ### related file
 * cpython/Objects/genobject.c
@@ -40,7 +40,7 @@ there's a common defination among **generator**, **coroutine** and **async gener
         PyObject *prefix##_qualname;                                            \
         _PyErr_StackItem prefix##_exc_state;
 
-the defination of **generator** object is less than 4 lines
+the definition of **generator** object is less than 4 lines
 
     typedef struct {
         /* The gi_ prefix is intended to remind of generator-iterator. */
@@ -98,22 +98,22 @@ let's define and iter through a generator
                 print("result", repr(result))
         raise StopIteration
 
-	>>> f = fib(5)
+    >>> f = fib(5)
     >>> type(f)
     <class 'generator'>
     >>> type(fib)
     <class 'function'>
-	>>> f.gi_frame.f_lasti
-	-1
+    >>> f.gi_frame.f_lasti
+    -1
 
-we initialize a new generator, the **f_lasti** in **gi_frame** act as the program counter in the python virtual machine, it indicate the next instruction offset from the code block inside the **gi_code**
+we initialize a new generator, the **f_lasti** in **gi_frame** act as the program counter in the python virtual machine, it indicates the next instruction offset from the code block inside the **gi_code**
 
-	>>> fib.__code__
-	<code object fib at 0x1041069c0, file "<stdin>", line 1>
+    >>> fib.__code__
+    <code object fib at 0x1041069c0, file "<stdin>", line 1>
     >>> f.gi_code
     <code object fib at 0x1041069c0, file "<stdin>", line 1>
 
-the **gi_code** inside the f object is the **code** object that represent the function fib
+the **gi_code** inside the f object is the **code** object that represents the function fib
 
 the **gi_running** is 0, indicating the generator is not executing right now
 
@@ -125,8 +125,8 @@ the **gi_running** is 0, indicating the generator is not executing right now
     result None
     >>> f.gi_frame.f_lasti
     52
-	>>> repr(r)
-	'1'
+    >>> repr(r)
+    '1'
 
 looking into the object f, nothing changed
 
@@ -134,19 +134,19 @@ but the **f_lasti** in **gi_frame** now in the position 52(the first place keywo
 
 ![example_gen_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_1.png)
 
-step one more time, due to the while loop, the **f_lasti** still points to same position
+step one more time, due to the while loop, the **f_lasti** still points to the same position
 
     >>> r = f.send("handsome")
     result 'handsome'
     >>> f.gi_frame.f_lasti
     52
-	>>> repr(r)
-	'1'
+    >>> repr(r)
+    '1'
 
 send again, the **f_lasti** indicate the code offset in the position of second **yield**
 
-	>>> r = f.send("handsome2")
-	result 'handsome2'
+    >>> r = f.send("handsome2")
+    result 'handsome2'
     >>> f.gi_frame.f_lasti
     68
     >>> repr(r)
@@ -198,7 +198,7 @@ the **f_lasti** is in the position of the second **except** statement, **exc_typ
 
 the **f_lasti** is in the position of the first **finally** statement, the ModuleNotFoundError is handled properly, at the top of the exception stack is the **ZeroDivisionError**
 
-there will be another article talking about the [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception.md) later, the refer link is reserved
+there will be another article talking about the [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception.md)
 
     >>> r = f.send("handsome8")
     result 'handsome8'
@@ -213,7 +213,7 @@ now, the **StopIteration** is raised
 
 the frameObject in **gi_frame** field is freed
 
-field **gi_frame** points to null pointer, indicating that the generator is terminated
+field **gi_frame** points to a null pointer, indicating that the generator is terminated
 
 and states in **gi_exc_state** is restored
 
@@ -239,7 +239,7 @@ and states in **gi_exc_state** is restored
 
 #### memory layout coroutine
 
-most parts of the defination of the **coroutine** type and **generator** are the same
+most parts of the definition of the **coroutine** type and **generator** are the same
 
 the coroutine-only field named **cr_origin**, tracking the trackback of the **coroutine** object, is disabled by default, can be enabled by **sys.set_coroutine_origin_tracking_depth**, for more detail please refer to [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
 
@@ -249,7 +249,7 @@ the coroutine-only field named **cr_origin**, tracking the trackback of the **co
 
 let's try to run an example with **coroutine** type defined to understand each field's meaning
 
-as usual, I've altered the source code so that my **repr** function is able to print all the low level detail of the object
+as usual, I've altered the source code so that my **repr** function is able to print all the low-level detail of the object
 
     import sys
     import time
@@ -343,7 +343,7 @@ the layout of **async generator** is the same as **generator** type, except for 
 
 #### example async generator
 
-the **set_asyncgen_hooks** function is used for set up a **firstiter** and a **finalizer**, **firstiter** will be called before when an asynchronous generator is iterated for the first time, finalizer will be called when asynchronous generator is about to be gc
+the **set_asyncgen_hooks** function is used for setting up a **firstiter** and a **finalizer**, **firstiter** will be called before when an asynchronous generator is iterated for the first time, finalizer will be called when asynchronous generator is about to be gc
 
 the **run_forever** function in asyncio base event loop has defined
 
@@ -359,11 +359,11 @@ the **run_forever** function in asyncio base event loop has defined
 
 you can define your own event loop to override the default **firstiter** and **finalizer**, please refer to [oython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
 
-	# example of set_asyncgen_hooks
+    # example of set_asyncgen_hooks
     import sys
 
     async def async_fib(n):
-    	yield 1
+        yield 1
 
     def firstiter(async_gen):
         print("in firstiter: ", async_gen)
@@ -373,8 +373,8 @@ you can define your own event loop to override the default **firstiter** and **f
 
     sys.set_asyncgen_hooks(firstiter, finalizer)
     >>> f = async_fib(3)
-	>>> f.__anext__()
-	in firstiter:  <async_generator object async_fib at 0x10a98f598>
+    >>> f.__anext__()
+    in firstiter:  <async_generator object async_fib at 0x10a98f598>
     <async_generator_asend at 0x10a7487c8>
 
 let's define and iter through an async iterator
@@ -412,8 +412,8 @@ let's define and iter through an async iterator
             self.loop.run_until_complete(self.make_the_call(args[0]))
 
     a = AsendTest(3)
-	>>> type(a.f)
-	<class 'async_generator'>
+    >>> type(a.f)
+    <class 'async_generator'>
 
 ![example_async_gen0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_0.png)
 
@@ -424,8 +424,8 @@ if you need more detail of _\_aiter_\_, _\_anext_\_ and etc, please refer to [pe
     >>> a(None)
     result None
     repr asend 1
-	>>> a.f.ag_frame.f_lasti
-	68
+    >>> a.f.ag_frame.f_lasti
+    68
 
 the **ag_weakreflist** points to a weak reference created by **BaseEventLoop(asyncio->base_events.py)**
 
@@ -433,7 +433,7 @@ it's used for shutdown all active asynchronous generators, read the [source code
 
 **ag_finalizer** now points to the **finalizer**, set up by BaseEventLoop(calling the **sys.set_asyncgen_hooks** method)
 
-**ag_hooks_inited** is 1, indicate that hooks is set up
+**ag_hooks_inited** is 1, indicate that hooks are set up
 
 ![example_async_gen1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_1.png)
 
@@ -492,7 +492,7 @@ because they both are short-living objects and are instantiated for every **_\_a
 * boost performance 6-10%
 * reduce memory fragmentation
 
-the id are the same, the address of previous **async_generator_asend** is reused
+the id is the same, the address of previous **async_generator_asend** is reused
 
     >>> f = async_fib(3)
     >>> r = f.asend(None)
@@ -501,8 +501,8 @@ the id are the same, the address of previous **async_generator_asend** is reused
     >>> id(r)
     4376804088
     >>> del r
-	>>> r = f.asend(None)
-	>>> id(r)
-	4376804088
+    >>> r = f.asend(None)
+    >>> id(r)
+    4376804088
 
 ![free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/free_list.png)

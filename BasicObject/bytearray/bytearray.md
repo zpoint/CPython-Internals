@@ -5,10 +5,10 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [empty bytearray](#empty-bytearray)
-	* [append](#append)
-	* [resize](#resize)
-	* [slice](#slice)
+    * [empty bytearray](#empty-bytearray)
+    * [append](#append)
+    * [resize](#resize)
+    * [slice](#slice)
 * [ob_exports/buffer protocol](#ob_exports)
 
 #### related file
@@ -18,11 +18,11 @@
 
 #### memory layout
 
-The **ob_alloc** field represent the real allocated size in bytes
+The **ob_alloc** field represents the real allocated size in bytes
 
 **ob_bytes** is the physical begin address, and **ob_start** is the logical begin address
 
-**ob_exports** means how many other object are sharing this buffer, like reference count in a way
+**ob_exports** means how many other objects are sharing this buffer, like reference count in a way
 
 ![memory layout](https://img-blog.csdnimg.cn/20190315152551189.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -31,7 +31,7 @@ The **ob_alloc** field represent the real allocated size in bytes
 
 ##### empty bytearray
 
-	>>> a = bytearray(b"")
+    >>> a = bytearray(b"")
     >>> id(a)
     4353755656
     >>> b = bytearray(b"")
@@ -45,7 +45,7 @@ The **ob_alloc** field represent the real allocated size in bytes
 
 after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_start** all points to same address
 
-	a.append(ord('a'))
+    a.append(ord('a'))
 
 ![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/append_a.png)
 
@@ -65,39 +65,39 @@ The size grow pattern is shown in the code
 
 In appending, ob_alloc is 2, and request size is 2, 2 <= 2 * 1.125, so the new allocated size is 2 + (2 >> 3) + 3 ==> 5
 
-	a.append(ord('b'))
+    a.append(ord('b'))
 
 ![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/resize.png)
 
 ##### slice
 
-	b = bytearray(b"abcdefghijk")
+    b = bytearray(b"abcdefghijk")
 
 ![slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/slice.png)
 
 After the slice operation, **ob_start** points to the real beginning of the content, and **ob_bytes** still points to the begin address of the malloced block
 
-	b[0:5] = [1,2]
+    b[0:5] = [1,2]
 
 ![after_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_slice.png)
 
-as long as the slice operation is going to shrink the bytearray, and the **new_size < alloc / 2** is False, the resize operation won't shrink the real mallcoed size
+as long as the slice operation is going to shrink the bytearray, and the **new_size < allocate / 2** is False, the resize operation won't shrink the real malloced size
 
-	b[2:6] = [3, 4]
+    b[2:6] = [3, 4]
 
 ![after2_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after2_slice.png)
 
-now, in the shrink operation, the **new_size < alloc / 2** is True, the resize operation will be triggered
+now, in the shrink operation, the **new_size < allocate / 2** is True, the resize operation will be triggered
 
-	b[0:3] = [7,8]
+    b[0:3] = [7,8]
 
 ![after3_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after3_slice.png)
 
-The grow pattern in slice operation is same as the append operation
+The growing pattern in slice operation is the same as the append operation
 
 request size is 6, 6 < 6 * 1.125, so new allocated size is 6 + (6 >> 3) + 3 ==> 9
 
-	b[0:3] = [1,2,3,4]
+    b[0:3] = [1,2,3,4]
 
 ![after_grow_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_grow_slice.png)
 
@@ -105,7 +105,7 @@ request size is 6, 6 < 6 * 1.125, so new allocated size is 6 + (6 >> 3) + 3 ==> 
 
 what's field **ob_exports** mean ? If you need detail, you can refer to [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) and [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
 
-	buf = bytearray(b"abcdefg")
+    buf = bytearray(b"abcdefg")
 
 ![exports](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports.png)
 
@@ -113,27 +113,27 @@ the **bytearray** implements the **buffer protocol**, and **memoryview** is able
 
 field **ob_exports** becomes 1, which indicate how many objects currently sharing the internal block via **buffer protocol**
 
-	mybuf = memoryview(buf)
+    mybuf = memoryview(buf)
     mybuf[1] = 3
 
 ![exports_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
 
 so does **mybuf2** object(**ob_exports** doesn't change because you need to call the c function defined by **buf** object via the **buffer protocol**, **mybuf2** barely calls the slice function of **mybuf**)
 
-	mybuf2 = mybuf[:4]
+    mybuf2 = mybuf[:4]
     mybuf2[0] = 1
 
 ![exports_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_2.png)
 
 **ob_exports** becomes 2
 
-	mybuf3 = memoryview(buf)
+    mybuf3 = memoryview(buf)
 
 ![exports_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_3.png)
 
 **ob_exports** becomes 0
 
-	del mybuf
+    del mybuf
     del mybuf2
     del mybuf3
 

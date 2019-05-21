@@ -5,12 +5,12 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [method](#method)
-	* [new](#new)
-	* [add](#add)
-		* [hash collision](#hash-collision)
-		* [resize](#resize)
-	    * [why LINEAR_PROBES?](#why-LINEAR_PROBES)
-	* [clear](#clear)
+    * [new](#new)
+    * [add](#add)
+        * [hash collision](#hash-collision)
+        * [resize](#resize)
+        * [why LINEAR_PROBES?](#why-LINEAR_PROBES)
+    * [clear](#clear)
 
 #### related file
 * cpython/Objects/setobject.c
@@ -24,8 +24,8 @@
 
 * ##### **new**
     * call stack
-	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
+        * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+            * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
 
 the following picture shows value in each field in an empty set
 
@@ -34,8 +34,8 @@ the following picture shows value in each field in an empty set
 * ##### **add**
     * call stack
         * static PyObject *set_add(PySetObject *so, PyObject *key)
-		    * static int set_add_key(PySetObject *so, PyObject *key)
-			    * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
+            * static int set_add_key(PySetObject *so, PyObject *key)
+                * static int set_add_entry(PySetObject *so, PyObject *key, Py_hash_t hash)
 
 
 initialize a new empty set, whenever an empty set created, the **setentry** field points to **smalltable** field inside the same PySetObject, default value of **PySet_MINSIZE** is 8, it means if there are less than 8 objects in PySetObject, they are stored in the **smalltable**, if there are more than 8 objects, the resize operation will make **setentry** points to a new malloced block
@@ -69,12 +69,12 @@ cpython use **LINEAR_PROBES** to solve hash collision instead of **CHAIN**(linke
         // i is the hash result
         // find the position according to the hash value
         if (entry in i is empty)
-        	return entry[i]
+            return entry[i]
         // reach here, means entry[i] already taken
         if (i + LINEAR_PROBES <= mask) {
             for (j = 0 ; j < LINEAR_PROBES ; j++) {
-            	if (entry in j is empty)
-                	return j
+                if (entry in j is empty)
+                    return j
             }
         }
         // reach here, means entry[i] - entry[i + LINEAR_PROBES] all are taken
@@ -97,7 +97,7 @@ the 0th position has been taken, the first time **LINEAR_PROBES** find the 1th p
 
 * ##### **resize**
 
-let's insert one more item with value 64, still repeat the **LINEAR_PROBES** progress, insert to position at index 3
+let's insert one more item with value 64, still repeat the **LINEAR_PROBES** progress, insert to the position at index 3
 
     s.add(64) # hash(64) & mask == 0
 
@@ -106,12 +106,12 @@ let's insert one more item with value 64, still repeat the **LINEAR_PROBES** pro
 now, value in field **fill** is 5, **mask** is 7, it will trigger the resize operation
 the trigger condition is **fill*5 !< mask * 3**
 
-	// from cpython/Objects/setobject.c
-	if ((size_t)so->fill*5 < mask*3)
-		return 0;
-	return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
+    // from cpython/Objects/setobject.c
+    if ((size_t)so->fill*5 < mask*3)
+        return 0;
+    return set_table_resize(so, so->used>50000 ? so->used*2 : so->used*4);
 
-after resize，value 32 and 64 still repeat the **LINEAR_PROBES** progress, inserted at index 1 and index 2, because the value in **mask** field becoms 31, hash(16) is less than mask, so 16 can be inserted to index 15
+after resize，value 32 and 64 still repeat the **LINEAR_PROBES** progress, inserted at index 1 and index 2, because the value in **mask** field becomes 31, hash(16) is less than the mask, so 16 can be inserted to index 15
 And field **table** no longer points to **smalltable**, instead, it points to a new malloced block
 
 ![set_add_64_resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
@@ -123,8 +123,8 @@ And field **table** no longer points to **smalltable**, instead, it points to a 
 * ##### **clear**
     * call stack
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
-		    * static int set_clear_internal(PySetObject *so)
-				* static void set_empty_to_minsize(PySetObject *so)
+            * static int set_clear_internal(PySetObject *so)
+                * static void set_empty_to_minsize(PySetObject *so)
 
 call clear to restore the initial state
 

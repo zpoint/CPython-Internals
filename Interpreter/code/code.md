@@ -5,11 +5,11 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [fields](#fields)
-	* [example](#example)
-	* [co_code](#co_code)
-	* [co_lnotab and co_firstlineno](#co_lnotab-and-co_firstlineno)
-	* [co_zombieframe](#co_zombieframe)
-	* [co_extra](#co_extra)
+    * [example](#example)
+    * [co_code](#co_code)
+    * [co_lnotab and co_firstlineno](#co_lnotab-and-co_firstlineno)
+    * [co_zombieframe](#co_zombieframe)
+    * [co_extra](#co_extra)
 
 #### related file
 * cpython/Objects/codeobject.c
@@ -132,7 +132,7 @@ when you enter the command  `./python.exe -m dis code.py`
 
 the **_unpack_opargs** in `Lib/dis.py` will do the translation
 
-if you check the file in `Include/opcode.h`, you will find `#define HAVE_ARGUMENT            90` and `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)`, which means opcode with value greater than **90** has arguments, while opcode with value less than **90** doesn't
+if you check the file in `Include/opcode.h`, you will find `#define HAVE_ARGUMENT            90` and `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)`, which means opcode with a value greater than **90** has arguments, while opcode with a value less than **90** doesn't
 
     def _unpack_opargs(code):
         # code example: b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
@@ -210,7 +210,7 @@ you can read the following comment from `Objects/frameobject.c`
 
 for more detail, please refer to [frame object(zombie frame)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md#zombie-frame)
 
-> each code object will hold a single "zombie" frame. This retains the allocated and initialised frame object from an invocation of the code object. The zombie is reanimated the next time we need a frame object for that code object. Doing this saves the malloc/ realloc required when using a free_list frame that isn't the correct size. It also saves some field initialisation.
+> each code object will hold a single "zombie" frame. This retains the allocated and initialized frame object from an invocation of the code object. The zombie is reanimated the next time we need a frame object for that code object. Doing this saves the malloc/ realloc required when using a free_list frame that isn't the correct size. It also saves some field initialization.
 
 ##### co_extra
 
@@ -221,8 +221,8 @@ this field stores a pointer to a **_PyCodeObjectExtra** object
         void *ce_extras[1];
     } _PyCodeObjectExtra;
 
-since it has a size field and a array of (void *) pointer, it can stores almost everything
+since it has a size field and an array of (void *) pointer, it can store almost everything
 
-usually it's a function pointer related to interpreter for debug or JIT usage
+usually, it's a function pointer related to the interpreter for debug or JIT usage
 
 for more detail please refer to [PEP 523 -- Adding a frame evaluation API to CPython](https://www.python.org/dev/peps/pep-0523/)

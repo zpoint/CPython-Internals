@@ -5,7 +5,7 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [print](#print)
+    * [print](#print)
 * [fields in PyMethodDef](#fields-in-PyMethodDef)
 * [free_list](#free_list)
 * [classmethod](#classmethod)
@@ -21,7 +21,7 @@
 
 There's a type named **builtin_function_or_method** in python, as the type name described, all the builtin function or method defined in the c level belong to **builtin_function_or_method**
 
-	>>> print
+    >>> print
     <built-in function print>
     >>> type(print)
     <class 'builtin_function_or_method'>
@@ -76,7 +76,7 @@ the type in **m_self** field is **module**, and type in **m_module** field is **
 
 ##### ml_name
 
-as you can see in the above picture, field **ml_name** is the name of the builtin method, it's a c style null iterminated string "print"
+as you can see in the above picture, field **ml_name** is the name of the built-in method, it's a c style null terminated string "print"
 
 ##### ml_meth
 
@@ -84,7 +84,7 @@ the real c function pointer that does the job
 
 ##### ml_flags
 
-bit flag indicate how the c function's behaviour in the python level
+bit flag indicates how the c function's behave in the python level
 
 the function in **call.c** begin with **_PyMethodDef_** will delegate the work to the **PyCFunction**, but with different calling behaviour according to different **ml_flags**
 
@@ -108,7 +108,7 @@ for more detail please refer to [c-api Common Object Structures](https://docs.py
     #define PyCFunction_MAXFREELIST 256
     #endif
 
-cpython use a buffer pool with szie 256 to reuse the deallocated **PyCFunctionObject** object, free_list is a single linked list, all elements are chained by the **m_self** field
+cpython use a buffer pool with size 256 to reuse the deallocated **PyCFunctionObject** object, free_list is a single linked list, all elements are chained by the **m_self** field
 
 the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md#free_list)
 

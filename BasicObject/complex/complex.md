@@ -21,11 +21,11 @@ the handling process and representation are mostly the same as [float](https://g
 
 #### example
 
-	c = complex(0, 1)
+    c = complex(0, 1)
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example0.png)
 
-	d = complex(0.1, -0.2)
+    d = complex(0.1, -0.2)
 
 ![example1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example1.png)
 
@@ -53,13 +53,13 @@ let's read the add function
         return PyComplex_FromCComplex(result);
     }
 
-the add operation is quiet simple, sum the **real**, sum the **imag** part and return the new value
+the add operation is quite simple, sum the **real**, sum the **image** part and return the new value
 
 the sub/divide/pow/neg operations are similar
 
-	>>> e = c + d
-	>>> repr(e)
-	'(0.1+0.8j)'
+    >>> e = c + d
+    >>> repr(e)
+    '(0.1+0.8j)'
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example2.png)
 

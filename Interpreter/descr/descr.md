@@ -4,11 +4,11 @@
 
 * [related file](#related-file)
 * [how does attribute access work in python?](#how-does-attribute-access-work-in-python)
-	* [instance attribute access](#instance-attribute-access)
-	* [class attribute access](#class-attribute-access)
+    * [instance attribute access](#instance-attribute-access)
+    * [class attribute access](#class-attribute-access)
 * [method_descriptor](#method_descriptor)
-	* [memory layout](#memory-layout)
-* [how to change behaviour of attribute access?](#how-to-change-behaviour-of-attribute-access)
+    * [memory layout](#memory-layout)
+* [how to change the behavior of attribute access?](#how-to-change-the-behavior-of-attribute-access)
 * [read more](#read-more)
 
 #### related file
@@ -24,7 +24,7 @@
 
 let's see an example first before we look into how descriptor object implements
 
-	print(type(str.center)) # <class 'method_descriptor'>
+    print(type(str.center)) # <class 'method_descriptor'>
     print(type("str".center)) # <class 'builtin_function_or_method'>
 
 what is type **method_descriptor** ? why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ? how does attribute access work in python ?
@@ -58,7 +58,7 @@ according to the comments, we know that type **method_descriptor** or type name 
 
 if we **dis** the `print(type(str.center))`
 
-	./python.exe -m dis test.py
+    ./python.exe -m dis test.py
       1           0 LOAD_NAME                0 (print)
                   2 LOAD_NAME                1 (type)
                   4 LOAD_NAME                2 (str)
@@ -69,7 +69,7 @@ if we **dis** the `print(type(str.center))`
                  14 LOAD_CONST               0 (None)
                  16 RETURN_VALUE
 
-we can see that the core **opcode** is `LOAD_ATTR`, follow the `LOAD_ATTR` to the `Python/ceval.c`, we can find the defination
+we can see that the core **opcode** is `LOAD_ATTR`, follow the `LOAD_ATTR` to the `Python/ceval.c`, we can find the definition
 
     case TARGET(LOAD_ATTR): {
         PyObject *name = GETITEM(names, oparg);
@@ -265,27 +265,27 @@ we can draw the process according to the code above
 
 ![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
-until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in `PyUnicode_Type` will not be called in `str.center`, otherwise it will be called in `"str".center`, you can tell the differences in the folloing codes
+until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in `PyUnicode_Type` will not be called in `str.center`, otherwise, it will be called in `"str".center`, you can tell the differences in the following codes
 
     >>> type("str")
     <class 'str'>
     >>> "str".center # it calls the tp_getattro in PyUnicode_Type
     <built-in method center of str object at 0x10360f500>
     >>> type("str".center)
-	<class 'builtin_function_or_method'>
+    <class 'builtin_function_or_method'>
 
     >>> type(str)
     <class 'type'>
     >>> str.center # it calls the tp_getattro in a type named PyType_Type
     <method 'center' of 'str' objects>
     >>> type(str.center)
-	<class 'method_descriptor'>
+    <class 'method_descriptor'>
 
 so, the procedure above describes the attribute access of `"str".center`
 
 ##### class attribute access
 
-let's find the defination of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
+let's find the definition of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
 
 for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(alias of `__getattribute__`)
 
@@ -315,7 +315,7 @@ for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(
     static PyObject *
     type_getattro(PyTypeObject *type, PyObject *name)
     {
-    	/*
+        /*
             logic mostly same as _PyObject_GenericGetAttrWithDict,
             for thoes who are interested, read Objects/typeobject.c directly
         */
@@ -325,14 +325,14 @@ for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(
 
 from the above pictures and codes, we can know that even if the `__getattribute__` method of `str` and `"str"` are different, they both calls the same `tp_descr_get` (alias of `__get__`) defined in a type named `method_descriptor`
 
-	/* in cpython/Objects/descrobject.c */
+    /* in cpython/Objects/descrobject.c */
     static PyObject *
     method_get(PyMethodDescrObject *descr, PyObject *obj, PyObject *type)
     {
         PyObject *res;
         /* descr_check checks whether the descriptor was found on the target object itself (or a base) */
         if (descr_check((PyDescrObject *)descr, obj, &res))
-        	/* str.center goes into this branch, returns the type of PyMethodDescrObject */
+            /* str.center goes into this branch, returns the type of PyMethodDescrObject */
             return res;
         /* while "str".center goes into this branch, returns a type of PyCFunction */
         return PyCFunction_NewEx(descr->d_method, obj, NULL);
@@ -368,7 +368,7 @@ there exists various descriptor type
 
 **PyGetSetDescrObject**: wrapper of **PyGetSetDef**
 
-#### how to change behaviour of attribute access
+#### how to change the behavior of attribute access
 
 we know that when you try to access the attribute of an object, the python virtual machine will
 
@@ -380,9 +380,9 @@ we know that when you try to access the attribute of an object, the python virtu
 
 the default `__getattribute__` is written in C, it implements the **descriptor protocol** which we learned above from the source code
 
-when we define a python object, if we need to change the behabiour of attribute access
+when we define a python object, if we need to change the behavior of attribute access
 
-we are not able to change the behaviour of opcode `LOAD_ATTR`, it's written in C
+we are not able to change the behavior of opcode `LOAD_ATTR`, it's written in C
 
 instead, we can provide our own `__getattribute__` and `__getattr__` instead of the default `tp_getattro`(in C) and `tp_getattr`(in C)
 

@@ -4,7 +4,7 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-	* [base_exception](#base_exception)
+    * [base_exception](#base_exception)
 * [exception handling](#exception-handling)
 
 #### related file
@@ -28,7 +28,7 @@ all other basic exception types defined in same C file are shown
 
 ![error_layout2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/error_layout2.png)
 
-what's following the defination of the basic exception types above are the defination of derived exception types according to exception hierarchy, beacuase there're dozens of derived exceprions need to be defined, some **marco** are used for shorten the codes
+what's following the definition of the basic exception types above are the definition of derived exception types according to exception hierarchy, because there're dozens of derived exceptions need to be defined, some **marco** are used for shortening the codes
 
     #define SimpleExtendsException(EXCBASE, EXCNAME, EXCDOC) \
     static PyTypeObject _PyExc_ ## EXCNAME = { \
@@ -155,7 +155,7 @@ let's define an example
 
 and try to compile it
 
-	python.exe -m dis .\test.py
+    python.exe -m dis .\test.py
     1             0 LOAD_CONST               0 (<code object t at 0x05949BD0, file ".\test.py", line 1>)
                   2 LOAD_CONST               1 ('t')
                   4 MAKE_FUNCTION            0
@@ -235,17 +235,16 @@ and try to compile it
                 112 LOAD_CONST               0 (None)
                 114 RETURN_VALUE
 
-we can see that the opcode `0 SETUP_FINALLY          108 (to 110)` maps to the most outer `finally` statement, 0 is the byte offset of opcode, 108 is the parameter of the `SETUP_FINALLY`, the real handler offset is calculated as `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode, `oparg` is the parameter 108), which is 110 in result
+we can see that the opcode `0 SETUP_FINALLY          108 (to 110)` maps to the outermost `finally` statement, 0 is the byte offset of opcode, 108 is the parameter of the `SETUP_FINALLY`, the real handler offset is calculated as `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode, `oparg` is the parameter 108), which is 110 in result
 
 `2 SETUP_FINALLY           12 (to 16)` maps to the first `except` statement, 2 is the byte offset of opcode, 12 is the parameter of the `SETUP_FINALLY`, 12(parameter) + 4(opcode offset) is 16
 
 what does `SETUP_FINALLY` do ?
 
-	/* cpython/Python/ceval.c
+    /* cpython/Python/ceval.c
     case TARGET(SETUP_FINALLY): {
         /* NOTE: If you add any new block-setup opcodes that
-           are not try/except/finally handlers, you may need
-           to update the PyGen_NeedsFinalizing() function.
+           are not try/except/finally handlers, you may need to update the PyGen_NeedsFinalizing() function.
            */
 
         PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
@@ -254,7 +253,7 @@ what does `SETUP_FINALLY` do ?
     }
 
 
-	/* cpython/Objects/frameobject.c */
+    /* cpython/Objects/frameobject.c */
     void PyFrame_BlockSetup(PyFrameObject *f, int type, int handler, int level)
     {
         PyTryBlock *b;

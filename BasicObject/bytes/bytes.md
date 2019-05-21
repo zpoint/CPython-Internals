@@ -5,13 +5,13 @@
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
-	* [empty bytes](#empty-bytes)
-	* [ascii characters](#ascii-characters)
-	* [nonascii characters](#nonascii-characters)
+    * [empty bytes](#empty-bytes)
+    * [ascii characters](#ascii-characters)
+    * [nonascii characters](#nonascii-characters)
 * [summary](#summary)
-	* [ob_shash](#ob_shash)
-	* [ob_size](#ob_size)
-	* [summary](#summary)
+    * [ob_shash](#ob_shash)
+    * [ob_size](#ob_size)
+    * [summary](#summary)
 
 #### related file
 * cpython/Objects/bytesobject.c
@@ -30,7 +30,7 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 **bytes** object is an immutable object, whenever you need to modify a **bytes** object, you need to create a new one, which keeps the implementation simple.
 
-	s = b""
+    s = b""
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
@@ -38,13 +38,13 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 let's initialize a byte object with ascii characters
 
-	s = b"abcdefg123"
+    s = b"abcdefg123"
 
 ![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
 ##### nonascii characters
 
-	s = "我是帅哥".encode("utf8")
+    s = "我是帅哥".encode("utf8")
 
 ![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
@@ -54,11 +54,11 @@ let's initialize a byte object with ascii characters
 ##### ob_shash
 
 
-The field **ob_shash** should stores the hash value of the byte object, value **-1** means not computed yet.
+The field **ob_shash** should store the hash value of the byte object, value **-1** means not computed yet.
 
 The first time the hash value computed, it will be cached to the **ob_shash** field
 
-the cached hash value can saves recalculation and speeds up dict lookups
+the cached hash value can save recalculation and speeds up dictionary lookups
 
 ##### ob_size
 
@@ -70,7 +70,7 @@ The **PyBytesObject** is a python wrapper of c style null terminate string, with
 
 The implementation of **PyBytesObject** looks like the **embstr** encoding in redis
 
-	redis-cli
+    redis-cli
     127.0.0.1:6379> set a "hello"
     OK
     127.0.0.1:6379> object encoding a
