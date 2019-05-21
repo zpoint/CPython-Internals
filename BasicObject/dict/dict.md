@@ -293,7 +293,7 @@ also, the indices with **DKIX_DUMMY** can be inserted for new item
 
 dict object need to guarantee the [inserted order](https://mail.python.org/pipermail/python-dev/2017-December/151283.html), the delete operation can't shuffle objects in **entries**
 
-leave the entries[i] to empry, and packing these empry entries later in the resize operation can keep the time complexity of delete operation in amortize O(1)
+leave the entries[i] to empty, and pack these empty entries later in the resize operation can keep the time complexity of delete operation in amortize O(1)
 
 deleting entries from dictionaries is not very common, in some case a little bit slower is acceptable([PyPy Status Blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html))
 
