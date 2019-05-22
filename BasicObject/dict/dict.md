@@ -46,7 +46,7 @@ Now, let's see the memory layout
 
 ##### combined table && split table
 
-I'm confused when I first look at the definition of the **PyDictObject**, what's **ma_values **? why **PyDictKeysObject** looks different from the indices/entries structure above?
+I'm confused when I first look at the definition of the **PyDictObject**, what's **ma_values** ? why **PyDictKeysObject** looks different from the indices/entries structure above?
 
 the source code says
 
