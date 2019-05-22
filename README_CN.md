@@ -54,7 +54,7 @@
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
  - [x] [descr(访问(类/实例)属性时发生了什么/`__get__`/`__set__`)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
- - [x] [exception](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
+ - [x] [exception(异常处理机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
  - [ ] module
  - [ ] namespace
  - [ ] GIL

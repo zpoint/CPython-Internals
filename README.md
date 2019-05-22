@@ -55,7 +55,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
  - [x] [descr(how does attribute access work/`__get__`/`__set__`)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
- - [x] [exception](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md)
+ - [x] [exception(exception handling)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md)
  - [ ] module
  - [ ] namespace
  - [ ] GIL

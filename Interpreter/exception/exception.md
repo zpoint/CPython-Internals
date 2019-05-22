@@ -137,7 +137,7 @@ you can find the exception hierarchy in `Lib/test/exception_hierarchy.txt`
 
 let's define an example
 
-import sys
+	import sys
 
     def t():  # position 3
         f = sys._current_frames()
@@ -432,11 +432,13 @@ the `PyFrame_BlockSetup` will be called in the following opcode `SETUP_FINALLY`,
 
 what will happen if we call the function `t2()` ?
 
-this is the definition of `PyTryBlock`, the value `CO_MAXBLOCKS` is 20, you can't set up more than 20 blocks inside a frame(try/finally/with/async with)
+this is the definition of `PyTryBlock`
 
 ![try_block](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/try_block.png)
 
 in `position 1`
+
+the value `CO_MAXBLOCKS` is 20, you can't set up more than 20 blocks inside a frame(`try/finally/with/async with`)
 
 ![pos1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos1.png)
 

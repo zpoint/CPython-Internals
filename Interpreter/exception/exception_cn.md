@@ -137,7 +137,7 @@
 
 我们来定义一个示例看看
 
-import sys
+	import sys
 
     def t():  # position 3
         f = sys._current_frames()
@@ -428,14 +428,16 @@ import sys
 
 我们调用函数 `t2()` 的时候会发生什么 ?
 
-这是 `PyTryBlock` 的定义, `CO_MAXBLOCKS` 的值为 20, 你不能在一个函数中定义超过 20 个 block (try/finally/with/async with)
-
-不是说你能写20个 try/except, 一个 try/except/finally 可能对应到超过一个 block)
+这是 `PyTryBlock` 的定义
 
 
 ![try_block](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/try_block.png)
 
 在 `position 1` 的位置
+
+`CO_MAXBLOCKS` 的值为 20, 你不能在一个函数中定义超过 20 个 block (try/finally/with/async with)
+
+不是说你能写20个 try/except, 一个 try/except/finally 可能对应到超过一个 block)
 
 ![pos1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos1.png)
 
