@@ -1,31 +1,31 @@
 # exception
 
-### contents
+### 目录
 
-* [related file](#related-file)
-* [memory layout](#memory-layout)
-* [exception handling](#exception-handling)
+* [相关位置文件](#相关位置文件)
+* [内存构造](#内存构造)
+* [异常处理机制](#异常处理机制)
 
-#### related file
+#### 相关位置文件
 
 * cpython/Include/cpython/pyerrors.h
 * cpython/Include/pyerrors.h
 * cpython/Objects/exceptions.c
 * cpython/Lib/test/exception_hierarchy.txt
 
-#### memory layout
+#### 内存构造
 
-there are various exception types defined in `Include/cpython/pyerrors.h`, the most widely used **PyBaseExceptionObject**(also the base part of any other exception type)
+在 `Include/cpython/pyerrors.h` 中定义了好几种异常类型, 应用范围最广的就是 **PyBaseExceptionObject** (同时也是所有异常类型都共有的基础部分)
 
 ![base_exception](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/base_exception.png)
 
-all other basic exception types defined in same C file are shown
+其他基本的异常类型也定义在了同个 c 文件中
 
 ![error_layout1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/error_layout1.png)
 
 ![error_layout2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/error_layout2.png)
 
-what's following the definition of the basic exception types above are the definition of derived exception types according to exception hierarchy, because there're dozens of derived exceptions need to be defined, some **marco** are used for shortening the codes
+在定义了基础的异常类型之后, 还需要根据异常层级定义一些异常的继承类, 但是继承类有数十个, 这里用了几个 **marco** 来减小代码量
 
     #define SimpleExtendsException(EXCBASE, EXCNAME, EXCDOC) \
     static PyTypeObject _PyExc_ ## EXCNAME = { \
@@ -66,7 +66,7 @@ what's following the definition of the basic exception types above are the defin
     SimpleExtendsException(PyExc_Exception, StopAsyncIteration,
                            "Signal the end from iterator.__anext__().");
 
-you can find the exception hierarchy in `Lib/test/exception_hierarchy.txt`
+你可以在 `Lib/test/exception_hierarchy.txt` 这个文件里找到下面的层级
 
     BaseException
      +-- SystemExit
@@ -133,9 +133,9 @@ you can find the exception hierarchy in `Lib/test/exception_hierarchy.txt`
                +-- BytesWarning
                +-- ResourceWarning
 
-##### exception handling
+##### 异常处理机制
 
-let's define an example
+我们来定义一个示例看看
 
 import sys
 
@@ -173,7 +173,7 @@ import sys
             print("t2", e)
 
 
-and try to compile it
+用 **dis** 模块处理它(有点长, 需要点耐心)
 
     python.exe -m dis .\test.py
       1           0 LOAD_CONST               0 (0)
@@ -394,23 +394,19 @@ and try to compile it
                 108 RETURN_VALUE
 
 
-we can see that the opcode `0 SETUP_FINALLY          178 (to 202)` maps to the outermost `finally` statement, 0 is the byte offset of opcode, 178 is the parameter of the `SETUP_FINALLY`, the real handler offset is calculated as `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode(here is 24), `oparg` is the parameter 178), which adds up to 202 in result
+我们可以发现 opcode `0 SETUP_FINALLY          178 (to 202)` 对应到了函数 t 中最外层的 `finally`,
+这里面 0 是当前 opcode 距离当前 code block 中第一个 opcode 的字节距离, 178 是 `SETUP_FINALLY` 这个 opcode 的参数, 真正异常发生时需要跳转到的 handler 的位置计算方式如下: `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` 是下一个执行的 opcode 到头部 opcode 的距离(这里是 24), `oparg` 就是参数了, 这里是 178) 加起来的结果为 202
 
-`2 SETUP_FINALLY           26 (to 52)` maps to the first `except` statement, the byte offset of opcode is 26(`LOAD_GLOBAL`) and the parameter of the `SETUP_FINALLY` is also 26, 26(parameter) + 26(opcode offset) is 52
+`2 SETUP_FINALLY           26 (to 52)` 对应到了函数 t 中最外层的 `except`, opcode 距离头部的字节距离为 26(`LOAD_GLOBAL`), 并且 `SETUP_FINALLY` 的参数也为 26, 加起来 26(参数) + 26(opcode 字节距离) 为 52
 
-what does `SETUP_FINALLY` do ?
+`SETUP_FINALLY` 干了什么 ?
 
     /* cpython/Python/ceval.c
     case TARGET(SETUP_FINALLY): {
-        /* NOTE: If you add any new block-setup opcodes that
-           are not try/except/finally handlers, you may need to update the PyGen_NeedsFinalizing() function.
-           */
-
         PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
                            STACK_LEVEL());
         DISPATCH();
     }
-
 
     /* cpython/Objects/frameobject.c */
     void PyFrame_BlockSetup(PyFrameObject *f, int type, int handler, int level)
@@ -424,39 +420,42 @@ what does `SETUP_FINALLY` do ?
         b->b_handler = handler;
     }
 
-for those who need detail of frame object, please refer to [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
+对 frame 对象感兴趣的同学, 请参考 [frame 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
 
-the `PyFrame_BlockSetup` will be called in the following opcode `SETUP_FINALLY`, `SETUP_ASYNC_WITH`, and `SETUP_WITH`(parameter `int type` equals `SETUP_FINALLY` in these opcode)
+`PyFrame_BlockSetup` 会在 opcode `SETUP_FINALLY`, `SETUP_ASYNC_WITH` 或者 `SETUP_WITH` 中被调用 (以上三个 opcode 调用时 `int type` 的值为 `SETUP_FINALLY`)
 
-`RAISE_VARARGS`, `END_FINALLY` and `END_ASYNC_FOR` will call `PyFrame_BlockSetup` in some cases
+也会在 `RAISE_VARARGS`, `END_FINALLY` 和 `END_ASYNC_FOR` 的某些分支下调用到
 
-what will happen if we call the function `t2()` ?
+我们调用函数 `t2()` 的时候会发生什么 ?
 
-this is the definition of `PyTryBlock`, the value `CO_MAXBLOCKS` is 20, you can't set up more than 20 blocks inside a frame(try/finally/with/async with)
+这是 `PyTryBlock` 的定义, `CO_MAXBLOCKS` 的值为 20, 你不能在一个函数中定义超过 20 个 block (try/finally/with/async with)
+
+不是说你能写20个 try/except, 一个 try/except/finally 可能对应到超过一个 block)
+
 
 ![try_block](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/try_block.png)
 
-in `position 1`
+在 `position 1` 的位置
 
 ![pos1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos1.png)
 
-in `position 2`
+在 `position 2` 的位置
 
-`STACK_LEVEL` is defined as `#define STACK_LEVEL()     ((int)(stack_pointer - f->f_valuestack))`, it's the offset of the current `stack_pointer` to the `f_valuestack` in the current frame
+`STACK_LEVEL` 的定义为 `#define STACK_LEVEL()     ((int)(stack_pointer - f->f_valuestack))`, 他是在当前 frame 中, 当前 `stack_pointer` 的位置到 `f_valuestack` 的字节位置距离
 
 ![pos2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos2.png)
 
-in `position 3`
+在 `position 3` 的位置
 
 ![pos3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos3.png)
 
-in `position 4`, the frame represents code object `t` now has two `PyTryBlock`, one for the `finally` statement located at opcode offset 202, the other for the `except` statement located at opcode offset 52
+在 `position 4`, 和 `t` 相关联的的 frame 对象现在有两个 `PyTryBlock`, 一个对应了最外层的 `finally` (opcode 位置 202), 另一个对应最外层的 `except` (opcode 位置 52)
 
 ![pos4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos4.png)
 
-in `position 5`, the `b_type` field in the second `PyTryBlock` is `EXCEPT_HANDLER`(257), and `b_handler` becomes -1
+在 `position 5` 的位置, 第二个 `PyTryBlock` 中的 `b_type` 值为 `EXCEPT_HANDLER`(257), `b_handler` 变成了 -1
 
-the second try block's value is changed in the opcode `BINARY_TRUE_DIVIDE`
+第二个 `PyTryBlock` 中的值是在执行这个 opcode `BINARY_TRUE_DIVIDE` 的过程中发生变化的
 
     case TARGET(BINARY_TRUE_DIVIDE): {
         PyObject *divisor = POP();
@@ -465,7 +464,7 @@ the second try block's value is changed in the opcode `BINARY_TRUE_DIVIDE`
         Py_DECREF(dividend);
         Py_DECREF(divisor);
         SET_TOP(quotient);
-        if (quotient == NULL) // error happened because the divisor is 0
+        if (quotient == NULL) // 0 不能做除数, 发生异常, 进到这里
             goto error;
         DISPATCH();
     }
@@ -473,24 +472,24 @@ the second try block's value is changed in the opcode `BINARY_TRUE_DIVIDE`
     error:
     ...
     exception_unwind:
-        /* Unwind stacks if an exception occurred */
+        /* 如果异常发生, 进到这里 */
         while (f->f_iblock > 0) {
-            /* Pop the current block. */
+            /* 取出当前的 block */
             PyTryBlock *b = &f->f_blockstack[--f->f_iblock];
 
             if (b->b_type == EXCEPT_HANDLER) {
-            /* don't handle it again if it's already handled */
+            /* 如果这个异常已经进行过处理, 则不用再处理一遍 */
                 UNWIND_EXCEPT_HANDLER(b);
                 continue;
             }
             UNWIND_BLOCK(b);
             if (b->b_type == SETUP_FINALLY) {
-                /* the exception handling process */
+            	/* 开始异常处理 */
                 PyObject *exc, *val, *tb;
                 int handler = b->b_handler;
                 _PyErr_StackItem *exc_info = tstate->exc_info;
-                /* Beware, this invalidates all b->b_* fields */
-                /* mark the block so that it will not be handled again */
+                /* 注意下面这个函数会让所有 b->b_* 字段失效 */
+                /* 把这个 block 的这些字段改成标记值, 表示已经处理过, 这个异常就不会再次被处理 */
                 /* b_type: EXCEPT_HANDLER(257), b_handler: -1, STACK_LEVEL: (int)(stack_pointer - f->f_valuestack)) */
                 PyFrame_BlockSetup(f, EXCEPT_HANDLER, -1, STACK_LEVEL());
                 ...
@@ -498,31 +497,31 @@ the second try block's value is changed in the opcode `BINARY_TRUE_DIVIDE`
                 goto main_loop;
             }
 
-bacause `66 SETUP_FINALLY          116 (to 184)` exists before the `print("position 5\n\n")` statement, the third try block will exist
+看上面 **dis** 出的 opcode, `66 SETUP_FINALLY          116 (to 184)` 在 `print("position 5\n\n")` 之前, 所以这里会存在第三个 try block
 
-the block is created by the compiler, the opcode `184 LOAD_CONST               0 (None)` is between `position 8` and `position 9`, it does nothing except for load variable `e1` and deallocates `e1`
+这个 try block 是在编译过程产生的, opcode `184 LOAD_CONST               0 (None)` 的位置在 `position 8` 和 `position 9` 之间, 这几行 opcode 处理加载变量 `e1` 并释放之外没有做其他事情
 
 ![pos5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos5.png)
 
-in `position 6`, the following two opcodes create two more try block
+在 `position 6` 的位置, 下面的 opcode 又创建多了两个 try block
 
      12          82 SETUP_FINALLY           80 (to 164)
                  84 SETUP_FINALLY           26 (to 112)
 
 ![pos6](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos6.png)
 
-in `position 7`, `104 IMPORT_NAME              5 (no)` will raise an exception, which set the last block to handling state and begin the execution in  `15     >>  112 DUP_TOP`, down to the `126 SETUP_FINALLY           18 (to 146)`, the compiler set up another block for variable `e2`
+在 `position 7` 的位置, `104 IMPORT_NAME              5 (no)` 这里会抛出异常, 此时把最后一个 try block 标记为已处理的状态, 并跳转到对应的位置进行异常处理(`15     >>  112 DUP_TOP`), 从对应的位置执行到 `126 SETUP_FINALLY           18 (to 146)` 这里时, 又为变量 `e2` 创建了另一个 block
 
 ![pos7](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos7.png)
 
-in `position 8`, all blocks in inner scope are handled properly and popped off
+在 `position 8` 的位置, 所有内嵌的 block 都处理完并且清楚了
 
 ![pos8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos8.png)
 
-in `position 9`, all blocks in outer scope are handled properly and popped off
+在 `position 9` 的位置, 所有外层的 block 都处理完并且清楚了
 
 ![pos9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos9.png)
 
-in `position 10`, the right frame object is deallocated(actually it will become "zombie frame" of the code t object), the left frame object is in it's first try block
+在 `position 10` 的位置, 图片右边的 frame 对象进入回收流程(实际上他会变成 code t 对象的 "zombie frame"), 左边的 frame 对象正在它的第一个 try block 的处理位置中
 
 ![pos10](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos10.png)
