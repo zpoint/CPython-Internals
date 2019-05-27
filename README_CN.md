@@ -60,6 +60,8 @@
  - [ ] GIL
  - [ ] gc
  - [ ] memory management
+ - [ ] thread
+ - [ ] interpreter
 
 #### 学习资料
 

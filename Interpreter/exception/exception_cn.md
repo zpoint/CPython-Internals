@@ -401,7 +401,7 @@
 
 `SETUP_FINALLY` 干了什么 ?
 
-    /* cpython/Python/ceval.c
+    /* cpython/Python/ceval.c */
     case TARGET(SETUP_FINALLY): {
         PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
                            STACK_LEVEL());

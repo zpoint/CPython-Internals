@@ -400,7 +400,7 @@ we can see that the opcode `0 SETUP_FINALLY          178 (to 202)` maps to the o
 
 what does `SETUP_FINALLY` do ?
 
-    /* cpython/Python/ceval.c
+    /* cpython/Python/ceval.c */
     case TARGET(SETUP_FINALLY): {
         /* NOTE: If you add any new block-setup opcodes that
            are not try/except/finally handlers, you may need to update the PyGen_NeedsFinalizing() function.

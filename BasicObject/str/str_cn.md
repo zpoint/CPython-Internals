@@ -44,7 +44,7 @@
     {
         PyObject *bytes;
 
-		/* 开始之前会做一些边界检查，先忽略这部分检查 */
+        /* 开始之前会做一些边界检查，先忽略这部分检查 */
         /* PyUnicode_UTF8 检查 unicode 对象的 compact flag, 并根据这个 flag 返回一个指向 char 的指针，看下图 */
 
         if (PyUnicode_UTF8(unicode) == NULL) {
@@ -97,7 +97,7 @@ _PyUnicode_UTF8_LENGTH
 
 	# 初始化一个空字符串
 	s = ""
-    # 注意了，因为 s 的 compact 和 ascii 都为 1，所以字段 utf8_length 的地址作为真正存储字符串值的启始地址
+    # 注意了，因为 s 的 compact 和 ascii 都为 1，所以字段 utf8_length 的地址作为真正存储字符串值的起始地址
 
 ![empty_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/empty_s.png)
 
@@ -145,7 +145,7 @@ _PyUnicode_UTF8_LENGTH
 
 * PyUnicode_WCHAR_KIND
 
-在 python 层， 我暂时没有找到定义一个 **kind** 值为 **PyUnicode_WCHAR_KIND** 的**unicode** 对象的方法, 也许只能在  c/c++ 层做到
+在 python 层， 我暂时没有找到定义一个 **kind** 值为 **PyUnicode_WCHAR_KIND** 的 **unicode** 对象的方法, 也许只能在  c/c++ 层做到
 
 * PyUnicode_1BYTE_KIND
 	* 8 bits/character

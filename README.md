@@ -61,6 +61,8 @@ Trying to illustrate every detail of cpython implementation
  - [ ] GIL
  - [ ] gc
  - [ ] memory management
+ - [ ] thread
+ - [ ] interpreter
 
 #### learning material
 
