@@ -435,9 +435,9 @@
 
 在 `position 1` 的位置
 
-`CO_MAXBLOCKS` 的值为 20, 你不能在一个函数中定义超过 20 个 block (try/finally/with/async with)
+`CO_MAXBLOCKS` 的值为 20, 你不能在一个函数中定义超过 20 个 block (`try/finally/with/async with`)
 
-不是说你能写20个 try/except, 一个 try/except/finally 可能对应到超过一个 block)
+不是说你能写 20 个 `try/except`, 一个 `try/except/finally` 可能对应不止一个 block)
 
 ![pos1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos1.png)
 
@@ -516,11 +516,11 @@
 
 ![pos7](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos7.png)
 
-在 `position 8` 的位置, 所有内嵌的 block 都处理完并且清楚了
+在 `position 8` 的位置, 所有内嵌的 block 都处理完并且清除了
 
 ![pos8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos8.png)
 
-在 `position 9` 的位置, 所有外层的 block 都处理完并且清楚了
+在 `position 9` 的位置, 所有外层的 block 都处理完并且清除了
 
 ![pos9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos9.png)
 
