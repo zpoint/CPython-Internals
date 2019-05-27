@@ -114,9 +114,9 @@ it's tedious to copy and paste all the source code related to `IMPORT_NAME`, eve
 
 imagine that there're two or more threads currently importing the same `_locale` module, how does CPython handle this situation ?
 
-if you have a look in the following images and source code, you will notice that the lock mechanism is used for preventing race condition
+if you read the source code and following images, you will notice that the lock mechanism is used for preventing race condition
 
-the procedure can be listed
+the procedures are shown
 
 1. opcode `IMPORT_NAME` will checks if the name being imported is in sys.module, if so return what's in the sys.module
 2. try to acquire the lock `_imp`
@@ -128,7 +128,7 @@ in `position 1`, only thread holds `_imp` can modify the `_module_locks`, the cu
 
 in `position 3`, lock `_imp` is released, if there're other thread importing other module, it's able to acquire the `_imp` lock and continue the procedure, if there's other thread importing the same module, even if it acquire `_imp` successfully, it will fail in acquiring the lock in `_module_locks`, since the previous thread is holding it
 
-![import procedure1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import procedure1.png)
+![import procedure1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure1.png)
 
 
-![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import procedure2.png)
+![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
