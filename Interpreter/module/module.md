@@ -116,13 +116,16 @@ imagine that there're two or more threads currently importing the same `_locale`
 
 if you read the source code and following images, you will notice that the lock mechanism is used for preventing race condition
 
-the procedures are shown
+the procedure is listed
 
-1. opcode `IMPORT_NAME` will checks if the name being imported is in sys.module, if so return what's in the sys.module
+1. opcode `IMPORT_NAME` will check if the name being imported is in sys.module, if so return what's in the sys.module
 2. try to acquire the lock `_imp`
 3. get the lock object in `_module_locks` with module name, create if necessary(in `position 1`)
 4. try to acquire the lock object in step 3 (in `position 2`)
-5. release the lock `_imp`
+5. release the lock `_imp` (in `position 3`)
+6. check if the name being imported is in sys.module, if so release the lock object in `_module_locks` and return what's in the sys.module (in `position 4`)
+7. for `finder` in `sys.modules`, if `finder` can load the module name, release the lock object in `_module_locks` and return what's loaded
+8. raise an error
 
 in `position 1`, only thread holds `_imp` can modify the `_module_locks`, the current thread will check if the module name being imported is in `_module_locks`, if not, insert a new lock object into `_module_locks`
 
@@ -130,5 +133,15 @@ in `position 3`, lock `_imp` is released, if there're other thread importing oth
 
 ![import procedure1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure1.png)
 
+in `position 4`, current thread checks for cache in `sys.modules` again
+
+in `position 5`, it will acquire the lock `_imp` before the call of every `finder.find` and release it after the function call
 
 ![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
+
+#### how does finder work
+
+reserved
+
+    >>> sys.meta_path
+    [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
