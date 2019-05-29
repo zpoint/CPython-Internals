@@ -7,6 +7,9 @@
 * [example](#example)
 * [how to debug import](#how-to-debug-import)
 * [how does import work](#how-does-import-work)
+	* [BuiltinImporter](#BuiltinImporter)
+	* [FrozenImporter](#FrozenImporter)
+	* [PathFinder](#PathFinder)
 
 #### related file
 
@@ -141,7 +144,119 @@ in `position 5`, it will acquire the lock `_imp` before the call of every `finde
 
 #### how does finder work
 
-reserved
+there're currently three different finder in my `sys.meta_path`
 
     >>> sys.meta_path
     [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
+
+##### BuiltinImporter
+
+`BuiltinImporter` will handle all the built-in module, when we call `import _locale`
+
+`BuiltinImporter` is defined in `Lib/importlib/_bootstrap.py`, `BuiltinImporter.find_spec` will return a `ModuleSpec` object with attribute `loader` binds to the `BuiltinImporter` object, `ModuleSpec.loader.create_module` then will be called, which finally calls `_imp_create_builtin`
+
+    /* defined in cpython/Python/import.c */
+    static PyObject *
+    _imp_create_builtin(PyObject *module, PyObject *spec)
+    {
+        /* do some check */
+        PyObject *modules = NULL;
+        for (p = PyImport_Inittab; p->name != NULL; p++) {
+        	/* PyImport_Inittab is a c array, each element stores a built-in module name and module initialization c function
+            the for loop here traverse the PyImport_Inittab list, find a built-in module name which match the name, call the initialize function, and return the module object */
+            PyModuleDef *def;
+            if (_PyUnicode_EqualToASCIIString(name, p->name)) {
+                if (p->initfunc == NULL) {
+                    /* Cannot re-init internal module ("sys" or "builtins") */
+                    mod = PyImport_AddModule(namestr);
+                    Py_DECREF(name);
+                    return mod;
+                }
+                mod = (*p->initfunc)();
+                /* do some check */
+            }
+        }
+        Py_DECREF(name);
+        Py_RETURN_NONE;
+    }
+
+	/* in cpython/PC/config.c
+    struct _inittab _PyImport_Inittab[] = {
+
+        {"_abc", PyInit__abc},
+        {"array", PyInit_array},
+        {"_ast", PyInit__ast},
+        {"audioop", PyInit_audioop},
+        {"binascii", PyInit_binascii},
+        {"cmath", PyInit_cmath},
+        {"errno", PyInit_errno},
+        {"faulthandler", PyInit_faulthandler},
+        {"gc", PyInit_gc},
+        {"math", PyInit_math},
+        {"nt", PyInit_nt}, /* Use the NT os functions, not posix */
+        {"_operator", PyInit__operator},
+        {"_signal", PyInit__signal},
+        {"_md5", PyInit__md5},
+        ...
+    }
+    */
+
+##### FrozenImporter
+
+defination of `FrozenImporter` is similiar to `BuiltinImporter`
+
+    int
+    PyImport_ImportFrozenModuleObject(PyObject *name)
+    {
+        p = find_frozen(name);
+        /* check */
+        co = PyMarshal_ReadObjectFromString((const char *)p->code, size);
+        /* check */
+        d = module_dict_for_exec(name);
+        /* check */
+        m = exec_code_in_module(name, d, co);
+        if (m == NULL)
+            goto err_return;
+        Py_DECREF(co);
+        Py_DECREF(m);
+        return 1;
+    err_return:
+        Py_DECREF(co);
+        return -1;
+    }
+
+
+    static const struct _frozen *find_frozen(PyObject *name)
+    {
+		/* check */
+        for (p = PyImport_FrozenModules; ; p++) {
+        	/* iter through the pre defined c array to find the match object */
+            if (p->name == NULL)
+                return NULL;
+            if (_PyUnicode_EqualToASCIIString(name, p->name))
+                break;
+        }
+        return p;
+    }
+
+    /* in cpython/Python/frozen.c
+    static const struct _frozen _PyImport_FrozenModules[] = {
+        /* importlib */
+        {"_frozen_importlib", _Py_M__importlib_bootstrap,
+            (int)sizeof(_Py_M__importlib_bootstrap)},
+        {"_frozen_importlib_external", _Py_M__importlib_bootstrap_external,
+            (int)sizeof(_Py_M__importlib_bootstrap_external)},
+        {"zipimport", _Py_M__zipimport,
+            (int)sizeof(_Py_M__zipimport)},
+        /* Test module */
+        {"__hello__", M___hello__, SIZE},
+        /* Test package (negative size indicates package-ness) */
+        {"__phello__", M___hello__, -SIZE},
+        {"__phello__.spam", M___hello__, SIZE},
+        {0, 0, 0} /* sentinel */
+    };
+
+    const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
+    */
+
+##### PathFinder
