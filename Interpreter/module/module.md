@@ -127,7 +127,7 @@ the procedure is listed
 4. try to acquire the lock object in step 3 (in `position 2`)
 5. release the lock `_imp` (in `position 3`)
 6. check if the name being imported is in sys.module, if so release the lock object in `_module_locks` and return what's in the sys.module (in `position 4`)
-7. for `finder` in `sys.modules`, if `finder` can load the module name, release the lock object in `_module_locks` and return what's loaded
+7. for `finder` in `sys.meta_path`, if `finder` can load the module name, release the lock object in `_module_locks` and return what's loaded
 8. raise an error
 
 in `position 1`, only thread holds `_imp` can modify the `_module_locks`, the current thread will check if the module name being imported is in `_module_locks`, if not, insert a new lock object into `_module_locks`
@@ -151,7 +151,9 @@ there're currently three different finder in my `sys.meta_path`
 
 ##### BuiltinImporter
 
-`BuiltinImporter` will handle all the built-in module, when we call `import _locale`
+`BuiltinImporter` will handle all the built-in module, when we call 
+
+	`import _locale`
 
 `BuiltinImporter` is defined in `Lib/importlib/_bootstrap.py`, `BuiltinImporter.find_spec` will return a `ModuleSpec` object with attribute `loader` binds to the `BuiltinImporter` object, `ModuleSpec.loader.create_module` then will be called, which finally calls `_imp_create_builtin`
 
@@ -203,7 +205,7 @@ there're currently three different finder in my `sys.meta_path`
 
 ##### FrozenImporter
 
-defination of `FrozenImporter` is similiar to `BuiltinImporter`
+defination of `FrozenImporter.loader.create_module` is similiar to `BuiltinImporter`
 
     int
     PyImport_ImportFrozenModuleObject(PyObject *name)
@@ -260,3 +262,44 @@ defination of `FrozenImporter` is similiar to `BuiltinImporter`
     */
 
 ##### PathFinder
+
+`PathFinder.loader.create_module` will simply call `_new_module`, which is defined in `cpython/Lib/importlib/_bootstrap.py`, there's no c function to be called
+
+    def module_from_spec(spec):
+        """Create a module based on the provided spec."""
+        # Typically loaders will not implement create_module().
+        module = None
+        if hasattr(spec.loader, 'create_module'):
+            # BuiltinImporter and FrozenImporter will call create_module here
+            # which delegate the call to c function
+            module = spec.loader.create_module(spec)
+        elif hasattr(spec.loader, 'exec_module'):
+            raise ImportError('loaders that define exec_module() '
+                              'must also define create_module()')
+        if module is None:
+        	# PathFinder will reach here
+            # _new_module simply retuens a initial module
+            # the loading process is done by spec
+            module = _new_module(spec.name)
+        _init_module_attrs(spec, module)
+        return module
+
+    def _new_module(name):
+        return type(sys)(name)
+
+`PathFinder.find_spec` will extract what's in `sys.path_hooks`, and use those object in `sys.path_hooks` as the finder to handle the finding procedure(in the order they inserted)
+
+`FileFinder` is installed as the default `path_hooks` in `cpython/Lib/importlib/_bootstrap_external.py`
+
+    def _install(_bootstrap_module):
+        """Install the path-based import components."""
+        _setup(_bootstrap_module)
+        supported_loaders = _get_supported_file_loaders()
+        sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
+        sys.meta_path.append(PathFinder)
+
+`FileFinder.find_spec`  will handle the finding procedure, interactions with the file system, and cached the files for performance, the files will be refreshed when the directory the finder is handling has been modified
+
+if `FileFinder` finds the files related to the module name your provided,
+
+you can modify the default `sys.path_hooks` to define your own `Finder` or custom your import behaviour
