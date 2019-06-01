@@ -31,3 +31,4 @@ for those who are interested in detail, please refer to [Understanding the Pytho
 
 ![git_layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_layout.png)
 
+
