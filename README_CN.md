@@ -57,7 +57,7 @@
  - [x] [exception(异常处理机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [ ] namespace
- - [ ] [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/GIL/GIL_cn.md)
+ - [ ] [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
  - [ ] gc
  - [ ] memory management
  - [ ] thread
