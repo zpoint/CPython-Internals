@@ -58,7 +58,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [exception(exception handling)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md)
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [ ] namespace
- - [ ] [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md)
+ - [x] [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md)
  - [ ] gc
  - [ ] memory management
  - [ ] thread

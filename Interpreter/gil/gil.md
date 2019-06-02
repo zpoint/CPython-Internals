@@ -4,8 +4,8 @@
 
 * [related file](#related-file)
 * [introduction](#introduction)
-	* [thread scheduling before python3.2](#thread-scheduling-before-python3.2)
-	* [thread scheduling after python3.2](#thread-scheduling-after-python3.2)
+	* [thread scheduling before python3.2](#thread-scheduling-before-python32)
+	* [thread scheduling after python3.2](#thread-scheduling-after-python32)
 	* [memory layout](#memory-layout)
 * [fields](#fields)
 	* [interval](#interval)
@@ -15,7 +15,7 @@
 	* [mutex](#mutex)
 	* [cond](#cond)
 	* [switch_cond and switch_mutex](#switch_cond-and-switch_mutex)
-
+* [when will the gil be released](#when-will-the-gil-be-released)
 
 #### related file
 
@@ -23,13 +23,13 @@
 * cpython/Python/ceval_gil.h
 * cpython/Include/internal/pycore_gil.h
 
-#### memory layout
+#### introduction
 
 this is the defination of the [**Global Interpreter Lock**](https://wiki.python.org/moin/GlobalInterpreterLock)
 
 > In CPython, the global interpreter lock, or GIL, is a mutex that protects access to Python objects, preventing multiple threads from executing Python bytecodes at once. This lock is necessary mainly because CPython's memory management is not thread-safe. (However, since the GIL exists, other features have grown to depend on the guarantees that it enforces.)
 
-##### thread scheduling before python3.2
+##### thread scheduling before python32
 
 basically, the **tick** is a counter for how many opcodes current thread executed continuously without releasing the **gil**
 
@@ -51,9 +51,9 @@ the job(thread) schedule mechanism is fully controlled by the operating system, 
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-##### thread scheduling after python3.2
+##### thread scheduling after python32
 
-due to some performance issue in multi-core machine, the implementation of the **GIL** has changed a lot after python3.2
+due to some performance issue in multi-core machine, the implementation of the **gil** has changed a lot after python3.2
 
 if there's only one thread, it can run forever without check and release **gil**
 
@@ -95,7 +95,7 @@ it's stored as microseconds in C and represent as seconds in python
 
 ##### last_holder
 
-**last_holder** stores the C address of the last PyThreadState hloding the **gil**, this helps us know whether anyone else was scheduled after we dropped the GIL
+**last_holder** stores the C address of the last PyThreadState hloding the **gil**, this helps us know whether anyone else was scheduled after we dropped the **gil**
 
 ##### locked
 
@@ -133,7 +133,7 @@ it's stored as microseconds in C and represent as seconds in python
 
 ##### switch_number
 
-**switch_number** is a counter for number of GIL switches since the beginning
+**switch_number** is a counter for number of **gil** switches since the beginning
 
 it's used in function `take_gil`
 
@@ -177,3 +177,107 @@ it's used in function `take_gil`
 
 **switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquire the **gil** is not the thread release the **gil**, avoiding waste of time slice
 
+it can be turned off without the defination of `FORCE_SWITCHING`
+
+    static void drop_gil(PyThreadState *tstate)
+    {
+    /* omit */
+    #ifdef FORCE_SWITCHING
+        if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil_drop_request) &&
+            tstate != NULL)
+        {
+        	/* if the gil_drop_request is set and tstate is not null */
+            /* lock the mutex switch_mutex */
+            MUTEX_LOCK(_PyRuntime.ceval.gil.switch_mutex);
+            if (((PyThreadState*)_Py_atomic_load_relaxed(
+                        &_PyRuntime.ceval.gil.last_holder)
+                ) == tstate)
+            {
+            /* if the last_holder is the current thread, release the switch_mutex,
+            wait until there's a signal for switch_cond */
+            RESET_GIL_DROP_REQUEST();
+                /* NOTE: if COND_WAIT does not atomically start waiting when
+                   releasing the mutex, another thread can run through, take
+                   the GIL and drop it again, and reset the condition
+                   before we even had a chance to wait for it. */
+                COND_WAIT(_PyRuntime.ceval.gil.switch_cond,
+                          _PyRuntime.ceval.gil.switch_mutex);
+        }
+            MUTEX_UNLOCK(_PyRuntime.ceval.gil.switch_mutex);
+        }
+    #endif
+    }
+
+#### when will the gil be released
+
+the `main_loop` in `cpython/Python/ceval.c` is a big `for loop`, and a big `switch statement`
+
+the big `for loop` loads opcode one by one, and the big `switch statement` execute different c code according to the opcode
+
+the `for loop` will check the variable `gil_drop_request` and release the `gil` if necessary
+
+not every opcode will check the `gil_drop_request`, some opcode ends with `FAST_DISPATCH()` will go to the next statement directly, while some opcode ends with `DISPATCH()` act as `continue statement` and will go to the beginning of the for loop
+
+	/* cpython/Python/ceval.c */
+    main_loop:
+        for (;;) {
+ 			/* omit */
+            if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
+                opcode = _Py_OPCODE(*next_instr);
+                if (opcode == SETUP_FINALLY ||
+                    opcode == SETUP_WITH ||
+                    opcode == BEFORE_ASYNC_WITH ||
+                    opcode == YIELD_FROM) {
+                    /* go to switch statement without check for the gil */
+                    goto fast_next_opcode;
+                }
+                /* omit */
+                if (_Py_atomic_load_relaxed(
+                            &_PyRuntime.ceval.gil_drop_request))
+                {
+                	/* if the gil_drop_request is set by other thread */
+                    /* Give another thread a chance */
+                    if (PyThreadState_Swap(NULL) != tstate)
+                        Py_FatalError("ceval: tstate mix-up");
+                    drop_gil(tstate);
+
+                    /* Other threads may run now */
+
+                    take_gil(tstate);
+
+                    /* Check if we should make a quick exit. */
+                    if (_Py_IsFinalizing() &&
+                        !_Py_CURRENTLY_FINALIZING(tstate))
+                    {
+                        drop_gil(tstate);
+                        PyThread_exit_thread();
+                    }
+
+                    if (PyThreadState_Swap(tstate) != NULL)
+                        Py_FatalError("ceval: orphan tstate");
+                }
+                /* omit */
+            }
+
+        fast_next_opcode:
+			/* omit */
+        switch (opcode) {
+            case TARGET(NOP): {
+                FAST_DISPATCH();
+            }
+            /* omit */
+            case TARGET(UNARY_POSITIVE): {
+                PyObject *value = TOP();
+                PyObject *res = PyNumber_Positive(value);
+                Py_DECREF(value);
+                SET_TOP(res);
+                if (res == NULL)
+                    goto error;
+                DISPATCH();
+            }
+        	/* omit */
+        }
+        /* omit */
+    }
+
+![ceval](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/ceval.png)
