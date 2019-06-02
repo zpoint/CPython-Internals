@@ -66,7 +66,7 @@
 注意, 把 **gil_drop_request** 设置为 1 的线程不一定是抢到 **gil** 的线程
 
 ![new_gil2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/new_gil2.png)
-(picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
+(图片来自 [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
 如果你对 **gil** 的详细介绍感兴趣, 请参考 [Understanding the Python GIL(article)](http://www.dabeaz.com/GIL/)
 
