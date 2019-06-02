@@ -9,6 +9,13 @@
 	* [memory layout](#memory-layout)
 * [fields](#fields)
 	* [interval](#interval)
+	* [last_holder](#last_holder)
+	* [locked](#locked)
+	* [switch_number](#switch_number)
+	* [mutex](#mutex)
+	* [cond](#cond)
+	* [switch_cond and switch_mutex](#switch_cond-and-switch_mutex)
+
 
 #### related file
 
@@ -84,7 +91,89 @@ those `main` related functions are defined in `cpython/Modules/main.c`, you will
 
 **interval** is the suspend timeout before set the `gil_drop_request` in microseconds, 5000 microseconds is 0.005 seconds
 
-it's stored as microseconds in C and seconds in python
+it's stored as microseconds in C and represent as seconds in python
 
+##### last_holder
 
+**last_holder** stores the C address of the last PyThreadState hloding the **gil**, this helps us know whether anyone else was scheduled after we dropped the GIL
+
+##### locked
+
+**locked** is a field of type **_Py_atomic_int**, -1 indicate uninitialized, 0 means no one is currently holding the **gil**, 1 means someone is holding it. This is atomic because it can be read without any lock taken in ceval.c
+
+	/* cpython/Python/ceval_gil.h */
+    static void take_gil(PyThreadState *tstate)
+    {
+        /* omit */
+        /* We now hold the GIL */
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 1);
+        _Py_ANNOTATE_RWLOCK_ACQUIRED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+        if (tstate != (PyThreadState*)_Py_atomic_load_relaxed(
+                        &_PyRuntime.ceval.gil.last_holder))
+        {
+            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                     (uintptr_t)tstate);
+            ++_PyRuntime.ceval.gil.switch_number;
+        }
+        /* omit */
+    }
+
+    static void drop_gil(PyThreadState *tstate)
+    {
+        /* omit */
+        if (tstate != NULL) {
+            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                     (uintptr_t)tstate);
+        }
+        MUTEX_LOCK(_PyRuntime.ceval.gil.mutex);
+        _Py_ANNOTATE_RWLOCK_RELEASED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 0);
+        /* omit */
+    }
+
+##### switch_number
+
+**switch_number** is a counter for number of GIL switches since the beginning
+
+it's used in function `take_gil`
+
+    static void take_gil(PyThreadState *tstate)
+    {
+        /* omit */
+        while (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked)) {
+        	/* as long as the gil is locked */
+            int timed_out = 0;
+            unsigned long saved_switchnum;
+
+            saved_switchnum = _PyRuntime.ceval.gil.switch_number;
+            /* release gil.mutex, wait for INTERVAL microseconds(default 5000)
+            or gil.cond is signaled during the INTERVAL
+            */
+            COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
+                            INTERVAL, timed_out);
+            /* currently holding gil.mutex */
+            if (timed_out &&
+                _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
+                _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
+                /* If we timed out and no switch occurred in the meantime, it is time
+               	to ask the GIL-holding thread to drop it.
+                set gil_drop_request to 1 */
+                SET_GIL_DROP_REQUEST();
+            }
+            /* go on to the while loop to check if the gil is locked */
+        }
+        /* omit */
+    }
+
+##### mutex
+
+**mutex** is a mutex used for protecting `locked`, `last_holder`, `switch_number` and other variables in `_gil_runtime_state`
+
+##### cond
+
+**cond** is a condition variable, combined with **mutex**, used for signaling release of **gil**
+
+##### switch_cond and switch_mutex
+
+**switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquire the **gil** is not the thread release the **gil**, avoiding waste of time slice
 

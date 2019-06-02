@@ -62,7 +62,7 @@ the cached hash value can save recalculation and speeds up dictionary lookups
 
 ##### ob_size
 
-field **ob_size** is inside every **PyVarObject**, the **PyBytesObject** uses this **field** to store size information to keep O(1) time complexity for **len()** opeeration and tracks the size of non-ascii string(may be null characters inside)
+field **ob_size** is inside every **PyVarObject**, the **PyBytesObject** uses this **field** to store size information to keep O(1) time complexity for **len()** operation and tracks the size of non-ascii string(may be null characters inside)
 
 ##### summary
 
