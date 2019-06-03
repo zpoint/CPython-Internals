@@ -59,7 +59,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [ ] namespace
  - [x] [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md)
- - [ ] gc
+ - [ ] [gc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc.md)
  - [ ] memory management
  - [ ] thread
  - [ ] interpreter
