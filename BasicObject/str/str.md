@@ -162,7 +162,7 @@ the **utf8_length** field still stores the null terminated c style string, excep
     >>> id(s1)
     4472458224
     >>> s2 = "\u007F\u0000"
-    >>> id(s2) # bacause “interned” field is 0, the unicode object will not be shared
+    >>> id(s2) # bacause "interned" field is 0, the unicode object will not be shared
     4472458608
 
 ![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
@@ -171,7 +171,7 @@ let's define an unicode object with a character **\u0088** inside
 
     s = "\u0088\u0011\u00f1"
 
-now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the **char *utf8** field, and that's 0
+now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the `char *utf8` field, and that's 0
 
 if **PyUnicode_UTF8(unicode)** is zero, where are the three bytes located?
 we haven't used the data field in **PyUnicodeObject**, let's print whatever inside **data** field.
@@ -220,7 +220,7 @@ it took me some time to figure out how to print those bytes in the latin1 field.
     ...
     }
 
-after recompile with the above code, we are able to track latin1 fields in repr() function
+after recompile the above code, we are able to track latin1 fields in repr() function
 
     >>> repr(s)
     PyUnicode_1BYTE_KIND,
