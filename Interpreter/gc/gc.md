@@ -16,15 +16,14 @@
 
 the garbage collection in CPython consists of two components
 
-one is **reference counting**(mostly defined in `Include/object.h`), the other is **generational garbage collection**(mostly defined in `Modules/gcmodule.c`)
+* **reference counting**(mostly defined in `Include/object.h`)
+* **generational garbage collection**(mostly defined in `Modules/gcmodule.c`)
 
 ##### reference counting
 
-as [wikipedia](https://en.wikipedia.org/wiki/Reference_counting) said
+as [wikipedia](https://en.wikipedia.org/wiki/Reference_counting) says
 
 > In computer science, reference counting is a technique of storing the number of references, pointers, or handles to a resource such as an object, block of memory, disk space or other resource. It may also refer, more specifically, to a garbage collection algorithm that uses these reference counts to deallocate objects which are no longer referenced
-
-###### example
 
 in python
 
@@ -38,11 +37,20 @@ in python
     4458636112 # sam as id(s)
     >>> sys.getrefcount(s2)
     3 # one more reference from s2
+
+![refcount1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount1.png)
+
 	>>> del s
     >>> sys.getrefcount(s2)
     2 # work as expected
 
-usually, the assignment of an immutable ojbect such as `str` object, a deep copy will be made(the assigned object should have a different id), the above string `"hello world"` is an exception because it's so simple that it's `intern` flag will be set and it will be stored in a global dictionary, act as singleton, for more detail please refer to [str object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
+![refcount2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount2.png)
+
+usually, the assignment of an immutable ojbect such as a `str` object, a deep copy will be made(the assigned object should have a different id), the above string `"hello world"` is an exception because it's so simple that it's `intern` flag will be set and it will be stored in a global dictionary, act as singleton, for more detail please refer to [str object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
+
+	>>> a = "草泥马"
+    >>> b = a
+    >>> id(a)
 
 if the right side of the assignment expression is a mutable object, a shallow copy will be made, object in the left and right side will have same id, the effort of the assignment makes one more reference to the real object
 
@@ -57,7 +65,7 @@ if we compile the script
     s2 = s
     del s
 
-it becomes
+the output is
 
     1         0 LOAD_CONST               0 ('hello world')
               2 STORE_NAME               0 (s)
