@@ -27,55 +27,47 @@ as [wikipedia](https://en.wikipedia.org/wiki/Reference_counting) says
 
 in python
 
+    import sys
+
+    def f(param):
+    	print(id(param))
+        print(sys.getrefcount(param))
+
 	s = "hello world"
+
+
     >>> id(s)
-    4458636112
+    4321629008
     >>> sys.getrefcount(s)
     2 # one from s, one from parameter of sys.getrefcount
-	s2 = s
-    >>> id(s2)
-    4458636112 # sam as id(s)
-    >>> sys.getrefcount(s2)
-    3 # one more reference from s2
 
 ![refcount1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount1.png)
 
-	>>> del s
-    >>> sys.getrefcount(s2)
-    2 # work as expected
+	>>> f(s)
+	4321629008 # sam as id(s)
+    4 # one more from param of f, one more from python's stack in frame
 
 ![refcount2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount2.png)
 
-usually, the assignment of an immutable ojbect such as a `str` object, a deep copy will be made(the assigned object should have a different id), the above string `"hello world"` is an exception because it's so simple that it's `intern` flag will be set and it will be stored in a global dictionary, act as singleton, for more detail please refer to [str object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
-
-	>>> a = "草泥马"
-    >>> b = a
-    >>> id(a)
-
-if the right side of the assignment expression is a mutable object, a shallow copy will be made, object in the left and right side will have same id, the effort of the assignment makes one more reference to the real object
-
-	s = []
-    y = s
-    >>> sys.getrefcount(s)
-    3
 
 if we compile the script
 
-    s = "hello world"
+    s = []
     s2 = s
     del s
 
 the output is
 
-    1         0 LOAD_CONST               0 ('hello world')
+    1         0 BUILD_LIST               0
               2 STORE_NAME               0 (s)
 
     2         4 LOAD_NAME                0 (s)
               6 STORE_NAME               1 (s2)
 
     3         8 DELETE_NAME              0 (s)
-             10 LOAD_CONST               1 (None)
+             10 LOAD_CONST               0 (None)
              12 RETURN_VALUE
+
 
 
 
