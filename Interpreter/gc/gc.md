@@ -5,6 +5,9 @@
 * [related file](#related-file)
 * [introduction](#introduction)
 	* [reference counting](#reference-counting)
+		* [problem reference cycle](#problem-reference-cycle)
+			* [example1](#example1)
+			* [example2](#example2)
 	* [generational garbage collection](#generational-garbage-collection)
 
 #### related file
@@ -16,8 +19,8 @@
 
 the garbage collection in CPython consists of two components
 
-* **reference counting**(mostly defined in `Include/object.h`)
-* **generational garbage collection**(mostly defined in `Modules/gcmodule.c`)
+* **reference counting** (mostly defined in `Include/object.h`)
+* **generational garbage collection** (mostly defined in `Modules/gcmodule.c`)
 
 ##### reference counting
 
@@ -102,7 +105,7 @@ in the first line `s = []`
 
 before execute line 2 `s2 = s`, reference count of the newly created list object is 1
 
-`4 LOAD_NAME                0` gets the value stores in local namespace with key 's' ---- the newly created, increment it's reference count, and push it onto the stack
+`4 LOAD_NAME                0` gets the value stores in local namespace with key 's' ---- the newly created list object, increment it's reference count, and push it onto the stack
 
 until now, the reference count of the newly created list object is 2(one from 's', one from the stack)
 
@@ -152,14 +155,55 @@ if the reference count becomes 0, the deallocate procedure will be triggered ime
     #endif
         }
         else {
-        	/* // finds the descructor
+        	/* // _Py_Dealloc will find the descructor, and calls the founded destructor
             destructor dealloc = Py_TYPE(op)->tp_dealloc;
-            calls the founded destructor
             (*dealloc)(op);
             */
             _Py_Dealloc(op);
         }
     }
 
+###### problem reference cycle
+
+there'are some situations that the reference counting can't handle
+
+###### example1
+
+    class A:
+        pass
+
+    >>> a1 = A()
+    >>> a2 = A()
+    >>> a1.other = a2
+    >>> a2.other = a1
+
+reference count of **a1** and **a2** are both 2
+
+![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each1.png)
+
+    >>> del a1
+    >>> del a2
+
+now, the reference from local namespace is deleted, and they both have a reference to each other, there's no way for the reference count of **a1**/**a2** to become 0
+
+![ref_cycle2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each2.png)
+
+###### example2
+
+	>>> a = list()
+	>>> a.append(a)
+	>>> a
+	[[...]]
+
+![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle1.png)
+
+	>>> del a
+
+the reference from local namespace is deleted, the reference count of **a** will stays 1 and never become 0
+
 ##### generational garbage collection
+
+If there's only one mechanism **reference counting** working, the interpreter will risk the memory leak issue due to the reference cycle in the above examples
+
+**generational garbage collection** is the other component used for detecting and garbage collecting the unreachable object
 

@@ -221,6 +221,8 @@ we can see the `__get__` function of classmethod object(defined as `cm_descr_get
         return PyMethod_New(cm->cm_callable, type);
     }
 
+![classmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod_get.png)
+
 when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, wrapped by **PyMethod_New()** function, which makes the return object a new bounded-PyMethodObject
 
 ##### staticmethod
@@ -274,5 +276,7 @@ we can see the `__get__` function of staticmethod object
         Py_INCREF(sm->sm_callable);
         return sm->sm_callable;
     }
+
+![staticmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod_get.png)
 
 so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happened again, `C.__dict__["fs1"]__get__(instance, Class)` returns the **lambda** function

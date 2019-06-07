@@ -88,7 +88,7 @@ from the output and the answers in [What is a code object in Python?](https://ww
 
 **co_argcount**
 
-> The number of arguments that the function takes, excluding any *args and *\**kwargs. Function calls in bytecode work by pushing all of the arguments onto the stack and then invoking CALL_FUNCTION; the co_argcount can then be used to determine whether the function was passed the right number of variables.
+> The number of arguments that the function takes, excluding any `*args` and `**kwargs`. Function calls in bytecode work by pushing all of the arguments onto the stack and then invoking CALL_FUNCTION; the co_argcount can then be used to determine whether the function was passed the right number of variables.
 
 **co_kwonlyargcount**
 

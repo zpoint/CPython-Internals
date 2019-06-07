@@ -17,7 +17,7 @@
 
 #### 内存构造
 
-> 这篇文字这个格式的文字表示引用, 凡是以这个格式出现的, 都翻译自下面 quora 的回答
+> 这篇文章这个格式的文字表示引用, 凡是以这个格式出现的, 都翻译自下面 quora 的回答
 
 需要更多的信息请参考 [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python)
 
@@ -87,7 +87,7 @@
 
 **co_argcount**
 
-> 当前函数接受的参数个数, 不包括 *args 和 *\**kwargs. python 虚拟机中函数的运行机制是把所有的参数压如栈中, 之后执行 CALL_FUNCTION 这个字节码. co_argcount 在运行的时候可以用来校验函数传递的参数数量等信息是否正确
+> 当前函数接受的参数个数, 不包括 `*args` 和 `**kwargs`. python 虚拟机中函数的运行机制是把所有的参数压如栈中, 之后执行 CALL_FUNCTION 这个字节码. co_argcount 在运行的时候可以用来校验函数传递的参数数量等信息是否正确
 
 **co_kwonlyargcount**
 

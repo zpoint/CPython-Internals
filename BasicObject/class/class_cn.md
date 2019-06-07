@@ -221,6 +221,8 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         return PyMethod_New(cm->cm_callable, type);
     }
 
+![classmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod_get.png)
+
 当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了一个新的创建的 **PyMethodObject** 对象(通过 **PyMethod_New**), 这个 **PyMethodObject** 里面包的的 **im_func** 就是当前 **classmethod** 的 **cm_callable** 里所存储的函数对象(这里是个 lambda)
 
 ##### staticmethod
@@ -276,5 +278,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
         Py_INCREF(sm->sm_callable);
         return sm->sm_callable;
     }
+
+![staticmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod_get.png)
 
 当你通过 **cc.fs1** 访问属性 **fs1** 时, **descriptor protocol** 再一次的调用了 `C.__dict__["fs1"]__get__(instance, Class)` 并返回了对应的 **lambda** 函数对象

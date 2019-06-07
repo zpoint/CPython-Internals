@@ -198,7 +198,7 @@
 
 **f_lasti** 在第一个 **finally** 的位置上, 异常 ModuleNotFoundError 已经处理完成, 异常堆的堆顶现在是一个 **ZeroDivisionError**
 
-后续会有讲异常处理的文章 [exception](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception_cn.md) (先留个链接)
+实际上异常处理相关的信息是记录在 [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md) 对象中的, 这里的 **gi_exec_state** 只是用来表示当前迭代器是否有异常发生以及最近一个异常是什么. 有关异常处理机制请参考 [exception](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
 
     >>> r = f.send("handsome8")
     result 'handsome8'
@@ -419,7 +419,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 
 开始迭代
 
-如果你需要 _\_aiter_\_, _\_anext_\_ 等函数的相关信息, 可以参考 [pep-0525](https://www.python.org/dev/peps/pep-0525/)
+如果你需要 `__aiter__`, `__anext__` 等函数的相关信息, 可以参考 [pep-0525](https://www.python.org/dev/peps/pep-0525/)
 
     >>> a(None)
     result None
@@ -427,9 +427,9 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 	>>> a.f.ag_frame.f_lasti
 	68
 
-**ag_weakreflist** 指向了一个 **BaseEventLoop(asyncio->base_events.py)** 创建的弱引用, loop 需要保留与之相关的所有 **async generator** 的信息, 这样在出现异常/退出的时候可以把这些活动中的 **async generator** 通通关掉, 可以读这部分代码看看 [source code](https://github.com/python/cpython/blob/3.7/Lib/asyncio/base_events.py)
+**ag_weakreflist** 指向了一个 **BaseEventLoop(`asyncio->base_events.py`)** 创建的弱引用, loop 需要保留与之相关的所有 **async generator** 的信息, 这样在出现异常/退出的时候可以把这些活动中的 **async generator** 通通关掉, 可以读这部分代码看看 [source code](https://github.com/python/cpython/blob/3.7/Lib/asyncio/base_events.py)
 
-**ag_finalizer** n现在指向了一个 **finalizer**, 设个 **finalizer** 是被 BaseEventLoop 通过 **sys.set_asyncgen_hooks** 方法配置的
+**ag_finalizer** 现在指向了一个 **finalizer**, 这个 **finalizer** 是被 `BaseEventLoop` 通过 **sys.set_asyncgen_hooks** 方法配置的
 
 **ag_hooks_inited** 为 1, 标明当前的 hooks是已配置的状态
 
@@ -467,7 +467,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
       File "<stdin>", line 6, in make_the_call
     StopAsyncIteration
 
-现在 **ag_closed** 被设置为 1(只有在 async generator 抛出了 **StopAsyncIteration** 异常, 或者 关联的 aclose() 方法被调用的情况下会被设置为 1)
+现在 **ag_closed** 被设置为 1(只有在 async generator 抛出了 **StopAsyncIteration** 异常, 或者 关联的 `aclose()` 方法被调用的情况下会被设置为 1)
 
 并且 **ag_frame** 被释放了
 

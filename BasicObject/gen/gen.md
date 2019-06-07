@@ -198,7 +198,7 @@ the **f_lasti** is in the position of the second **except** statement, **exc_typ
 
 the **f_lasti** is in the position of the first **finally** statement, the ModuleNotFoundError is handled properly, at the top of the exception stack is the **ZeroDivisionError**
 
-there will be another article talking about the [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/exception/exception.md)
+actually the information about [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md) is stored in [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md), **gi_exec_state** is used for representing whether current generator ojbect is handling exception and the detail of the most nested exception
 
     >>> r = f.send("handsome8")
     result 'handsome8'
@@ -357,7 +357,7 @@ the **run_forever** function in asyncio base event loop has defined
         finally:
             sys.set_asyncgen_hooks(*old_agen_hooks)
 
-you can define your own event loop to override the default **firstiter** and **finalizer**, please refer to [oython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
+you can define your own event loop to override the default **firstiter** and **finalizer**, please refer to [poython3-doc set_asyncgen_hooks](https://docs.python.org/3/library/sys.html#sys.set_asyncgen_hooks) for more detail
 
     # example of set_asyncgen_hooks
     import sys
@@ -419,7 +419,7 @@ let's define and iter through an async iterator
 
 iterate through it
 
-if you need more detail of _\_aiter_\_, _\_anext_\_ and etc, please refer to [pep-0525](https://www.python.org/dev/peps/pep-0525/)
+if you need more detail of `__aiter__`, `__anext__` and etc, please refer to [pep-0525](https://www.python.org/dev/peps/pep-0525/)
 
     >>> a(None)
     result None
@@ -427,7 +427,7 @@ if you need more detail of _\_aiter_\_, _\_anext_\_ and etc, please refer to [pe
     >>> a.f.ag_frame.f_lasti
     68
 
-the **ag_weakreflist** points to a weak reference created by **BaseEventLoop(asyncio->base_events.py)**
+the **ag_weakreflist** points to a weak reference created by **BaseEventLoop(`asyncio->base_events.py`)**
 
 it's used for shutdown all active asynchronous generators, read the [source code](https://github.com/python/cpython/blob/3.7/Lib/asyncio/base_events.py) for more detail
 
@@ -469,7 +469,7 @@ now, the **f_lasti** indicate the position of the second **yield** stateement in
       File "<stdin>", line 6, in make_the_call
     StopAsyncIteration
 
-now, the **ag_closed** is set to 1 because of the termination of the async generator(**StopAsyncIteration** raised or aclose() is called)
+now, the **ag_closed** is set to 1 because of the termination of the async generator(**StopAsyncIteration** raised or `aclose()` is called)
 
 the **ag_frame** is deallocated
 
