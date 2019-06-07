@@ -14,6 +14,7 @@
 
 * cpython/Include/object.h
 * cpython/Modules/gcmodule.c
+* cpython/Include/internal/pycore_pymem.h
 
 #### introduction
 
