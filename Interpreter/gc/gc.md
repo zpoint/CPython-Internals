@@ -9,6 +9,13 @@
 			* [example1](#example1)
 			* [example2](#example2)
 	* [generational garbage collection](#generational-garbage-collection)
+		* [track](#track)
+		* [update_refs](#update_refs)
+		* [subtract_refs](#subtract_refs)
+		* [finalize](#finalize)
+		* [generational](#generational)
+		* [threshold](#threshold)
+		* [summary](#summary)
 
 #### related file
 
@@ -202,9 +209,30 @@ now, the reference from local namespace is deleted, and they both have a referen
 
 the reference from local namespace is deleted, the reference count of **a** will stays 1 and never become 0
 
+![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle2.png)
+
 ##### generational garbage collection
 
 If there's only one mechanism **reference counting** working, the interpreter will risk the memory leak issue due to the reference cycle in the above examples
 
 **generational garbage collection** is the other component used for detecting and garbage collecting the unreachable object
 
+###### track
+
+there must be a way to keep track of all the heap allocated PyObject
+
+**generation0** is a pointer, to the head of the double linked list, each element in the double linked list consists of two parts, the first part is **PyGC_Head**, the second part is **PyObject**
+
+**PyGC_Head** contains a **_gc_next** pointer(for tracking the next element in linked list) and a **_gc_prev** pointer(for tracking the previous element in linked list)
+
+**PyObject** is the base structure of a python object
+
+![track](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/track.png)
+
+when you create a python object such as `a = list()`, object a of type list will be appended to the end of the linked list in **generation0**
+
+###### summary
+
+Because the gc algorithm CPython use is not an parallel algorithm, a global lock such as [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when set up the track of the object to gc in the creation of the object, or when garbage collecting any of the generations
+
+While other garbage collector in other programming language such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC**(combined with Tri-Color algorithm for global concurrent marking) to do the garbage collection
