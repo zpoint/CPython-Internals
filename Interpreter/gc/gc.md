@@ -1,36 +1,36 @@
 # gc
 
-### contents
+## contents
 
 * [related file](#related-file)
 * [introduction](#introduction)
 	* [reference counting](#reference-counting)
-		* [problem reference cycle](#problem-reference-cycle)
+		* [reference cycle problem](#reference-cycle-problem)
 			* [example1](#example1)
 			* [example2](#example2)
 	* [generational garbage collection](#generational-garbage-collection)
 		* [track](#track)
+		* [generational](#generational)
 		* [update_refs](#update_refs)
 		* [subtract_refs](#subtract_refs)
 		* [finalize](#finalize)
-		* [generational](#generational)
 		* [threshold](#threshold)
-		* [summary](#summary)
+* [summary](#summary)
 
-#### related file
+### related file
 
 * cpython/Include/object.h
 * cpython/Modules/gcmodule.c
 * cpython/Include/internal/pycore_pymem.h
 
-#### introduction
+### introduction
 
 the garbage collection in CPython consists of two components
 
 * **reference counting** (mostly defined in `Include/object.h`)
 * **generational garbage collection** (mostly defined in `Modules/gcmodule.c`)
 
-##### reference counting
+#### reference counting
 
 as [wikipedia](https://en.wikipedia.org/wiki/Reference_counting) says
 
@@ -171,11 +171,11 @@ if the reference count becomes 0, the deallocate procedure will be triggered ime
         }
     }
 
-###### problem reference cycle
+##### reference cycle problem
 
-there'are some situations that the reference counting can't handle
+there're some situations that the reference counting can't handle
 
-###### example1
+##### example1
 
     class A:
         pass
@@ -196,7 +196,7 @@ now, the reference from local namespace is deleted, and they both have a referen
 
 ![ref_cycle2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each2.png)
 
-###### example2
+##### example2
 
 	>>> a = list()
 	>>> a.append(a)
@@ -211,15 +211,25 @@ the reference from local namespace is deleted, the reference count of **a** will
 
 ![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle2.png)
 
-##### generational garbage collection
+#### generational garbage collection
 
 If there's only one mechanism **reference counting** working, the interpreter will risk the memory leak issue due to the reference cycle in the above examples
 
 **generational garbage collection** is the other component used for detecting and garbage collecting the unreachable object
 
-###### track
+    class A:
+        pass
 
-there must be a way to keep track of all the heap allocated PyObject
+    >>> a1 = A()
+    >>> a2 = A()
+    >>> a1.other = a2
+    >>> a2.other = a1
+    >>> b = list()
+    >>> b.append(b)
+
+##### track
+
+there must be a way to keep track of all the heap allocated **PyObject**
 
 **generation0** is a pointer, to the head of the double linked list, each element in the double linked list consists of two parts, the first part is **PyGC_Head**, the second part is **PyObject**
 
@@ -229,10 +239,39 @@ there must be a way to keep track of all the heap allocated PyObject
 
 ![track](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/track.png)
 
-when you create a python object such as `a = list()`, object a of type list will be appended to the end of the linked list in **generation0**
+when you create a python object such as `a = list()`, object **a** of type **list** will be appended to the end of the linked list in **generation0**, so **generation0** is able to track all the newly created python object
 
-###### summary
+##### generational
 
-Because the gc algorithm CPython use is not an parallel algorithm, a global lock such as [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when set up the track of the object to gc in the creation of the object, or when garbage collecting any of the generations
+if all newly created object are appended to the tail of a single linked list, for some program, it will be a very huge linked list
 
-While other garbage collector in other programming language such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC**(combined with Tri-Color algorithm for global concurrent marking) to do the garbage collection
+for some program designed for running for a long time, there must exist some long lived objects, repeating garbage collecting these objects will waste lots of CPU time
+
+generations is used for the purpose of doing less collections
+
+Cpython used three generations totally, the newly created objects is stored in the first generation, when an object survive a round of gc, it will be moved to next generation
+
+lower generation will be collected more frequently, higher generation will be collected less frequently
+
+when a generation is being collected, all the generations lower than the current will be merged together before collection
+
+![generation](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation.png)
+
+##### update_refs
+
+let's run a procedure of garbage collection
+
+    >>> del a1
+    >>> del a2
+    >>> del b
+    >>> c = list()
+	>>> gc.collect()
+
+![update_ref1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref1.png)
+
+
+### summary
+
+because the gc algorithm CPython used is not a parallel algorithm, a global lock such as [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when set up the track of an object to gc, or when garbage collecting any of the generations
+
+while other garbage collector in other programming language such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC**(combined with Tri-Color algorithm for global concurrent marking) to do the garbage collection
