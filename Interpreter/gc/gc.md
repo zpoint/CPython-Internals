@@ -13,6 +13,7 @@
 		* [generational](#generational)
 		* [update_refs](#update_refs)
 		* [subtract_refs](#subtract_refs)
+		* [move_unreachable](#move_unreachable)
 		* [finalize](#finalize)
 		* [threshold](#threshold)
 * [summary](#summary)
@@ -81,7 +82,7 @@ in the first line `s = []`
 `2 STORE_NAME               0`
 
     case TARGET(STORE_NAME): {
-    	/* name is str object with value 's'
+        /* name is str object with value 's'
            ns is the local namespace
            v is the previous created list object
         */
@@ -224,6 +225,7 @@ If there's only one mechanism **reference counting** working, the interpreter wi
     >>> a2 = A()
     >>> a1.other = a2
     >>> a2.other = a1
+
     >>> b = list()
     >>> b.append(b)
 
@@ -231,7 +233,7 @@ If there's only one mechanism **reference counting** working, the interpreter wi
 
 there must be a way to keep track of all the heap allocated **PyObject**
 
-**generation0** is a pointer, to the head of the double linked list, each element in the double linked list consists of two parts, the first part is **PyGC_Head**, the second part is **PyObject**
+**generation0** is a pointer, to the head of the linked list, each element in the linked list consists of two parts, the first part is **PyGC_Head**, the second part is **PyObject**
 
 **PyGC_Head** contains a **_gc_next** pointer(for tracking the next element in linked list) and a **_gc_prev** pointer(for tracking the previous element in linked list)
 
@@ -241,13 +243,15 @@ there must be a way to keep track of all the heap allocated **PyObject**
 
 when you create a python object such as `a = list()`, object **a** of type **list** will be appended to the end of the linked list in **generation0**, so **generation0** is able to track all the newly created python object
 
+actually, the linked list is linked via **_gc_next**, **_gc_prev** is not a valid pointer, it's used for storing bit flag and other information
+
 ##### generational
 
-if all newly created object are appended to the tail of a single linked list, for some program, it will be a very huge linked list
+if all newly created objects are appended to the tail of one linked list, somehow it will be a very huge linked list
 
 for some program designed for running for a long time, there must exist some long lived objects, repeating garbage collecting these objects will waste lots of CPU time
 
-generations is used for the purpose of doing less collections
+generations is used in the purpose of doing less collections
 
 Cpython used three generations totally, the newly created objects is stored in the first generation, when an object survive a round of gc, it will be moved to next generation
 
@@ -261,14 +265,56 @@ when a generation is being collected, all the generations lower than the current
 
 let's run a procedure of garbage collection
 
+	# assume a1, a2, b survived in generation0, and move to generation1
+    >>> c = list()
+    >>> d1 = A()
+    >>> d2 = A()
+    >>> d1.other2 = d2
+    >>> d2.other2 = d1
+
     >>> del a1
     >>> del a2
     >>> del b
-    >>> c = list()
-	>>> gc.collect()
+    >>> del d1
+	>>> gc.collect() # assume collect generation1
 
 ![update_ref1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref1.png)
 
+first step is to merge every generation lower than the current generation, mark this merged generation as **young**, mark the generation next to the current generation as **old**
+
+![young_old](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/young_old.png)
+
+function **update_refs** will copy object's reference count, stores in the **_gc_prev** field of the object, the right most 2 bit of **_gc_prev** is reserved of some marking
+
+so, the copy of the reference count will left shift 2 before stores in the **_gc_prev**
+
+`1 / 0x06` means the copy of the reference count is `1`, but the value actually stores in **_gc_prev** is `0x06`
+
+![update_ref2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref2.png)
+
+##### subtract_refs
+
+function **subtract_refs** will traverse the generation, iterate through every object in  the linked list
+
+for every object in the generation, check if every other object accessible from the current object is collectable and in the same generation, if so, decrement the copied reference count in **_gc_prev** (calls **tp_traverse** with the function **visit_decref**)
+
+this step aims to decrement reference count referenced by those objects in same generation
+
+![subtract_refs](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/subtract_refs.png)
+
+##### move_unreachable
+
+**move_unreachable** will create a linked list named **unreachable**, traverse the current **generation**, move those objects with the value of the copy of the reference count <= 0 to **unreachable**
+
+if the current object has the value of the copy of the reference count > 0, mark every other object accessible from the current object as reachable, if the accessible object is currently in **unreachable**, move it back to normal **generation**, and reset the **_gc_prev** pointer
+
+first object in **generation** is the local **namespace**, because **namespace** object is reachable, all objects reachable from the local **namespace** is also reachable, so the **_gc_prev** of `c` and `d2` are all set to `0x06`
+
+![move_unreachable1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable1.png)
+
+`a1` and `a2` are moved to unreachable
+
+![move_unreachable2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable2.png)
 
 ### summary
 
