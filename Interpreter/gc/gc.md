@@ -306,15 +306,49 @@ this step aims to decrement reference count referenced by those objects in same 
 
 **move_unreachable** will create a linked list named **unreachable**, traverse the current **generation**, move those objects with the value of the copy of the reference count <= 0 to **unreachable**
 
-if the current object has the value of the copy of the reference count > 0, mark every other object accessible from the current object as reachable, if the accessible object is currently in **unreachable**, move it back to normal **generation**, and reset the **_gc_prev** pointer
+if the current object has the value of the copy of the reference count > 0, for every other object in same generation reachable from the current object, if the accessible object has a copy of the reference count <= 0, reset the reference count to 1, and move that object to the tail of **generation** if it's currentlt in **unreachable**
+
+let's see an example
 
 first object in **generation** is the local **namespace**, because **namespace** object is reachable, all objects reachable from the local **namespace** is also reachable, so the **_gc_prev** of `c` and `d2` are all set to `0x06`
 
 ![move_unreachable1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable1.png)
 
-`a1` and `a2` are moved to unreachable
+the second object is `a1`, since `a1`'s copy of the reference count is <= 0, it's moved to unreachable
 
 ![move_unreachable2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable2.png)
+
+so does `a2`
+
+![move_unreachable3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable3.png)
+
+`b`'s copy of reference count is also <= 0
+
+![move_unreachable4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable4.png)
+
+now, it comes to `c`
+
+because the copy of the reference count of `c`'s value is > 0, it will stays in the **generation**
+
+![move_unreachable5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable5.png)
+
+because `d1`'s copy of the reference count is <= 0, it's moved to **unreachable**
+
+![move_unreachable6](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable6.png)
+
+because `d2`'s copy of the reference count is > 0, and `d1` is reachable from `d2`
+
+![move_unreachable7](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable7.png)
+
+`d1`'s copy of the reference count will be set to 1, and `d1` will be appended to the tail of the **generation**
+
+![move_unreachable8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable8.png)
+
+when it comes to `d1`, copy of the reference count is > 0
+
+and we reach the end of the **generation**, so every object stays in **unreachable** can be garbage collected
+
+![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
 
 ### summary
 
