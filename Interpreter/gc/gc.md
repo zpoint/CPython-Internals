@@ -328,7 +328,7 @@ so does `a2`
 
 now, it comes to `c`
 
-because the copy of the reference count of `c`'s value is > 0, it will stays in the **generation**
+because the copy of the reference count of `c`'s value is > 0, it will stay in the **generation**
 
 ![move_unreachable5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable5.png)
 
@@ -348,7 +348,17 @@ when it comes to `d1`, copy of the reference count is > 0
 
 and we reach the end of the **generation**, so every object stays in **unreachable** can be garbage collected
 
+all objects survive this round of garbage collections will be moved to the elder **generation**
+
 ![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
+
+##### finalize
+
+what if the object needed to be garbage collected has defined it's own finalizer ?
+
+before python3.4, those objects won't be collected even if they are moved to **unreachable**
+
+after python3.4, 
 
 ### summary
 
