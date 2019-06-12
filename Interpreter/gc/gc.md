@@ -17,6 +17,7 @@
 		* [finalize](#finalize)
 		* [threshold](#threshold)
 * [summary](#summary)
+* [read more](#read-more)
 
 ### related file
 
@@ -358,10 +359,81 @@ what if the object needed to be garbage collected has defined it's own finalizer
 
 before python3.4, those objects won't be collected even if they are moved to **unreachable**
 
-after python3.4, 
+after python3.4, [pep-0442](https://legacy.python.org/dev/peps/pep-0442/) solves the problem
+
+    class A:
+        pass
+
+
+    class B(list):
+        def __del__(self):
+            a3.append(self)
+            print("del of B")
+
+
+    a1 = A()
+    a2 = A()
+    a1.other = a2
+    a2.other = a1
+
+
+    a3 = list()
+    b = B()
+    b.append(b)
+    del a1
+    del a2
+    del b
+    gc.collect()
+
+this is the layout after **move_unreachable**
+
+![finalize1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize1.png)
+
+step1, all objects defined it's own finalizer,  the `__del__` methods will be called
+
+after `__del__`
+
+![finalize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize2.png)
+
+step2, do **update_refs** in **unreachable**
+
+notice, the first bit flag of `b` is set, indicate that it's finalizer is called
+
+![finalize3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize3.png)
+
+step3, do **subtract_refs** in **unreachable**
+
+![finalize4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize4.png)
+
+stp4, move all objects in **unreachable** to **old** generation
+
+if there's any object in **unreachable** defined it's own `__del__`, the `__del__` methods will be called, and all objects in **unreachable** will survive this round of garbage collection
+
+![finalize5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize5.png)
+
+in the next round of gc, object `a1` and `a2` will be collected, because object `b`'s reference count is greater than 1, it won't be moved to **unreachable**
+
+if the `__del__` methods is called, the bit flag in **_gc_prev** will be set, so the `__del__` will be called only once
+
+##### threshold
+
+there are three generations totally, and three **threshold**, from high generation to low generation, if currently the number of objects in the current generation is greater than **threshold**, **gc** will begin in the current generation
+
+    >>> gc.get_threshold() # default value
+    (700, 10, 10)
+
+it can be set manually
+
+    gc.set_threshold(500)
+    gc.set_threshold(100, 20)
 
 ### summary
 
 because the gc algorithm CPython used is not a parallel algorithm, a global lock such as [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when set up the track of an object to gc, or when garbage collecting any of the generations
 
 while other garbage collector in other programming language such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC**(combined with Tri-Color algorithm for global concurrent marking) to do the garbage collection
+
+### read more
+
+[Garbage collection in Python: things you need to know](https://rushter.com/blog/python-garbage-collector/)
+[the garbage collector](https://pythoninternal.wordpress.com/2014/08/04/the-garbage-collector/)
