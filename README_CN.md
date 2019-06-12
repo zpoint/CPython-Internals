@@ -57,8 +57,8 @@
  - [x] [exception(异常处理机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [ ] namespace
- - [x] [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
- - [x] [gc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc_cn.md)
+ - [x] [gil(全局解释器锁)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
+ - [x] [gc(垃圾回收机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc_cn.md)
  - [ ] memory management
  - [ ] thread
  - [ ] interpreter

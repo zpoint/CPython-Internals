@@ -476,7 +476,7 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 ![generation_trigger4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger4.png)
 
-如果 gc 回收的是最年长的一代, 回收的尾声会把所有的 free_list 也一并释放, 如果你读过首页其他对象的文章比如[list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md) 或 [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md), 你应该会了解 free_list 是什么
+如果 gc 回收的是最年长的一代, 回收的尾声会把所有的 free_list 也一并释放, 如果你读过主页其他对象的文章比如 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md) 或 [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md), 你应该会了解 free_list 是什么
 
 ### 总结
 
