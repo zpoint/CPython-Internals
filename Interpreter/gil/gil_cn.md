@@ -65,6 +65,8 @@
 
 注意, 把 **gil_drop_request** 设置为 1 的线程不一定是抢到 **gil** 的线程
 
+如果当前的线程正在等待 **gil**, 并且在等待的过程中 **gil** 被释放并且被其他的线程获得了, 那么当前的线程过了等待时间之后, 需要把 **gil_drop_request** 设置为 1 并再次进入等待的循环
+
 ![new_gil2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/new_gil2.png)
 (图片来自 [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 

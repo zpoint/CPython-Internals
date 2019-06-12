@@ -64,6 +64,8 @@ if there're more than one threads, the thread currently blocking by the **gil** 
 
 the thread set the **gil_drop_request** to 1 might not be the thread acquire the **gil**
 
+if the current thread is waiting for the interval, and owner of the **gil** changed during the waiting **interval**, after wake up, the current thread need to set **gil_drop_request** to 1 and wait again
+
 ![new_gil2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/new_gil2.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
