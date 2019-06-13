@@ -431,12 +431,11 @@ step3, 在 **unreachable** 里面做一次 **subtract_refs**
 
 stp4, 把所有的 **unreachable** 中的对象移动到 **old** 代中
 
-**unreachable** 中定义了 `__del__` 的对象的对应的 `__del__` 都会被调用, 并且所有的 **unreachable** 中的对象都会在这轮垃圾回收中存活
-
+在 step1 中, **unreachable** 中定义了 `__del__` 的对象的对应的 `__del__` 都会被调用, 并且所有的 **unreachable** 中的对象都会在当前这轮垃圾回收中存活
 
 ![finalize5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize5.png)
 
-在下一轮垃圾回收中, 对象 `a1` 和 `a2` 会被回收, 但是对象 `b` 的引用计数在 **subtract_refs** 之后仍然是大于 0 的, 所以它不会被移到 **unreachable** 中
+在下一轮垃圾回收中, 对象 `a1` 和 `a2` 会被回收, 但是对象 `b` 的引用计数在下一轮的 **subtract_refs** 之后仍然是大于 0 的, 所以它不会被移到 **unreachable** 中
 
 如果 `__del__` 被调用过, **_gc_prev** 上的第一个 bit flag 会被设置, 所以一个对象的 `__del__` 仅会被调用一次
 
@@ -451,8 +450,8 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 也可以手动进行设置
 
-    gc.set_threshold(500)
-    gc.set_threshold(100, 20)
+    >>> gc.set_threshold(500)
+    >>> gc.set_threshold(100, 20)
 
 ##### 什么时候会触发分代回收
 
@@ -479,7 +478,7 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 ![generation_trigger4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger4.png)
 
-如果 gc 回收的是最年长的一代, 回收的尾声会把所有的 free_list 也一并释放, 如果你读过主页其他对象的文章比如 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md) 或 [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md), 你应该会了解 free_list 是什么
+如果 gc 回收的是最年长的一代, 回收结束之前会把所有的 **free_list** 也一并释放, 如果你读过主页其他对象的文章比如 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md) 或 [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md), 上面有 **free_list** 相关的作用
 
 ### 总结
 
