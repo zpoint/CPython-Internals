@@ -345,8 +345,6 @@ Cpython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 因为 `c` 的复制引用计数 > 0, 它会继续留在 **generation** 中, 并且 **_gc_prev** 会被重置(上面的 collecting 的 bit flag 会被清除)
 
-(这个时候  **_gc_prev** 的值应该是一个最右边两个bit被处理过的指针的位置, 比如 `0x123abcdef` 之类的, 下面所有的图片上展示的值都为重置之前的值, 后续会改过来)
-
 ![move_unreachable5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable5.png)
 
 因为 `d1` 的复制引用计数 <= 0, 它被移动到 **unreachable**
@@ -361,7 +359,7 @@ Cpython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![move_unreachable8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable8.png)
 
-下一个对象是 `d1`, 它的复制引用计数 > 0
+下一个对象是 `d1`, 它的复制引用计数 > 0, 重置它的 **_gc_prev** 指针并
 
 我们到达了 **generation** 的尾部, 现在这一刻, **unreachable** 中的所有对象可以进行真正的回收流程
 

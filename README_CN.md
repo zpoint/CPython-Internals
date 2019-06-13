@@ -59,7 +59,7 @@
  - [ ] namespace
  - [x] [gil(全局解释器锁)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
  - [x] [gc(垃圾回收机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc_cn.md)
- - [ ] memory management
+ - [ ] [memory management](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management_cn.md)
  - [ ] thread
  - [ ] interpreter
 

@@ -60,7 +60,7 @@ Trying to illustrate every detail of cpython implementation
  - [ ] namespace
  - [x] [gil(Global Interpreter Lock)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md)
  - [x] [gc(Garbage Collection)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc.md)
- - [ ] memory management
+ - [ ] [memory management](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
  - [ ] thread
  - [ ] interpreter
 
