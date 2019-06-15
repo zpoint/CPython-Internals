@@ -4,8 +4,10 @@
 
 * [related file](#related-file)
 * [introduction](#introduction)
+	* [object allocator](#object-allocator)
+	* [raw memory allocator](#raw-memory-allocator)
 
-#### related file
+### related file
 
 * cpython/Modules/gcmodule.c
 * cpython/Objects/object.c
@@ -14,7 +16,15 @@
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
 
-#### introduction
+### introduction
+
+CPython has defined it's own memory management mechanism, when you create a new object in python program, it's not directly malloced from the heap
+
+![level](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/level.png)
+
+we will figure out how the **python interpreter** part works internally in the following example
+
+#### object allocator
 
 this is the created procedure of a `tuple` object with size n
 
@@ -38,5 +48,6 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/malloc.png)
 
-CPython has defined it's own memory management mechanism, when you create a new object, it's not directly malloced from the heap
+#### raw memory allocator
 
+follow the calling stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
