@@ -279,4 +279,4 @@ we can see the `__get__` function of staticmethod object
 
 ![staticmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod_get.png)
 
-so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happened again, `C.__dict__["fs1"]__get__(instance, Class)` returns the **lambda** function
+so, when you access fs1 by **cc.fs1**, the **descriptor protocol** happens again, `C.__dict__["fs1"]__get__(instance, Class)` returns the **lambda** function

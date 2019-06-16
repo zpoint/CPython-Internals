@@ -419,7 +419,7 @@ if not, after traverse, collecte all objects in **unreachable** and return
 
 stp4, move all objects in **unreachable** to **old** generation
 
-if there's any object in **unreachable** defined it's own `__del__`, the `__del__` methods will be called, and all objects in **unreachable** will survive this round of garbage collection
+if there's any object in **unreachable** defined it's own `__del__`, the `__del__` methods will be called in step1, and all objects in **unreachable** will survive this round of garbage collection
 
 ![finalize5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize5.png)
 

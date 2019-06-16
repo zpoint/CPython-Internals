@@ -50,4 +50,6 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 #### raw memory allocator
 
-follow the calling stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
+follow the call stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
+
+
