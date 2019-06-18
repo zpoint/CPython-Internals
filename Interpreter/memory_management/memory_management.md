@@ -1,13 +1,15 @@
 # memory management
 
-### contents
+## contents
 
 * [related file](#related-file)
 * [introduction](#introduction)
 	* [object allocator](#object-allocator)
 	* [raw memory allocator](#raw-memory-allocator)
+	* [block](#raw-memory-allocator)
 
-### related file
+
+## related file
 
 * cpython/Modules/gcmodule.c
 * cpython/Objects/object.c
@@ -16,7 +18,7 @@
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
 
-### introduction
+## introduction
 
 CPython has defined it's own memory management mechanism, when you create a new object in python program, it's not directly malloced from the heap
 
@@ -24,7 +26,7 @@ CPython has defined it's own memory management mechanism, when you create a new 
 
 we will figure out how the **python interpreter** part works internally in the following example
 
-#### object allocator
+### object allocator
 
 this is the created procedure of a `tuple` object with size n
 
@@ -48,8 +50,32 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/malloc.png)
 
-#### raw memory allocator
+### raw memory allocator
 
 follow the call stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
+
+	#define SMALL_REQUEST_THRESHOLD 512
+
+the procedure is described below
+
+* if the request memory block is greater than **SMALL_REQUEST_THRESHOLD**(512 bytes), the request will be delegated to the operating system's allocator
+* else, the request will be delegated to python's **raw memory allocator**
+
+### block
+
+we need to know some concept before we look into how python's memory allocator work
+
+the smallest unit in python's memory management system, the size of a blokc is the same size as a single **byte**
+
+	typedef uint8_t block
+
+there're lots of memory **block** in differenct size, word **block** in memory **block** has a different meaning from type **block**, we will see later
+
+### pool
+
+a pool can store a collection of the same size of memory **block**
+
+![pools](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pools.png)
+
 
 
