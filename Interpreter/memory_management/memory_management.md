@@ -9,7 +9,8 @@
 	* [block](#block)
 	* [pool](#pool)
 	* [arena](#arena)
-	* [layout](#layout)
+	* [memory layout](#memory-layout)
+	* [usedpools](#usedpools)
 
 
 ## related file
@@ -68,7 +69,7 @@ the procedure is described below
 
 we need to know some concept before we look into how python's memory allocator work
 
-the smallest unit in python's memory management system, the size of a blok is the same size as a single **byte**
+**block** is the smallest unit in python's memory management system, the size of a blok is the same size as a single **byte**
 
 	typedef uint8_t block
 
@@ -76,13 +77,13 @@ there're lots of memory **block** in differenct size, word **block** in memory *
 
 ### pool
 
-a **pool** stores a collection of the same size of memory **block**
+a **pool** stores a collection of memory **block** of the same size
 
 usually, the total size of memory blocks in a pool is 4kb, which is the same as system page size
 
 initially, the addresses for different memory block in the same pool are continously
 
-![pool](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/poos.png)
+![pool](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool.png)
 
 ### arena
 
@@ -92,6 +93,44 @@ whenever there needs a new pool, the allocator will ask an **arena** for a new m
 
 ![arena](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena.png)
 
-### layout
+### memory layout
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/layout.png)
+
+### usedpools
+
+there's a C array named **usedpools** plays an important role in the memory management mechanism
+
+the defination of **usedpools** in C is convoluted, the following picture shows how these mentioned objects organized
+
+![usedpools](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/usedpools.png)
+
+element in **usedpools** is of type `pool_header *`, size of **usedpools** is 128, but only half of the element is in use
+
+	 cpython/Objects/obmalloc.c
+     * For small requests we have the following table:
+     *
+     * Request in bytes     Size of allocated block      Size class idx
+     * ----------------------------------------------------------------
+     *        1-8                     8                       0
+     *        9-16                   16                       1
+     *       17-24                   24                       2
+     *       25-32                   32                       3
+     *       33-40                   40                       4
+     *       41-48                   48                       5
+     *       49-56                   56                       6
+     *       57-64                   64                       7
+     *       65-72                   72                       8
+     *        ...                   ...                     ...
+     *      497-504                 504                      62
+     *      505-512                 512                      63
+     *
+     *      0, SMALL_REQUEST_THRESHOLD + 1 and up: routed to the underlying
+     *      allocator.
+     */
+
+**idx0** is the head of a double linked list, each element in the double linked list is a pointer to a **pool**, all pools in **idx0** will handle those memory request <= 8 byte, no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 8 bytes each time
+
+**idx2** is the head of a double linked list, all pools in **idx0** will handle those memory request (9 bytes <= request_size <= 16 bytes), no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 16 bytes each time
+
+and so on

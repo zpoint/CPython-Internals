@@ -260,7 +260,7 @@ for some program designed for running for a long time, there must exist some lon
 
 generations is used in the purpose of doing less collections
 
-Cpython used three generations totally, the newly created objects is stored in the first generation, when an object survive a round of gc, it will be moved to next generation
+CPython used three generations totally, the newly created objects is stored in the first generation, when an object survive a round of gc, it will be moved to next generation
 
 lower generation will be collected more frequently, higher generation will be collected less frequently
 
