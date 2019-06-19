@@ -6,7 +6,10 @@
 * [introduction](#introduction)
 	* [object allocator](#object-allocator)
 	* [raw memory allocator](#raw-memory-allocator)
-	* [block](#raw-memory-allocator)
+	* [block](#block)
+	* [pool](#pool)
+	* [arena](#arena)
+	* [layout](#layout)
 
 
 ## related file
@@ -65,7 +68,7 @@ the procedure is described below
 
 we need to know some concept before we look into how python's memory allocator work
 
-the smallest unit in python's memory management system, the size of a blokc is the same size as a single **byte**
+the smallest unit in python's memory management system, the size of a blok is the same size as a single **byte**
 
 	typedef uint8_t block
 
@@ -73,9 +76,22 @@ there're lots of memory **block** in differenct size, word **block** in memory *
 
 ### pool
 
-a pool can store a collection of the same size of memory **block**
+a **pool** stores a collection of the same size of memory **block**
 
-![pools](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pools.png)
+usually, the total size of memory blocks in a pool is 4kb, which is the same as system page size
 
+initially, the addresses for different memory block in the same pool are continously
 
+![pool](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/poos.png)
 
+### arena
+
+an **arena** stores 256kb malloced from heap, it divides the memory block to 4kb per unit
+
+whenever there needs a new pool, the allocator will ask an **arena** for a new memory block with size 4kb, and initialize the memory block as a new **pool**
+
+![arena](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena.png)
+
+### layout
+
+![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/layout.png)
