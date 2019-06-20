@@ -14,6 +14,7 @@
 		* [why only half of the usedpools elements are used](#why-only-half-of-the-usedpools-elements-are-used)
 * [example](#example)
 	* [overview](#overview)
+	* [how does memory block organize in pool](#how-does-memory-block-organize-in-pool)
 
 # related file
 
@@ -154,6 +155,8 @@ if the request size **nbytes** is 7, (7 - 1) >> 3 is 0, idxn = 0 + 0, usedpools[
 
 if the request size **nbytes** is 24, (24 - 1) >> 3 is 2, idxn = 2 + 2, usedpools[2 + 2] will be the target list, so the head of **idx2** is the target pool
 
+the `usedpools`‘s size is two times larger than the size it actually used, so that you are able to calcuate the **idx** and access the first free pool in a very short time
+
 # example
 
 ## overview
@@ -163,7 +166,60 @@ assume we are going to reqest 5 bytes from python's memory allocator, because th
 	size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
     pool = usedpools[0 + 0]
 
-so **pool** header will be the first element in **idx0**, follow the linked list, we will found first **pool** which can offer memory blocks is **pool1**
+so **pool** header will be the first element in **idx0**, follow the linked list, we can find that the first **pool** which can offer memory blocks is **pool1**
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/example0.png)
 
+## how does memory block organize in pool
+
+assume this is the current state of **pool1**
+
+**ref.count** is a counter for how many **blocks** are currently in use
+
+**freeblock** points to the next **block** free to use
+
+**nextpool** and **prevpool** are used as chain of the double linked list in **usepools**
+
+**arenaindex** indicates which **arena** current block belongs to
+
+**szidx** indicates which size class current pool belongs to, it's same as the **idx** number in **usepools**
+
+**nextoffset** is the offset for the next free block
+
+**maxnextoffset** act as the high water mark for **nextoffset**, if **nextoffset** exceeds **maxnextoffset**, it means all blocks in the pool are in used, and the pool is full
+
+the total size of a **pool** is 4kb, same as system page size
+
+![pool_organize0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize0.png)
+
+when we request for a memory block <= 8 bytes
+
+the block **freeblock** pointed to will be chosen
+
+![pool_organize1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize1.png)
+
+**ref.count** will be incremented
+
+**freeblock** points to the next free block
+
+**nextoffset** will also be incremented size of one block
+
+![pool_organize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize2.png)
+
+request one more time
+
+**nextoffset** now exceeds **maxnextoffset**
+
+![pool_organize3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize3.png)
+
+request one more time
+
+![pool_organize4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize4.png)
+
+because the **nextoffset** is greater than **maxnextoffset**, the **pool** is full
+
+we need to unlink the pool from the **usedpools**
+
+![pool_organize_full](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize_full.png)
+
+![arena_pool_full](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_pool_full.png)
