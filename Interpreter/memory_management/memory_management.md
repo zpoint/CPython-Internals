@@ -11,7 +11,9 @@
 	* [arena](#arena)
 	* [memory layout](#memory-layout)
 	* [usedpools](#usedpools)
-
+		* [why only half of the usedpools elements are used](#why-only-half-of-the-usedpools-elements-are-used)
+* [example](#example)
+	* [overview](#overview)
 
 ## related file
 
@@ -79,7 +81,7 @@ there're lots of memory **block** in differenct size, word **block** in memory *
 
 a **pool** stores a collection of memory **block** of the same size
 
-usually, the total size of memory blocks in a pool is 4kb, which is the same as system page size
+usually, the total size of memory blocks in a pool is 4kb, which is the same as most of the system page size
 
 initially, the addresses for different memory block in the same pool are continously
 
@@ -105,7 +107,11 @@ the defination of **usedpools** in C is convoluted, the following picture shows 
 
 ![usedpools](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/usedpools.png)
 
-element in **usedpools** is of type `pool_header *`, size of **usedpools** is 128, but only half of the element is in use
+element in **usedpools** is of type `pool_header *`, size of **usedpools** is 128, but only half of the elements are in used
+
+**usedpools** stores **pool** object with free blocks, every **pool** object in **usedpools** has at least one free memory block
+
+if you get **pool 1** from **idx0**, you can get at least one memory block(8 bytes) from **pool 1**, if you get **pool 4** from **idx2**, you can get at least one memory block(24 bytes) from **pool 4**, and so on
 
 	 cpython/Objects/obmalloc.c
      * For small requests we have the following table:
@@ -129,8 +135,35 @@ element in **usedpools** is of type `pool_header *`, size of **usedpools** is 12
      *      allocator.
      */
 
-**idx0** is the head of a double linked list, each element in the double linked list is a pointer to a **pool**, all pools in **idx0** will handle those memory request <= 8 byte, no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 8 bytes each time
+**idx0** is the head of a double linked list, each element in the double linked list is a pointer to a **pool**, all pools in **idx0** will handle those memory request <= 8 bytes, no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 8 bytes each time
 
 **idx2** is the head of a double linked list, all pools in **idx0** will handle those memory request (9 bytes <= request_size <= 16 bytes), no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 16 bytes each time
 
 and so on
+
+#### why only half of the usedpools elements are used
+
+every memory request will be routed to the **idxn** in **usedpools**, there must be a very fast way to access **idxn** for the underlying memory request with size **nbytes**
+
+    #define ALIGNMENT_SHIFT         3
+    size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT
+    # idxn = size + size
+    pool = usedpools[size + size]
+
+if the request size **nbytes** is 7, (7 - 1) >> 3 is 0, idxn = 0 + 0, usedpools[0 + 0] will be the target list, so the head of **idx0** is the target pool
+
+if the request size **nbytes** is 24, (24 - 1) >> 3 is 2, idxn = 2 + 2, usedpools[2 + 2] will be the target list, so the head of **idx2** is the target pool
+
+## example
+
+### overview
+
+assume we are going to reqest 5 bytes from python's memory allocator, because the request size is less than **SMALL_REQUEST_THRESHOLD**(512 bytes), it's routed to python's raw memory allocator instead of the system's allocator(**malloc** system call)
+
+	size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
+    pool = usedpools[0 + 0]
+
+so **pool** header will be the first element in **idx0**, follow the linked list, we will found first **pool** which can offer memory blocks is **pool1**
+
+![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/example0.png)
+
