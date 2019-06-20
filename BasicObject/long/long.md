@@ -4,7 +4,7 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [how element stored inside](#how-element-stored-inside)
+* [how is element stored inside](#how-is-element-stored-inside)
     * [ingeter 0](#ingeter-0)
     * [ingeter 1](#ingeter-1)
     * [ingeter -1](#ingeter--1)
@@ -30,7 +30,7 @@ the structure of **long object** looks like the structure of [tuple object](http
 
 But how does CPython represent the variable size **int** in byte level? Let's see
 
-# how element stored inside
+# how is element stored inside
 
 ## ingeter 0
 
