@@ -1,6 +1,6 @@
 # gen
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [generator](#generator)
@@ -14,13 +14,13 @@
     * [example async generator](#example-async-generator)
     * [free list](#free-list)
 
-### related file
+# related file
 * cpython/Objects/genobject.c
 * cpython/Include/genobject.h
 
-### generator
+# generator
 
-#### memory layout generator
+## memory layout generator
 
 there's a common defination among **generator**, **coroutine** and **async generator**
 
@@ -63,7 +63,7 @@ we can draw the layout according to the code now
 
 ![layout_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_gen.png)
 
-#### example generator
+## example generator
 
 let's define and iter through a generator
 
@@ -235,9 +235,9 @@ and states in **gi_exc_state** is restored
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
-### coroutine
+# coroutine
 
-#### memory layout coroutine
+## memory layout coroutine
 
 most parts of the definition of the **coroutine** type and **generator** are the same
 
@@ -245,7 +245,7 @@ the coroutine-only field named **cr_origin**, tracking the trackback of the **co
 
 ![layout_coro](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_coro.png)
 
-#### example coroutine
+## example coroutine
 
 let's try to run an example with **coroutine** type defined to understand each field's meaning
 
@@ -333,15 +333,15 @@ in the 6.01 seconds, both **cor_list[0]** and **cor_list[1]** returned, and thei
 
 ![example_coro_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_3.png)
 
-### async generator
+# async generator
 
-#### memory layout async generator
+## memory layout async generator
 
 the layout of **async generator** is the same as **generator** type, except for the **ag_finalizer**, **ag_hooks_inited** and **ag_closed**
 
 ![layout_async_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_async_gen.png)
 
-#### example async generator
+## example async generator
 
 the **set_asyncgen_hooks** function is used for setting up a **firstiter** and a **finalizer**, **firstiter** will be called before when an asynchronous generator is iterated for the first time, finalizer will be called when asynchronous generator is about to be gc
 
@@ -475,7 +475,7 @@ the **ag_frame** is deallocated
 
 ![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_3.png)
 
-#### free list
+## free list
 
 the free list mechanism is used for type **async_generator_asend** and **async_generator_wrapped_value**
 

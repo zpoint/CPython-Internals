@@ -1,6 +1,6 @@
 # iter
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [iterator](#iterator)
@@ -21,13 +21,13 @@
     	* [citer1](#citer1)
     	* [citer-end](#citer-end)
 
-### related file
+# related file
 * cpython/Objects/iterobject.c
 * cpython/Include/iterobject.h
 
-### iterator
+# iterator
 
-#### 内存构造iter
+## 内存构造iter
 
 python 中的sequence迭代器是一层包装, 包装的内容是一个定义了 _\_getitem_\_ 方法的 python 对象
 
@@ -68,9 +68,9 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/layout.png)
 
-#### 示例
+## 示例
 
-##### iter0
+### iter0
 
 我们来尝试迭代一个 sequence 迭代器
 
@@ -90,7 +90,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 ![iter0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter0.png)
 
-##### iter1
+### iter1
 
 **next(a)** 调用了方法 object[0], 并返回了对应的结果
 
@@ -99,14 +99,14 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 ![iter1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter1.png)
 
-##### iter2
+### iter2
 
 	>>> next(a)
 	['index 1', 'good boy']
 
 ![iter2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter2.png)
 
-##### iter3
+### iter3
 
 当前的 **it_index** 为 2, 所以 next(a) 会调用 object[2] 并返回 4
 
@@ -115,21 +115,21 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 ![iter3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter3.png)
 
-##### iter4
+### iter4
 
     >>> next(a)
     9
 
 ![iter4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter4.png)
 
-##### iter5
+### iter5
 
     >>> next(a)
     12
 
 ![iter5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter5.png)
 
-##### iter end
+### iter end
 
 现在 **it_idnex** 为 5, next(a) 会抛出一个 IndexError
 
@@ -151,9 +151,9 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
     StopIteration
 
 
-### callable iterator
+# callable iterator
 
-#### 内存构造citer
+## 内存构造citer
 
     static PyObject *
     calliter_iternext(calliterobject *it)
@@ -192,9 +192,9 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 ![callable_layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/callable_layout.png)
 
 
-#### 示例 citer
+## 示例 citer
 
-##### citer0
+### citer0
 
     class A(object):
         def __init__(self):
@@ -211,7 +211,7 @@ python 中的sequence迭代器是一层包装, 包装的内容是一个定义了
 
 ![citer0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer0.png)
 
-##### citer1
+### citer1
 
 callable 迭代器 调用了 A 的实例的 _\_call_\_ 方法, 并且用返回值和 **sentinal** 的值 2 做了比较
 
@@ -222,7 +222,7 @@ callable 迭代器 调用了 A 的实例的 _\_call_\_ 方法, 并且用返回�
 
 ![citer1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer1.png)
 
-##### citer end
+### citer end
 
 这次 A 的实例返回了 **PyLongObject** 对象, 值为 2, 和存储在 **it_sentinel** 中的值相同,
 

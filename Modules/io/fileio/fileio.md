@@ -1,6 +1,6 @@
 # fileio
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -10,16 +10,16 @@
     * [rb](#rb)
     * [fd](#fd)
 
-#### related file
+# related file
 * cpython/Modules/_io/fileio.c
 
-#### memory layout
+# memory layout
 
 ![memory layout](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/layout.png)
 
-#### overview
+# overview
 
-##### a+
+## a+
 
 As [python document](https://docs.python.org/3/library/io.html#raw-file-i-o) said, the **FileIO** object represents an OS-level file containing bytes data
 
@@ -38,7 +38,7 @@ For those who need the detail of python dict object, please refer to my previous
 
 ![1_txt_a+](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
 
-##### close
+## close
 
 After call the close method, the **fd** becomes -1, and one more key **__IOBase_closed** inserted to **dict** field
 
@@ -46,7 +46,7 @@ After call the close method, the **fd** becomes -1, and one more key **__IOBase_
 
 ![1_txt_close](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
 
-##### rb
+## rb
 
 Now, let's open a file in read-only mode
 
@@ -56,7 +56,7 @@ the **fd** and **dict** object are all reused, and **writable**, **appending**, 
 
 ![2_txt_rb](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
 
-##### fd
+## fd
 
 let's pass an integer to parameter name
 

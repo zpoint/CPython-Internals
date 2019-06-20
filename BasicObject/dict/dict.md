@@ -1,6 +1,6 @@
 # dict
 
-### contents
+# contents
 
 because the **PyDictObject** is a little bit more complicated than other basic objects, I will not show `__setitem__`/`__getitem__` step by step, instead, I will illustrate in the middle of some concept
 
@@ -17,14 +17,14 @@ because the **PyDictObject** is a little bit more complicated than other basic o
     * [delete in entries](#delete-in-entries)
 * [end](#end)
 
-#### related file
+# related file
 * cpython/Objects/dictobject.c
 * cpython/Objects/clinic/dictobject.c.h
 * cpython/Include/dictobject.h
 * cpython/Include/cpython/dictobject.h
 
 
-#### memory layout
+# memory layout
 
 before we dive into the memory layout of python dictionary, let's imagine what normal dictionary object looks like
 
@@ -44,7 +44,7 @@ Now, let's see the memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190308144931301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-##### combined table && split table
+## combined table && split table
 
 I'm confused when I first look at the definition of the **PyDictObject**, what's **ma_values** ? why **PyDictKeysObject** looks different from the indices/entries structure above?
 
@@ -105,7 +105,7 @@ The split table implementation can save lots of memory if you have many instance
 
 ![dict_shares](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_shares.png)
 
-#### indices and entries
+## indices and entries
 
 Let's analyze some source code to understand how indices/entries implement in **PyDictKeysObject**, what **char dk_indices[]** means in **PyDictKeysObject**?
 (It took me sometimes to figure out)
@@ -161,7 +161,7 @@ now, the overview is clear
 
 ![dictkeys_basic](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
 
-#### hash collisions and delete
+# hash collisions and delete
 
 how CPython handle hash collisions in dict object? Instead of depending on a good hash function, python uses "perturb" strategy, let's read some source code and have a try
 
@@ -229,7 +229,7 @@ I've altered the source code to print some information
 
 ![hh_6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_6.png)
 
-#### resize
+# resize
 
     # now, dk_usable is 0, dk_nentries is 5
     # let's insert one more item
@@ -241,20 +241,20 @@ I've altered the source code to print some information
     # step2: insert key: 5, value: 5
 
 
-#### variable size indices
+# variable size indices
 Notice, the indices array is variable size. when the size of your hash table is <= 128, type of each item is int_8, int16 and int64 for bigger table. The variable size indices array can save memory usage.
 
-#### free list
+# free list
 
     static PyDictObject *free_list[PyDict_MAXFREELIST];
 
 CPython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
 
-#### delete
+# delete
 
 the [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) strategy is used for deletion in dict object
 
-##### why mark as DKIX_DUMMY
+## why mark as DKIX_DUMMY
 
 why mark as **DKIX_DUMMY** in the indices?
 
@@ -289,7 +289,7 @@ the searching process becomes
 
 also, the indices with **DKIX_DUMMY** can be inserted for new item
 
-##### delete in entries
+## delete in entries
 
 dict object need to guarantee the [inserted order](https://mail.python.org/pipermail/python-dev/2017-December/151283.html), the delete operation can't shuffle objects in **entries**
 
@@ -297,6 +297,6 @@ leave the entries[i] to empty, and packing these empty entries later in the resi
 
 deleting entries from dictionaries is not very common, in some case a little bit slower is acceptable([PyPy Status Blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html))
 
-#### end
+# end
 
 now, you understand how python dictionary object works internally.

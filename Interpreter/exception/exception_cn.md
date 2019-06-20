@@ -1,19 +1,19 @@
 # exception
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
 * [异常处理机制](#异常处理机制)
 
-#### 相关位置文件
+# 相关位置文件
 
 * cpython/Include/cpython/pyerrors.h
 * cpython/Include/pyerrors.h
 * cpython/Objects/exceptions.c
 * cpython/Lib/test/exception_hierarchy.txt
 
-#### 内存构造
+# 内存构造
 
 在 `Include/cpython/pyerrors.h` 中定义了好几种异常类型, 应用范围最广的就是 **PyBaseExceptionObject** (同时也是所有异常类型都共有的基础部分)
 
@@ -133,7 +133,7 @@
                +-- BytesWarning
                +-- ResourceWarning
 
-##### 异常处理机制
+# 异常处理机制
 
 我们来定义一个示例看看
 

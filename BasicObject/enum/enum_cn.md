@@ -1,6 +1,6 @@
 # enum
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -8,21 +8,21 @@
 	* [normal](#normal)
 	* [en_longindex](#en_longindex)
 
-#### 相关位置文件
+# 相关位置文件
 
 * cpython/Objects/enumobject.c
 * cpython/Include/enumobject.h
 * cpython/Objects/clinic/enumobject.c.h
 
-#### 内存构造
+# 内存构造
 
 **enumerate** 是一个类型, **enumerate** 的实例是一个可迭代对象, 你可以在迭代的过程中同时获得这个迭代的对象和一个计数器
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/layout.png)
 
-#### 示例
+# 示例
 
-##### normal
+## normal
 
     def gen():
         yield "I"
@@ -120,7 +120,7 @@
 
 ![example3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/example3.png)
 
-##### en_longindex
+## en_longindex
 
 通常情况下, 计数器的值是存储在 **en_index** 里面的, **en_index** 的类型是 **Py_ssize_t**, 我们来看下 **Py_ssize_t** 的定义
 

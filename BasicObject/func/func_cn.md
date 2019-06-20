@@ -1,6 +1,6 @@
 # func
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -17,12 +17,12 @@
 	* [func_annotations](#func_annotations)
 	* [func_qualname](#func_qualname)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/funcobject.c
 * cpython/Include/funcobject.h
 * cpython/Objects/clinic/funcobject.c.h
 
-#### 内存构造
+# 内存构造
 
 在 python 中, 一切皆对象, 包括函数对象, 一个函数对象在 c 语言中被定义为 **PyFunctionObject**
 
@@ -36,11 +36,11 @@
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
 
-#### 字段
+# 字段
 
 我们来看看每个字段在 **PyFunctionObject** 中分别代表什么意思
 
-##### func_code
+## func_code
 
 **func_code** 存储了一个 **PyCodeObject** 的实例, 这个实例会保存一段函数代码块中相关的信息
 
@@ -51,7 +51,7 @@
 	>>> f.__code__
 	<code object f at 0x1078015d0, file "<stdin>", line 1>
 
-##### func_globals
+## func_globals
 
 这个函数相关联的全局作用域
 
@@ -60,14 +60,14 @@
     >>> f.__globals__
     {'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': None, '__annotations__': {}, '__builtins__': <module 'builtins' (built-in)>, 'f': <function f at 0x10296eac0>}
 
-##### func_defaults
+## func_defaults
 
 一个元组对象, 存储了该函数的所有默参数的值
 
 	>>> f.__defaults__
 	(2,)
 
-##### func_kwdefaults
+## func_kwdefaults
 
 **func_kwdefaults** 是一个 python 字典对象, 保存了指定了默认值的 [keyword-only argument](https://www.python.org/dev/peps/pep-3102/)
 
@@ -77,7 +77,7 @@
     >>> f2.__kwdefaults__
     {'key': 111}
 
-##### func_closure
+## func_closure
 
 **func_closure** 是一个元组对象, 存储了当前函数所对应的所有闭包层级
 
@@ -140,7 +140,7 @@
     call done
 
 
-##### func_doc
+## func_doc
 
 通常, 他是一个用来解释函数作用的 **unicode** 对象
 
@@ -152,7 +152,7 @@
 
     print(f.__doc__)
 
-##### func_name
+## func_name
 
 这个 **PyFunctionObject** 对象的函数名
 
@@ -164,7 +164,7 @@
 	# output
     # i_have_a_very_long_long_long_name
 
-##### func_dict
+## func_dict
 
 **func_dict** 是一个字典对象, 存储了这个对象的属性
 
@@ -174,7 +174,7 @@
     >>> f.__dict__
     {'a': 3}
 
-##### func_module
+## func_module
 
 **func_module** 表示了这个对象所属的/相关联的模块
 
@@ -184,7 +184,7 @@
     >>> urlencode.__module__
     'urllib.parse'
 
-##### func_annotations
+## func_annotations
 
 这是一个比较新的特性, 你可以读一下 [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/pep-3107/), 上面有更好的例子解释这个字段的作用
 
@@ -194,7 +194,7 @@
 	>>> a.__annotations__
 	{'x': 'I am a int', 'y': 'I am a float', 'return': 'return a list'}
 
-##### func_qualname
+## func_qualname
 
 这个字段在内嵌函数表示名称的时候挺管用的, 这个字段还包括了从顶往下的内嵌路径, 你可以通过这个字段了解更多函数定义相关的信息, 可以读下 [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/)
 

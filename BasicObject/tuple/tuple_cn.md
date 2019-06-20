@@ -1,18 +1,18 @@
 # tuple
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
 * [内部元素如何存储](#内部元素如何存储)
 * [free list(缓冲池)](#free-list)
 
-#### 关位置文件
+# 关位置文件
 * cpython/Include/cpython/tupleobject.c
 * cpython/Include/tupleobject.h
 * cpython/Objects/tupleobject.c
 
-#### 内存构造
+# 内存构造
 
 ![memory layout](https://img-blog.csdnimg.cn/20190313121821367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -20,7 +20,7 @@
 
 让我们来研究一下
 
-#### 内部元素如何存储
+# 内部元素如何存储
 
 	t = tuple()
 
@@ -36,7 +36,7 @@
 
 ![tuple_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
 
-#### free list
+# free list
 
 这里使用的 free list(缓冲池) 的机制比起 [list 对象里的 free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md#delete-%E5%92%8C-free-list) 要有趣一些
 

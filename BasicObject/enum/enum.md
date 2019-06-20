@@ -1,6 +1,6 @@
 # enum
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -8,20 +8,20 @@
     * [normal](#normal)
     * [en_longindex](#en_longindex)
 
-#### related file
+# related file
 * cpython/Objects/enumobject.c
 * cpython/Include/enumobject.h
 * cpython/Objects/clinic/enumobject.c.h
 
-#### memory layout
+# memory layout
 
 **enumerate** is a **type**, the instance of **enumerate** object is an iterable object, you can iter through the real delegated object and counting index at the same time
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/layout.png)
 
-#### example
+# example
 
-##### normal
+## normal
 
     def gen():
         yield "I"
@@ -117,7 +117,7 @@ the termination state is indicated by the object inside the **en_sit** field, no
 
 ![example3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/example3.png)
 
-##### en_longindex
+## en_longindex
 
 usually, the **index** of enumerate object is stored in the **en_index** field, **en_index** is of type **Py_ssize_t** in c, and **Py_ssize_t** is defined as
 

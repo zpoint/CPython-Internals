@@ -1,6 +1,6 @@
 # frame
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -12,11 +12,11 @@
 	* [zombie frame](#zombie-frame)
 	* [free_list(缓冲池)](#free_list-sub)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/frameobject.c
 * cpython/Include/frameobject.h
 
-#### 内存构造
+# 内存构造
 
 **PyFrameObject** 是 python 虚拟机使用的栈帧对象, 它包含了当前所执行的代码所需要的空间, 参数, 不同作用域的变量, try 的信息等
 
@@ -24,7 +24,7 @@
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/layout.png)
 
-#### 示例
+# 示例
 
 每当你在解释器中做一次函数调用时, 会相应的创建一个新的 **PyFrameObject** 对象, 这个对象就是当前函数调用的栈帧对象
 
@@ -34,7 +34,7 @@
 
 如果你想知道 **PyFrameObject** 中每个字段的意义, 请参考 [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) 或者直接阅读源代码
 
-##### f_valuestack/f_stacktop/f_localsplus
+## f_valuestack/f_stacktop/f_localsplus
 
 **PyFrameObject** 对象的大小是不固定的, 你可以把它强制转换为类型 **PyVarObject**, **ob_size** 存储这个对象动态分配部分的大小, 这个大小是所关联的 **code** 对象决定的
 
@@ -198,7 +198,7 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
     >>> repr(gg.gi_frame)
     'None'
 
-##### f_blockstack
+## f_blockstack
 
 f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组大小为 **CO_MAXBLOCKS**(20)
 
@@ -298,7 +298,7 @@ frame 对象进入释放阶段
       File "<stdin>", line 1, in <module>
     StopIteration
 
-##### f_back
+## f_back
 
 **f_back** 是一个指向前一个 frame 的指针, 他把相关联的 frame 对象串联成一个单链表
 
@@ -326,9 +326,9 @@ frame 对象进入释放阶段
 
 ![f_back](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/f_back.png)
 
-#### free_list 机制
+# free_list 机制
 
-##### zombie frame
+## zombie frame
 
 第一次 code 对象和一个 frame 对象绑定时, 在这段代码段执行完成后, frame 对象不会被释放, 它会进入一个 "zombie" frame 状态, 下一次同个代码段执行时, 这个 frame 对象会优先被复用
 
@@ -351,7 +351,7 @@ frame 对象进入释放阶段
     >>> gg3.gi_frame # id s和之前的对象相同, 同样的 frame 对象在同一个 code block 中复用了
     <frame at 0x10224c970, file '<stdin>', line 1, code g5>
 
-##### free_list sub
+## free_list sub
 
 有一个单链表存储了部分即将进入回收状态的 frame 对象, 这个机制也可以节省 malloc/free 开销
 

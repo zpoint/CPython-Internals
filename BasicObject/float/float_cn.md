@@ -1,6 +1,6 @@
 # float
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -12,12 +12,12 @@
 	* [-0.1](#-0.1)
 * [free_list](#free_list)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/floatobject.c
 * cpython/Include/floatobject.h
 * cpython/Objects/clinic/floatobject.c.h
 
-#### 内存构造
+# 内存构造
 
 **PyFloatObject** 仅仅是一层对 c 语言中双精度浮点数的包装(**double**), 一个双精度浮点数使用8个字节去表示一个浮点数
 
@@ -25,9 +25,9 @@
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/layout.png)
 
-#### 示例
+# 示例
 
-##### 0
+## 0
 
 0.0 使用 **IEEE 754** 标准的表示方式为 64 个为 0 的 bit
 
@@ -35,31 +35,31 @@
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.png)
 
-##### 1.0
+## 1.0
 
 	f = 1.0
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.png)
 
-##### 0.1
+## 0.1
 
 	f = 0.1
 
 ![0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.1.png)
 
-##### 1.1
+## 1.1
 
 1.1 和 0.1 的区别是指数位最后的几个位不相同
 
 ![1.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.1.png)
 
-##### -0.1
+## -0.1
 
 -0.1 和 0.1 的区别是第一个符号位不相同
 
 ![-0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/-0.1.png)
 
-##### free_list
+# free_list
 
     #ifndef PyFloat_MAXFREELIST
     #define PyFloat_MAXFREELIST    100

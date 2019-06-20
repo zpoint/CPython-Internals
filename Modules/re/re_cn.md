@@ -1,6 +1,6 @@
 # re
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [正则内部如何实现](#正则内部如何实现)
@@ -12,7 +12,7 @@
 	* [fifo cache](#fifo-cache)
 * [更多资料](#更多资料)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Lib/re.py
 * cpython/Lib/sre_compile.py
 * cpython/Lib/sre_constants.py
@@ -23,7 +23,7 @@
 * cpython/Modules/_sre.c
 * cpython/Modules/clinic/_sre.c.h
 
-#### 正则内部如何实现
+# 正则内部如何实现
 
 当你执行以下命令的时候发生了什么?
 
@@ -40,7 +40,7 @@
 
 我们看看在不同阶段都发生了什么
 
-##### parse
+## parse
 
  **parse** 阶段的核心代码在这个位置 **cpython/Lib/sre_parse.py**
 
@@ -94,7 +94,7 @@
     rest part of token: None
     parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
 
-##### compile
+## compile
 
 这是 **compile** 阶段的输入, 也是上一阶段的输出
 
@@ -194,7 +194,7 @@ MAXREPEAT s是当前正则 `"abc\d+abc"` 所接受的最大长度, 常量 **MAXR
 
     [INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0, LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
 
-##### match
+## match
 
 match 阶段是用 c 完成的
 
@@ -211,9 +211,9 @@ match 阶段是用 c 完成的
         }
     }
 
-#### code 代码细节
+# code 代码细节
 
-##### sre_ucs1_search
+## sre_ucs1_search
 
 根据调用栈找到这的时候
 
@@ -318,7 +318,7 @@ cache 机制的 python 实现代码
             _cache[type(pattern), pattern, flags] = p
         return p
 
-#### 更多资料
+# 更多资料
 * [ccs.neu.edu->sre](http://www.ccs.neu.edu/home/shivers/papers/sre.txt)
 * [Python's Hidden Regular Expression Gems](http://lucumr.pocoo.org/2015/11/18/pythons-hidden-re-gems/)
 * [Understanding Python’s SRE structure](https://blog.labix.org/2003/06/16/understanding-pythons-sre-structure)

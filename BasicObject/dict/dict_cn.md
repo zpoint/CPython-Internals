@@ -1,6 +1,6 @@
 # dict
 
-### 目录
+# 目录
 
 因为 **PyDictObject** 比其他的基本对象稍微复杂一点点，我不会在这里一步一步的展示 `__setitem__`/`__getitem__` 的过程，这些基本步骤会穿插在一些概念的解释里面一起说明
 
@@ -18,14 +18,14 @@
 * [结束](#结束)
 
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/dictobject.c
 * cpython/Objects/clinic/dictobject.c.h
 * cpython/Include/dictobject.h
 * cpython/Include/cpython/dictobject.h
 
 
-#### 内存构造
+# 内存构造
 
 在深入看python 字典对象的内存构造之前，我们先来想象一下，如果让我们自己造一个字典对象会长成什么样呢？
 
@@ -45,7 +45,7 @@
 
 ![memory layout](https://img-blog.csdnimg.cn/20190308144931301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-##### combined table && split table
+## combined table && split table
 
 第一次看到 **PyDictObject** 的定义是很懵逼的，**ma_values** 是什么? 怎么 **PyDictKeysObject** 和上面看到的 indices/entries 结构长得不太一样?
 
@@ -115,7 +115,7 @@ split table 可以在你对同个class有非常多实例的时候节省很多内
 
 ![dict_shares](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_shares.png)
 
-#### indices and entries
+## indices and entries
 
 我们进到源代码里看一下 cpython 如何在 **PyDictKeysObject** 中实现 indices/entries, **char dk_indices[]** 又是什么意思?
 
@@ -175,7 +175,7 @@ split table 可以在你对同个class有非常多实例的时候节省很多内
 
 ![dictkeys_basic](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
 
-#### 哈希碰撞与删除
+# 哈希碰撞与删除
 
 cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个好的哈希函数，cpython 还依赖 perturb 策略，
 我们来读一读源代码看看
@@ -245,7 +245,7 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
 
 ![hh_6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_6.png)
 
-#### 表扩展
+# 表扩展
 
 	# 现在, dk_usable 为 0, dk_nentries 为 5
     # 再插入一个对象试试
@@ -257,20 +257,20 @@ cpython 是怎么处理字典对象里的哈希碰撞的呢? 除了依靠一个�
 
 	# 第二步， 插入 key: 5, value: 5
 
-#### 类型可变的indices数组
+# 类型可变的indices数组
 indices 数组的大小是可变的，当你的哈希表大小 <= 128 时，索引数组的元素类型为 int_8, 表变大时会用 int16 或者 int64 来表示，这样做可以节省内存使用，这个策略在上面代码注释部分说明过了
 
-#### free list
+# free list
 
 	static PyDictObject *free_list[PyDict_MAXFREELIST];
 
 cpython 也会用 free_list 来重新循环使用那些被删除掉的字典对象，可以避免内存碎片和提高性能，需要图解的同学可以参考 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-free-list), cpython set 使用了同样的策略，里面有图片解释
 
-#### 删除操作
+# 删除操作
 
 字典中元素的删除使用的是 [lazy deletion](https://en.wikipedia.org/wiki/Lazy_deletion) 策略(上面已展示过)
 
-##### 为什么标记成 DKIX_DUMMY
+## 为什么标记成 DKIX_DUMMY
 
 indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**(-2) 和 **Active/Pending**(>=0). 如果你把删除的对象标记为 **DKIX_EMPTY** 而不是 **DKIX_DUMMY**, **perturb** 策略在插入/搜索这个对象的时候将会出现问题
 
@@ -303,7 +303,7 @@ indices 总共只有三种不同状态的值, **DKIX_EMPTY**(-1), **DKIX_DUMMY**
 
 当然, 标记为 **DKIX_DUMMY** 的坑位也可以用来插入新的对象
 
-##### entries 中的删除
+## entries 中的删除
 
 dict 对象需要保证字典中元素按照 [插入顺序](https://mail.python.org/pipermail/python-dev/2017-December/151283.html) 来进行保存, 删除操作不能对 **entries** 中的元素进行排序
 

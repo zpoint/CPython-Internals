@@ -1,6 +1,6 @@
 # module
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -11,7 +11,7 @@
 	* [FrozenImporter](#FrozenImporter)
 	* [PathFinder](#PathFinder)
 
-#### 相关位置文件
+# 相关位置文件
 
 * cpython/Objects/moduleobject.c
 * cpython/Include/moduleobject.h
@@ -21,7 +21,7 @@
 * cpython/Lib/importlib/_bootstrap.py
 * cpython/Lib/importlib/_bootstrap_external.py
 
-#### 内存构造
+# 内存构造
 
 `Include/moduleobject.h` 中定义了一个 c struct, 名为 **PyModuleDef**
 
@@ -31,7 +31,7 @@
 
 ![layout_PyModuleObject](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/layout_PyModuleObject.png)
 
-#### 示例
+# 示例
 
 字段 **md_dict** 是该 module 对象的 `__dict__` 属性
 
@@ -51,7 +51,7 @@
 
 ![re](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/re.png)
 
-#### 如何调试 import
+# 如何调试 import
 
 当你尝试到源码里面看看 `import` 是如何工作时
 
@@ -100,7 +100,7 @@
     # 重新编译生成新的可执行 `python.exe`
     make
 
-#### import 是如何实现的
+# import 是如何实现的
 
 我们用 dis 模块处理一个只有一行代码 `import _locale` 的脚本看看
 
@@ -143,14 +143,14 @@
 
 ![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
 
-#### import 是如何实现的
+# import 是如何实现的
 
 默认情况下 sys.meta_path` 只有 3 个不同的 finder
 
     >>> sys.meta_path
     [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
 
-##### BuiltinImporter
+## BuiltinImporter
 
 `BuiltinImporter` 会处理所有的 built-in 模块, 比如当我们运行
 
@@ -207,7 +207,7 @@
     }
     */
 
-##### FrozenImporter
+## FrozenImporter
 
 `FrozenImporter.loader.create_module` 的定义, 调用方式等和 `BuiltinImporter` 类似
 
@@ -265,7 +265,7 @@
     const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
     */
 
-##### PathFinder
+## PathFinder
 
 `PathFinder.loader.create_module` 会最终调用 `_new_module` 返回, 而不是像上面的调用 `create_module` 返回, 外层函数定义的位置在 `cpython/Lib/importlib/_bootstrap.py`, `_new_module` 不会调用 c 函数, `create_module` 会调用对应的 c 函数
 

@@ -1,6 +1,6 @@
 # code
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -11,13 +11,13 @@
     * [co_zombieframe](#co_zombieframe)
     * [co_extra](#co_extra)
 
-#### related file
+# related file
 * cpython/Objects/codeobject.c
 * cpython/Include/codeobject.h
 
 
 
-#### memory layout
+# memory layout
 
 > a code object is CPython's internal representation of a piece of runnable Python code, such as a function, a module, a class body, or a generator expression. When you run a piece of code, it is parsed and compiled into a code object, which is then run by the CPython virtual machine (VM)
 
@@ -25,9 +25,9 @@ for more detail, please refer to [What is a code object in Python?](https://www.
 
 ![layout](https://img-blog.csdnimg.cn/20190208112516130.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### fields
+# fields
 
-##### example
+## example
 
 let's run an example written in python
 
@@ -126,7 +126,7 @@ it's related to the **f_valuestack** in [frame object](https://github.com/zpoint
 
 > These two are used for implementing nested function scopes. co_cellvars is a tuple containing the names of all variables in the function that are also used in a nested function, and co_freevars has the names of all variables used in the function that are defined in an enclosing function scope.
 
-##### co_code
+## co_code
 
 when you enter the command  `./python.exe -m dis code.py`
 
@@ -167,7 +167,7 @@ the binary format can be translated to
     16 100 0 (LOAD_CONST)
     18 83 None(RETURN_VALUE)
 
-##### co_lnotab and co_firstlineno
+## co_lnotab and co_firstlineno
 
 **co_firstlineno**
 
@@ -204,7 +204,7 @@ the second pair (4, 1) in **co_lnotab** means byteoffset 4, line offset 1 + 8(pr
     8 LOAD_CONST               0 (None)
     """
 
-##### co_zombieframe
+## co_zombieframe
 
 you can read the following comment from `Objects/frameobject.c`
 
@@ -212,7 +212,7 @@ for more detail, please refer to [frame object(zombie frame)](https://github.com
 
 > each code object will hold a single "zombie" frame. This retains the allocated and initialized frame object from an invocation of the code object. The zombie is reanimated the next time we need a frame object for that code object. Doing this saves the malloc/ realloc required when using a free_list frame that isn't the correct size. It also saves some field initialization.
 
-##### co_extra
+## co_extra
 
 this field stores a pointer to a **_PyCodeObjectExtra** object
 

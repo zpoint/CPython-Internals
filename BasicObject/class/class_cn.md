@@ -1,6 +1,6 @@
 # class
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -12,11 +12,11 @@
 	* [classmethod](#classmethod)
 	* [staticmethod](#staticmethod)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/classobject.c
 * cpython/Include/classobject.h
 
-#### 内存构造
+# 内存构造
 
 **PyMethodObject** 在 c 层级表示了一个 python 层级的 **method** 对象
 
@@ -30,20 +30,20 @@
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/layout.png)
 
-#### 字段
+# 字段
 
 这是 **c.f** 的构造
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/example0.png)
 
-##### im_func
+## im_func
 
 你可以从上图看到, **im_func** 存储的是一个类型为 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func_cn.md) 的对象
 
     >>> C.f1
     <function C.f1 at 0x10b80f040>
 
-##### im_self
+## im_self
 
 **im_self** 存储了该 method 绑定的实例对象
 
@@ -73,7 +73,7 @@
         return _PyObject_Call_Prepend(func, self, args, kwargs);
     }
 
-#### free_list
+# free_list
 
     static PyMethodObject *free_list;
     static int numfree = 0;
@@ -124,7 +124,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list2.png)
 
-#### classmethod 和 staticmethod
+# classmethod 和 staticmethod
 
 我们来定义一个有 **classmethod** 和 **staticmethod** 的对象看看
 
@@ -146,7 +146,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
     >>> type(c1.fc)
     <class 'method'>
 
-##### classmethod
+## classmethod
 
 **@classmethod** 装饰器使得 **c1.fc** 的结果仍然为类型 **method** 的对象
 
@@ -225,7 +225,7 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 当你通过 **cc.fc1** 访问属性 **fc1** 时, **descriptor protocol** 会调用上面这个函数, 上面这个函数返回了一个新的创建的 **PyMethodObject** 对象(通过 **PyMethod_New**), 这个 **PyMethodObject** 里面包的的 **im_func** 就是当前 **classmethod** 的 **cm_callable** 里所存储的函数对象(这里是个 lambda)
 
-##### staticmethod
+## staticmethod
 
 **@staticmethod** 装饰器把 **c1.fs** 的类型更改为了 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
 

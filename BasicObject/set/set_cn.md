@@ -1,6 +1,6 @@
 # set
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -12,17 +12,17 @@
 	    * [为什么采用-LINEAR_PROBES?](#为什么采用-LINEAR_PROBES)
 	* [clear](#clear)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/setobject.c
 * cpython/Include/setobject.h
 
-#### 内存构造
+# 内存构造
 
 ![memory layout](https://img-blog.csdnimg.cn/20190312123042232.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### 内建方法
+# 内建方法
 
-* ##### **new**
+* ## **new**
     * 调用栈
 	    * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 		    * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
@@ -31,7 +31,7 @@
 
 ![make new set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-* ##### **add**
+* ## **add**
     * 调用栈
 	    * static PyObject *set_add(PySetObject *so, PyObject *key)
 		    * static int set_add_key(PySetObject *so, PyObject *key)
@@ -57,7 +57,7 @@
 
 ![set_add_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_5.png)
 
-* ###### 哈希碰撞
+* ### 哈希碰撞
 
 增加一个值 16, 因为 mask 上面的值是 7, hash(16) & 7 ===> 0, 根据哈希值他们会存储到同一个位置
 通常我们会用开链法处理哈希，这里 cpython 使用了一个叫 **LINEAR_PROBES** 的方法处理这个问题
@@ -97,7 +97,7 @@
 
 ![set_add_32](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_32.png)
 
-* ##### **resize**
+* ## **resize**
 
 我们再插入一个 64, 依然重复上面的 **LINEAR_PROBES** 过程，插入到 3 个位置
 
@@ -118,11 +118,11 @@
 
 ![set_add_64_resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
 
-* ##### **为什么采用 LINEAR_PROBES**
+* ## **为什么采用 LINEAR_PROBES**
     * 更好的利用 cache locality
     * 减小哈希碰撞，避免链式存储出现很长的链表
 
-* ##### **clear**
+* ## **clear**
     * 调用栈
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
 		    * static int set_clear_internal(PySetObject *so)

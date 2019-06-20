@@ -1,6 +1,6 @@
 # bytearray
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -11,12 +11,12 @@
 	* [slice](#slice)
 * [ob_exports/buffer protocol](#ob_exports)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/bytearrayobject.c
 * cpython/Include/bytearrayobject.h
 * cpython/Objects/clinic/bytearrayobject.c.h
 
-#### 内存构造
+# 内存构造
 
 **ob_alloc** 表示了实际分配的字节大小
 
@@ -27,9 +27,9 @@
 ![memory layout](https://img-blog.csdnimg.cn/20190315152551189.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
 
-#### 示例
+# 示例
 
-##### empty bytearray
+## empty bytearray
 
 	>>> a = bytearray(b"")
     >>> id(a)
@@ -41,7 +41,7 @@
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/empty.png)
 
-##### append
+## append
 
 增加了一个字符 'a' 之后, **ob_alloc** 变成了 2, **ob_bytes** 和 **ob_start** 都指向同一个地址
 
@@ -49,7 +49,7 @@
 
 ![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/append_a.png)
 
-##### resize
+## resize
 
 控制内部实际占用的字节空间的增长速率如代码所示
 
@@ -69,7 +69,7 @@
 
 ![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/resize.png)
 
-##### slice
+## slice
 
 	b = bytearray(b"abcdefghijk")
 
@@ -101,7 +101,7 @@ slice 操作之后, **ob_start** 指向真正的数组内容开始的位置, **o
 
 ![after_grow_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_grow_slice.png)
 
-##### ob_exports
+## ob_exports
 
 **ob_exports** 这里表示的值是什么意思呢? 你需要先理解 **buffer protocol** 的概念和设计初衷, 请参考 [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) 和 [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
 

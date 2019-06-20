@@ -12,7 +12,7 @@ Trying to illustrate every detail of cpython implementation
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
 
-### Table of Contents
+# Table of Contents
 
 * [Objects](#Objects)
 * [Modules](#Modules)
@@ -21,7 +21,7 @@ Trying to illustrate every detail of cpython implementation
 * [learning material](#learning-material)
 
 
-#### Objects
+# Objects
  - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
  - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
@@ -40,17 +40,17 @@ Trying to illustrate every detail of cpython implementation
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
  - [ ] type
 
-#### Modules
+# Modules
 
  - [ ] io
  	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio.md)
 
-#### Lib
+# Lib
 
  - [x] [re(regex)](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
  - [ ] asyncio
 
-#### Interpreter
+# Interpreter
 
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
@@ -64,7 +64,7 @@ Trying to illustrate every detail of cpython implementation
  - [ ] thread
  - [ ] interpreter
 
-#### learning material
+# learning material
 
 I will only recommend what I've read
 

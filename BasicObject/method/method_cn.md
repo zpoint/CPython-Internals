@@ -1,6 +1,6 @@
 # method
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -11,13 +11,13 @@
 * [classmethod](#classmethod)
 * [staticmethod](#staticmethod)
 
-### 相关位置文件
+# 相关位置文件
 * cpython/Objects/methodobject.c
 * cpython/Include/methodobject.h
 * cpython/Python/bltinmodule.c
 * cpython/Objects/call.c
 
-#### 内存构造
+# 内存构造
 
 python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型名称所描述的一般, 所有在c语言层级定义的的内建函数或者方法都属于类型 **builtin_function_or_method**
 
@@ -28,9 +28,9 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/layout.png)
 
-#### 示例
+# 示例
 
-##### print
+## print
 
 我们来看一小段代码段先
 
@@ -72,17 +72,17 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 ![print3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print3.png)
 
-#### PyMethodDef 中的字段
+# PyMethodDef 中的字段
 
-##### ml_name
+## ml_name
 
 如上图所示, **ml_name** 字段表示的是这个内建函数的名称, 他就是一个 null 结尾的 c 语言标准字符串
 
-##### ml_meth
+## ml_meth
 
 指向真正干活的函数指针
 
-##### ml_flags
+## ml_flags
 
 用二进制位来标记这个函数需要被如何调用
 
@@ -100,7 +100,7 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 | METH_STATIC | 0x0020 | 第一个对象会传入空的值, 我们常用的 @staticmethod 干的活 |
 | METH_COEXIST | 0x0040 | 重复定义时替代原本存在的, 而不是跳过 |
 
-##### free_list
+# free_list
 
     static PyCFunctionObject *free_list = NULL;
     static int numfree = 0;
@@ -112,8 +112,8 @@ cpython 使用了一个长度为 256 的缓冲池来存储释放掉的对象以�
 
 相似的技术在 [float-free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float_cn.md#free_list) 对象上也使用过, float 使用的是 **ob_type** 字段串联起来, 这里就不做图说明了, 有兴趣的同学可以直接点解链接看里面的图片
 
-#### classmethod
+# classmethod
 
-#### staticmethod
+# staticmethod
 
 其实他们在分析 [func](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/dunc_cn.md) 对象时就已经出现了, 但是他们和 **classobject** 文件中的关联度较高, 我会在后续看 [class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class_cn.md) 时分析这两个家伙

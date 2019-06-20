@@ -1,23 +1,23 @@
 # complex
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
 * [示例](#示例)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/complexobject.c
 * cpython/Include/complexobject.h
 * cpython/clinic/complexobject.c.h
 
-#### 内存构造
+# 内存构造
 
 **PyComplexObject** 内部存储了两个双精度浮点数, 处理过程和表示方法都和 [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float_cn.md) 对象很类似
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/layout.png)
 
-#### 示例
+# 示例
 
 	c = complex(0, 1)
 

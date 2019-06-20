@@ -1,6 +1,6 @@
 # func
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -17,12 +17,12 @@
     * [func_annotations](#func_annotations)
     * [func_qualname](#func_qualname)
 
-#### related file
+# related file
 * cpython/Objects/funcobject.c
 * cpython/Include/funcobject.h
 * cpython/Objects/clinic/funcobject.c.h
 
-#### memory layout
+# memory layout
 
 everything is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
 
@@ -36,11 +36,11 @@ the type **function** indicates the user-defined method/classes, for **builtin_f
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/layout.png)
 
-#### field
+# field
 
 let's figure out the meaning of each field in the **PyFunctionObject**
 
-##### func_code
+## func_code
 
 **func_code** field stores an instance of **PyCodeObject**, which contains information of a code block
 
@@ -52,7 +52,7 @@ I will explain **PyCodeObject** in other article
     >>> f.__code__
     <code object f at 0x1078015d0, file "<stdin>", line 1>
 
-##### func_globals
+## func_globals
 
 the global namespace attached to the function object
 
@@ -61,14 +61,14 @@ the global namespace attached to the function object
     >>> f.__globals__
     {'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': None, '__annotations__': {}, '__builtins__': <module 'builtins' (built-in)>, 'f': <function f at 0x10296eac0>}
 
-##### func_defaults
+## func_defaults
 
 a tuple stores all the default argument of the function object
 
     >>> f.__defaults__
     (2,)
 
-##### func_kwdefaults
+## func_kwdefaults
 
 field **func_kwdefaults** is a python dictionary, which stores the [keyword-only argument](https://www.python.org/dev/peps/pep-3102/) with default value
 
@@ -78,7 +78,7 @@ field **func_kwdefaults** is a python dictionary, which stores the [keyword-only
     >>> f2.__kwdefaults__
     {'key': 111}
 
-##### func_closure
+## func_closure
 
 the **func_closure** field is a tuple, indicate all the enclosing level of the current function object
 
@@ -141,7 +141,7 @@ let's see an example with more _\_closure_\_
     call done
 
 
-##### func_doc
+## func_doc
 
 usually, it's an **unicode** object for explanation
 
@@ -153,7 +153,7 @@ usually, it's an **unicode** object for explanation
 
     print(f.__doc__)
 
-##### func_name
+## func_name
 
 the name of the **PyFunctionObject** object
 
@@ -165,7 +165,7 @@ the name of the **PyFunctionObject** object
     # output
     # i_have_a_very_long_long_long_name
 
-##### func_dict
+## func_dict
 
 **func_dict** field stores the attribute of the function object
 
@@ -175,7 +175,7 @@ the name of the **PyFunctionObject** object
     >>> f.__dict__
     {'a': 3}
 
-##### func_module
+## func_module
 
 **func_module** field indicate the module which the **PyFunctionObject** attached to
 
@@ -185,7 +185,7 @@ the name of the **PyFunctionObject** object
     >>> urlencode.__module__
     'urllib.parse'
 
-##### func_annotations
+## func_annotations
 
 you can read [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/pep-3107/) for more detail
 
@@ -195,7 +195,7 @@ you can read [PEP 3107 -- Function Annotations](https://www.python.org/dev/peps/
     >>> a.__annotations__
     {'x': 'I am a int', 'y': 'I am a float', 'return': 'return a list'}
 
-##### func_qualname
+## func_qualname
 
 it's used for nested class/function representation, it contains a dotted path leading to the object from the module top-level, refer [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
 

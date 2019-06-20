@@ -1,6 +1,6 @@
 # float
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -12,12 +12,12 @@
     * [-0.1](#-0.1)
 * [free_list](#free_list)
 
-#### related file
+# related file
 * cpython/Objects/floatobject.c
 * cpython/Include/floatobject.h
 * cpython/Objects/clinic/floatobject.c.h
 
-#### memory layout
+# memory layout
 
 **PyFloatObject** is no more than a wrapper of c type **double**, which takes 8 bytes to represent a floating point number
 
@@ -25,9 +25,9 @@ you can refer to [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985)/[IEEE-7
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/layout.png)
 
-#### example
+# example
 
-##### 0
+## 0
 
 the binary representation of 0.0 in **IEEE 754** format is 64 zero bits
 
@@ -35,31 +35,31 @@ the binary representation of 0.0 in **IEEE 754** format is 64 zero bits
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.png)
 
-##### 1.0
+## 1.0
 
     f = 1.0
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.png)
 
-##### 0.1
+## 0.1
 
     f = 0.1
 
 ![0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.1.png)
 
-##### 1.1
+## 1.1
 
 the difference between 1.1 and 0.1 is the last few exponent bits
 
 ![1.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.1.png)
 
-##### -0.1
+## -0.1
 
 the difference between -0.1 and 0.1 is the first sign bit
 
 ![-0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/-0.1.png)
 
-##### free_list
+# free_list
 
     #ifndef PyFloat_MAXFREELIST
     #define PyFloat_MAXFREELIST    100

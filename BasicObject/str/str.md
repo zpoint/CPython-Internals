@@ -1,6 +1,6 @@
 # str
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -10,12 +10,12 @@
     * [unicode memory usage summary](#unicode-memory-usage-summary)
 * [compact](#compact)
 
-#### related file
+# related file
 * cpython/Objects/unicodeobject.c
 * cpython/Include/unicodeobject.h
 * cpython/Include/cpython/unicodeobject.h
 
-#### memory layout
+# memory layout
 
 you can read [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) first to have an overview of how **unicode** stored internally
 
@@ -23,7 +23,7 @@ you can read [How Python saves memory when storing strings](https://rushter.com/
 
 for those who are interested in bit-fields in C please refer to [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) and [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
-#### conversion
+# conversion
 
 before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
 
@@ -122,7 +122,7 @@ have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, 
 
 ![aaa](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/aaa.png)
 
-#### interned
+# interned
 
 all unicode object with "interned" set to 1 will be held in this dictionary,
 any other new created unicode object with the same value will points to the same object, it act as singleton
@@ -142,7 +142,7 @@ if you delete the string and initialize a new same string, the id of them are th
     4314134768
 
 
-#### kind
+# kind
 
 there are totally four values of **kind** field in **PyASCIIObject**, it means how characters are stored in the unicode object internally.
 
@@ -248,7 +248,7 @@ now, the **kind** field is **PyUnicode_2BYTE_KIND** and it takes 2 bytes to stor
     * all characters are in the range U+0000-U+10FFFF
     * at least one character is in the range U+10000-U+10FFFF
 
-Now, kind field become **PyUnicode_4BYTE_KIND**
+now, kind field become **PyUnicode_4BYTE_KIND**
 
     >>> s = "\u00ff\U0010FFFF\U00100111\U0010FFF1"
     >>> repr(s)
@@ -257,7 +257,7 @@ Now, kind field become **PyUnicode_4BYTE_KIND**
 
 ![4_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
-##### unicode memory usage summary
+## unicode memory usage summary
 
 we now know that there are three kinds of storage mechanism, how many bytes CPython will consume to store an unicode object depends on the maximum range of your character. All characters inside the unicode object must be in the same size, if CPython use variable size representation such as utf-8, it would be impossible to do index operation in O(1) time
 
@@ -268,7 +268,7 @@ we now know that there are three kinds of storage mechanism, how many bytes CPyt
 
 ![kind_overview](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/kind_overview.png)
 
-#### compact
+# compact
 
 if flag in **compact** field in 1, it means all characters are stored within **PyUnicodeObject**, no matter what **kind** field is. The example above all have **compact** field set to 1. Otherwise, the data block will not be stored inside the **PyUnicodeObject** object directly, the data block will be a newly malloced location.
 the difference between **compact** 0 and **compact** 1 is the same as the difference between Redis string encoding **raw** and **embstr**

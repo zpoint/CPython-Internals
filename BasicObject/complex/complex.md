@@ -1,17 +1,17 @@
 # complex
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [example](#example)
 
-#### related file
+# related file
 * cpython/Objects/complexobject.c
 * cpython/Include/complexobject.h
 * cpython/clinic/complexobject.c.h
 
-#### memory layout
+# memory layout
 
 the **PyComplexObject** stores two double precision floating point number inside
 
@@ -19,7 +19,7 @@ the handling process and representation are mostly the same as [float](https://g
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/layout.png)
 
-#### example
+# example
 
     c = complex(0, 1)
 

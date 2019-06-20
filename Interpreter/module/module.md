@@ -1,6 +1,6 @@
 # module
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -11,7 +11,7 @@
 	* [FrozenImporter](#FrozenImporter)
 	* [PathFinder](#PathFinder)
 
-#### related file
+# related file
 
 * cpython/Objects/moduleobject.c
 * cpython/Include/moduleobject.h
@@ -20,7 +20,7 @@
 * cpython/Python/clinic/import.c.h
 * cpython/Lib/importlib/_bootstrap.py
 
-#### memory layout
+# memory layout
 
 there's a struct named **PyModuleDef** defined in `Include/moduleobject.h`
 
@@ -30,7 +30,7 @@ the **PyModuleObject** is defined in `Objects/moduleobject.c`, which contains a 
 
 ![layout_PyModuleObject](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/layout_PyModuleObject.png)
 
-#### example
+# example
 
 the field **md_dict** is the `__dict__` attribute of the module object
 
@@ -50,7 +50,7 @@ for more detail please refer to [PEP 3121 -- Extension Module Initialization and
 
 ![re](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/re.png)
 
-#### how to debug import
+# how to debug import
 
 when you try to look into the source code to find out how `import` works
 
@@ -99,7 +99,7 @@ whenever you modify the source code in `Lib/importlib/_bootstrap.py`, you need t
     # recompile
     make
 
-#### how does import work
+# how does import work
 
 let's compile a script with only one line `import _locale`
 
@@ -142,14 +142,14 @@ in `position 5`, it will acquire the lock `_imp` before the call of every `finde
 
 ![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
 
-#### how does finder work
+# how does finder work
 
 there're currently three different finder in my `sys.meta_path`
 
     >>> sys.meta_path
     [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
 
-##### BuiltinImporter
+## BuiltinImporter
 
 `BuiltinImporter` will handle all the built-in module, when we call 
 
@@ -203,7 +203,7 @@ there're currently three different finder in my `sys.meta_path`
     }
     */
 
-##### FrozenImporter
+## FrozenImporter
 
 defination of `FrozenImporter.loader.create_module` is similiar to `BuiltinImporter`
 
@@ -261,7 +261,7 @@ defination of `FrozenImporter.loader.create_module` is similiar to `BuiltinImpor
     const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
     */
 
-##### PathFinder
+## PathFinder
 
 `PathFinder.loader.create_module` will simply call `_new_module`, which is defined in `cpython/Lib/importlib/_bootstrap.py`, there's no c function to be called
 

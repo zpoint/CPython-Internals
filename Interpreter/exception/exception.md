@@ -1,19 +1,19 @@
 # exception
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [exception handling](#exception-handling)
 
-#### related file
+# related file
 
 * cpython/Include/cpython/pyerrors.h
 * cpython/Include/pyerrors.h
 * cpython/Objects/exceptions.c
 * cpython/Lib/test/exception_hierarchy.txt
 
-#### memory layout
+# memory layout
 
 there are various exception types defined in `Include/cpython/pyerrors.h`, the most widely used **PyBaseExceptionObject**(also the base part of any other exception type)
 
@@ -133,7 +133,7 @@ you can find the exception hierarchy in `Lib/test/exception_hierarchy.txt`
                +-- BytesWarning
                +-- ResourceWarning
 
-##### exception handling
+# exception handling
 
 let's define an example
 

@@ -1,6 +1,6 @@
 # gil
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [介绍](#介绍)
@@ -18,19 +18,19 @@
 * [gil何时会被释放](#gil何时会被释放)
 
 
-#### 相关位置文件
+# 相关位置文件
 
 * cpython/Python/ceval.c
 * cpython/Python/ceval_gil.h
 * cpython/Include/internal/pycore_gil.h
 
-#### 介绍
+# 介绍
 
 这是 [**Global Interpreter Lock**](https://wiki.python.org/moin/GlobalInterpreterLock) 的定义(我来翻译一下)
 
 > 在 CPython 中, 全局解释器锁, 或者 GIL, 是一把互斥锁, 这把互斥锁被用来保护 python 对象, 防止多个线程同时执行 python 字节码. 这把锁是有存在的必要的, 主要原因是 CPython 的内存管理机制在实现的时候是非线程安全的(因为GIL的存在, 很多第三方的扩展和功能在写的时候都深度的依赖这把锁, 更加加深了对 GIL 的依赖)
 
-##### python32 之前的线程切换
+## python32 之前的线程切换
 
 通俗的来讲, **tick** 是一个计数器, 表示当前线程在释放 **gil** 之前连续的执行了多少个字节码(实际上有部分执行较快的字节码并不会被计入计数器)
 
@@ -52,7 +52,7 @@
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (图片来自 [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-##### python3.2-之后的线程切换
+## python3.2-之后的线程切换
 
 由于上面列出的多核机器下可能导致的性能等方面的影响, **gil** 的实现在 python3.2 之后进行了一些优化
 
@@ -72,11 +72,11 @@
 
 如果你对 **gil** 的详细介绍感兴趣, 请参考 [Understanding the Python GIL(article)](http://www.dabeaz.com/GIL/)
 
-##### 内存构造
+## 内存构造
 
 ![git_layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_layout.png)
 
-#### 字段
+# 字段
 
 python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都有 `main` 函数的入口, python 解释器也不例外
 
@@ -86,7 +86,7 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 ![init](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/init.png)
 
-##### interval
+## interval
 
     >>> import sys
     >>> sys.getswitchinterval()
@@ -96,11 +96,11 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 在 C 里面是用 微秒 为单位存储, 在 python 解释器中以秒来表示
 
-##### last_holder
+## last_holder
 
 **last_holder** 存放了最后一个持有 **gil** 的线程的 C 中对应的 PyThreadState 结构的指针地址, 通过这个值我们可以知道当前线程释放了 **gil** 后, 是否有其他线程获得了 **gil**(可以采取措施避免被自己重新获得)
 
-##### locked
+## locked
 
 **locked** 的类型为 **_Py_atomic_int**, 值 -1 表示还未初始化, 0 表示当前的 **gil** 处于释放状态, 1 表示某个线程已经占用了 **gil**, 这个值的类型设置为原子类型之后在 `ceval.c` 就可以不加锁的对这个值进行读取
 
@@ -134,7 +134,7 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
         /* 忽略 */
     }
 
-##### switch_number
+## switch_number
 
 **switch_number** 是一个计数器, 表示从解释器运行到现在, **gil** 总共被释放获得多少次
 
@@ -165,15 +165,15 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
         /* 忽略 */
     }
 
-##### mutex
+## mutex
 
 **mutex** 是一把互斥锁, 用来保护 `locked`, `last_holder`, `switch_number` 还有 `_gil_runtime_state` 中的其他变量
 
-##### cond
+## cond
 
 **cond** 是一个 condition variable, 和 **mutex** 结合起来一起使用, 当前线程释放 **gil** 时用来给其他等待中的线程发送信号
 
-##### switch_cond and switch_mutex
+## switch_cond and switch_mutex
 
 **switch_cond** 是另一个 condition variable, 和 **switch_mutex** 结合起来可以用来保证释放后重新获得 **gil** 的线程不是同一个前面释放 **gil** 的线程, 避免 **gil** 换手但是线程未切换浪费 cpu 时间
 
@@ -206,7 +206,7 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
     #endif
     }
 
-#### gil何时会被释放
+# gil何时会被释放
 
 `cpython/Python/ceval.c` 中的 `main_loop` 是一个很大的 `for loop`, 并且其中含有一个很大的 `switch statement`
 

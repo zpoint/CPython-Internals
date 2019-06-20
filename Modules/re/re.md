@@ -1,6 +1,6 @@
 # re
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [how regex work](#how-regex-work)
@@ -12,7 +12,7 @@
     * [fifo cache](#fifo-cache)
 * [read more](#read-more)
 
-#### related file
+# related file
 * cpython/Lib/re.py
 * cpython/Lib/sre_compile.py
 * cpython/Lib/sre_constants.py
@@ -23,7 +23,7 @@
 * cpython/Modules/_sre.c
 * cpython/Modules/clinic/_sre.c.h
 
-#### how regex work
+# how regex work
 
 what happened when you execute the following code ?
 
@@ -40,7 +40,7 @@ the overview of different phases of **re.search**
 
 let's see what's going on in each step
 
-##### parse
+## parse
 
 the core code in **parse** phase is in **cpython/Lib/sre_parse.py**
 
@@ -94,7 +94,7 @@ now, the **next_token** is `'+'`, the `parse` function will pop whatever in the 
     rest part of token: None
     parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
 
-##### compile
+## compile
 
 this is the input of the **compile** phase
 
@@ -194,7 +194,7 @@ combine the **_compile_info** and **_compile** together, the code to the next ph
 
     [INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0, LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
 
-##### match
+## match
 
 the match phase is written in c
 
@@ -211,9 +211,9 @@ if success, go on, there will be another article talking about the match phase(i
         }
     }
 
-#### code detail
+# code detail
 
-##### sre_ucs1_search
+## sre_ucs1_search
 
 follow the call stack to here
 
@@ -276,7 +276,7 @@ which will be expanded to three different form
 
 when I go inside the expanded **sre_ucs1_search**, I found the [match](#match) phase
 
-#### fifo cache
+# fifo cache
 
 when you called the **re.compile**, there will be a FIFO cache in the python level
 
@@ -318,7 +318,7 @@ the cache mechanism is written in python
             _cache[type(pattern), pattern, flags] = p
         return p
 
-#### read more
+# read more
 * [ccs.neu.edu->sre](http://www.ccs.neu.edu/home/shivers/papers/sre.txt)
 * [Python's Hidden Regular Expression Gems](http://lucumr.pocoo.org/2015/11/18/pythons-hidden-re-gems/)
 * [Understanding Python’s SRE structure](https://blog.labix.org/2003/06/16/understanding-pythons-sre-structure)

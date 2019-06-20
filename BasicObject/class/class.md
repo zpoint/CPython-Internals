@@ -1,6 +1,6 @@
 # class
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -12,11 +12,11 @@
     * [classmethod](#classmethod)
     * [staticmethod](#staticmethod)
 
-#### related file
+# related file
 * cpython/Objects/classobject.c
 * cpython/Include/classobject.h
 
-#### memory layout
+# memory layout
 
 the **PyMethodObject** represents the type **method** in c-level
 
@@ -30,20 +30,20 @@ the **PyMethodObject** represents the type **method** in c-level
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/layout.png)
 
-#### fields
+# fields
 
 the layout of **c.f1**
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/example0.png)
 
-##### im_func
+## im_func
 
 as you can see from the layout, field **im_func** stores the [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md) object that implements the method
 
     >>> C.f1
     <function C.f1 at 0x10b80f040>
 
-##### im_self
+## im_self
 
 field **im_self** stores the instance object this method bound to
 
@@ -73,7 +73,7 @@ the **PyMethodObject** delegate the real call to **im_func** with **im_self** as
         return _PyObject_Call_Prepend(func, self, args, kwargs);
     }
 
-#### free_list
+# free_list
 
     static PyMethodObject *free_list;
     static int numfree = 0;
@@ -124,7 +124,7 @@ assume the free_list is empty now
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list2.png)
 
-#### classmethod and staticmethod
+# classmethod and staticmethod
 
 let's define an object with **classmethod** and **staticmethod**
 
@@ -146,7 +146,7 @@ let's define an object with **classmethod** and **staticmethod**
     >>> type(c1.fc)
     <class 'method'>
 
-##### classmethod
+## classmethod
 
 the **@classmethod** keeps type of **c1.fc** as **method**
 
@@ -225,7 +225,7 @@ we can see the `__get__` function of classmethod object(defined as `cm_descr_get
 
 when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, wrapped by **PyMethod_New()** function, which makes the return object a new bounded-PyMethodObject
 
-##### staticmethod
+## staticmethod
 
 the **@staticmethod** changes type of **c1.fs** to [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
 

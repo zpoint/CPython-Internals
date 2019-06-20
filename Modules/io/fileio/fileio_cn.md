@@ -1,6 +1,6 @@
 # fileio
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -10,16 +10,16 @@
 	* [rb](#rb)
 	* [fd](#fd)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Modules/_io/fileio.c
 
-#### 内存构造
+# 内存构造
 
 ![memory layout](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/layout.png)
 
-#### 总览
+# 总览
 
-##### a+
+## a+
 
 如 [python官方文档](https://docs.python.org/3/library/io.html#raw-file-i-o) 所说 **FileIO** 对象表示了一个在操作系统级别上对字节对象进行操作的文件对象
 
@@ -38,7 +38,7 @@
 
 ![1_txt_a+](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_a+.png)
 
-##### close
+## close
 
 调用 **close** 方法后, **fd** 字段变成了 -1, 并且 键 **__IOBase_closed** 被插入了当前的 **dict** 里面
 
@@ -46,7 +46,7 @@
 
 ![1_txt_close](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
 
-##### rb
+## rb
 
 现在我们来试试以只读方式打开一个文件
 
@@ -56,7 +56,7 @@
 
 ![2_txt_rb](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
 
-##### fd
+## fd
 
 我们传入一个文件描述符号试一试
 

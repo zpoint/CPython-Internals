@@ -1,6 +1,6 @@
 # code
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -11,11 +11,11 @@
 	* [co_zombieframe](#co_zombieframe)
 	* [co_extra](#co_extra)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/codeobject.c
 * cpython/Include/codeobject.h
 
-#### 内存构造
+# 内存构造
 
 > 这篇文章这个格式的文字表示引用, 凡是以这个格式出现的, 都翻译自下面 quora 的回答
 
@@ -25,9 +25,9 @@
 
 ![layout](https://img-blog.csdnimg.cn/20190208112516130.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### 字段
+# 字段
 
-##### 示例
+## 示例
 
 我们来跑一个用 python 写的示例看看
 
@@ -126,7 +126,7 @@
 > 这两个字段在包含有 enclosing scope 的时候使用, co_freevars 如果当前函数是 enclosing scope 内部的函数, 当前使用到的定义于外层的变量名称
 > co_cellvars 如果当前函数含有 enclosing scope, 表示 enclosing scope 里面的函数使用到的定义于当前函数的的变量名称
 
-##### co_code
+## co_code
 
 当你执行这个命令时  `./python.exe -m dis code.py`
 
@@ -167,7 +167,7 @@
     16 100 0 (LOAD_CONST)
     18 83 None(RETURN_VALUE)
 
-##### co_lnotab 和 co_firstlineno
+## co_lnotab 和 co_firstlineno
 
 **co_firstlineno**
 
@@ -204,7 +204,7 @@
     8 LOAD_CONST               0 (None)
     """
 
-##### co_zombieframe
+## co_zombieframe
 
 你可以在 `Objects/frameobject.c` 找到以下注释
 
@@ -213,7 +213,7 @@
 > 每个 code 对象都会保持一个 "zombie" frame, 这样做能保持一个 frame 对象分配的空间和初始化的信息不变
 > 下一次同一个 code 对象需要创建一个 frame 对象的时候, 直接用 "zombie" frame 上的对象, 可以节省 malloc/ realloc 的开销 和 初始化字段的开销
 
-##### co_extra
+## co_extra
 
 这个字段存储了一个指向 **_PyCodeObjectExtra** 对象的指针
 

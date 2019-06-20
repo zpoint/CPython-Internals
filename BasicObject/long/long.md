@@ -1,6 +1,6 @@
 # int
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -15,12 +15,12 @@
     * [reserved bit](#reserved-bit)
 * [small ints](#small-ints)
 
-#### related file
+# related file
 * cpython/Objects/longobject.c
 * cpython/Include/longobject.h
 * cpython/Include/longintrepr.h
 
-#### memory layout
+# memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190314164305131.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -30,9 +30,9 @@ the structure of **long object** looks like the structure of [tuple object](http
 
 But how does CPython represent the variable size **int** in byte level? Let's see
 
-#### how element stored inside
+# how element stored inside
 
-##### ingeter 0
+## ingeter 0
 
 notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
 
@@ -40,7 +40,7 @@ notice, when the value is 0, the **ob_digit** field doesn't store anything, the 
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
-##### ingeter 1
+## ingeter 1
 
 there are two different types of **ob_digit** depends on your system.
 
@@ -69,7 +69,7 @@ but when it's going to represent integer 1, **ob_size** becomes 1 and field in *
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
-##### ingeter -1
+## ingeter -1
 
 when i becomes -1, the only difference from the integer 1 is the value in **ob_size** field, CPython interpret **ob_size** as a signed type to differ the positive and negative sign
 
@@ -77,7 +77,7 @@ when i becomes -1, the only difference from the integer 1 is the value in **ob_s
 
 ![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
-##### ingeter 1023
+## ingeter 1023
 
 the basic unit is type **digit**, which provide 2 bytes(16bits) for storage. And 1023 takes the rightmost 10 bits,
 so the value **ob_size** field is still 1.
@@ -85,19 +85,19 @@ so the value **ob_size** field is still 1.
 
 ![1023](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1023.png)
 
-##### ingeter 32767
+## ingeter 32767
 
 the integer 32767 represent in the same way as usual
 
 ![32767](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32767.png)
 
-##### ingeter 32768
+## ingeter 32768
 
 CPython don't use all the 16 bits in **digit** field, the first bit of every **digit** is reserved, we will see why later
 
 ![32768](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32768.png)
 
-##### little endian and big endian
+## little endian and big endian
 
 notice, because the **digit** is the smallest unit in the CPython abstract level, order between bytes inside a single ob_digit are represent in most-important-bit-in-the-left-most order(big-endian order)
 
@@ -111,7 +111,7 @@ the interger 262143(2^18 = 262144) in binary representation is 00000011 11111111
 
 ![262143](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/262143.png)
 
-##### reserved bit
+## reserved bit
 
 why the left-most bit in **digit** is reserved? Why order between **digit** in the **ob_digit** array are represented as little-endian?
 
@@ -163,7 +163,7 @@ the sub operation is similar to the add operation, so you can read the source co
 ![k](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/k.png)
 
 
-##### small ints
+## small ints
 
 CPython also use a buffer pool to store the frequently used integer
 

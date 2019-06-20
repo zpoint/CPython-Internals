@@ -1,6 +1,6 @@
 # descr
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [python 中的属性访问机制是如何运作的?](#python-中的属性访问机制是如何运作的)
@@ -11,7 +11,7 @@
 * [如何更改属性访问机制的行为?](#如何更改属性访问机制的行为)
 * [相关阅读](#相关阅读)
 
-#### 相关位置文件
+# 相关位置文件
 
 * cpython/Objects/descrobject.c
 * cpython/Include/descrobject.h
@@ -20,7 +20,7 @@
 * cpython/Objects/typeobject.c
 * cpython/Include/cpython/object.h
 
-#### python 中的属性访问机制是如何运作的
+# python 中的属性访问机制是如何运作的
 
 在查看 descriptor 对象是如何实现之前我们先来看一个示例
 
@@ -29,7 +29,7 @@
 
 **method_descriptor** 是什么类型 ? 为什么 `str.center` 返回的类型是 **method_descriptor** 而 `"str".center` 返回的类型是 **builtin_function_or_method** ? python 中的属性访问机制是如何运作的 ?
 
-##### 实例属性访问
+## 实例属性访问
 
 这是 `inspect.ismethoddescriptor` 和 `inspect.isdatadescriptor` 的定义
 
@@ -275,7 +275,7 @@
 
 所以, 到这里之前上面讲的所有过程都是 `"str".center` 这个实例的属性访问
 
-##### 类属性访问
+## 类属性访问
 
 我们来找找 `<class 'type'>` 的定义, 还有 `str.center` 的属性访问是如何工作的(大致上和 `"str".center` 相同)
 
@@ -336,14 +336,14 @@
 * 为什么 `str.center` 返回的类型是 **method_descriptor** 而 `"str".center` 返回的类型是 **builtin_function_or_method** ?
 * python 中的属性访问机制是如何运作的 ?
 
-#### method_descriptor
+# method_descriptor
 
 我们来尝试找到剩下的问题的答案
 * **method_descriptor** 是什么类型 ?
 
 这个类型的定义可以在这个位置找到 `Include/descrobject.h`
 
-##### 内存构造
+## 内存构造
 
 ![PyMethodDescrObject](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/PyMethodDescrObject.png)
 
@@ -360,7 +360,7 @@
 
 **PyGetSetDescrObject**: 包装了 **PyGetSetDef** 对象
 
-#### 如何更改属性访问机制的行为
+# 如何更改属性访问机制的行为
 
 我们现在知道了当你尝试访问一个对象的属性时, python 虚拟机会执行以下操作
 
@@ -412,7 +412,7 @@
       File "<input>", line 11, in __getattr__
     AttributeError
 
-#### 相关阅读
+# 相关阅读
 * [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
 * [understanding-python-metaclasses](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses)
 * [The Python 2.3 Method Resolution Order(MRO)](https://www.python.org/download/releases/2.3/mro/)

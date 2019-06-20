@@ -1,6 +1,6 @@
 # memory management
 
-## contents
+# contents
 
 * [related file](#related-file)
 * [introduction](#introduction)
@@ -15,7 +15,7 @@
 * [example](#example)
 	* [overview](#overview)
 
-## related file
+# related file
 
 * cpython/Modules/gcmodule.c
 * cpython/Objects/object.c
@@ -24,7 +24,7 @@
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
 
-## introduction
+# introduction
 
 CPython has defined it's own memory management mechanism, when you create a new object in python program, it's not directly malloced from the heap
 
@@ -32,7 +32,7 @@ CPython has defined it's own memory management mechanism, when you create a new 
 
 we will figure out how the **python interpreter** part works internally in the following example
 
-### object allocator
+## object allocator
 
 this is the created procedure of a `tuple` object with size n
 
@@ -56,7 +56,7 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/malloc.png)
 
-### raw memory allocator
+## raw memory allocator
 
 follow the call stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
 
@@ -67,7 +67,7 @@ the procedure is described below
 * if the request memory block is greater than **SMALL_REQUEST_THRESHOLD**(512 bytes), the request will be delegated to the operating system's allocator
 * else, the request will be delegated to python's **raw memory allocator**
 
-### block
+## block
 
 we need to know some concept before we look into how python's memory allocator work
 
@@ -77,7 +77,7 @@ we need to know some concept before we look into how python's memory allocator w
 
 there're lots of memory **block** in differenct size, word **block** in memory **block** has a different meaning from type **block**, we will see later
 
-### pool
+## pool
 
 a **pool** stores a collection of memory **block** of the same size
 
@@ -87,7 +87,7 @@ initially, the addresses for different memory block in the same pool are contino
 
 ![pool](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool.png)
 
-### arena
+## arena
 
 an **arena** stores 256kb malloced from heap, it divides the memory block to 4kb per unit
 
@@ -95,11 +95,11 @@ whenever there needs a new pool, the allocator will ask an **arena** for a new m
 
 ![arena](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena.png)
 
-### memory layout
+## memory layout
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/layout.png)
 
-### usedpools
+## usedpools
 
 there's a C array named **usedpools** plays an important role in the memory management mechanism
 
@@ -141,7 +141,7 @@ if you get **pool 1** from **idx0**, you can get at least one memory block(8 byt
 
 and so on
 
-#### why only half of the usedpools elements are used
+### why only half of the usedpools elements are used
 
 every memory request will be routed to the **idxn** in **usedpools**, there must be a very fast way to access **idxn** for the underlying memory request with size **nbytes**
 
@@ -154,9 +154,9 @@ if the request size **nbytes** is 7, (7 - 1) >> 3 is 0, idxn = 0 + 0, usedpools[
 
 if the request size **nbytes** is 24, (24 - 1) >> 3 is 2, idxn = 2 + 2, usedpools[2 + 2] will be the target list, so the head of **idx2** is the target pool
 
-## example
+# example
 
-### overview
+## overview
 
 assume we are going to reqest 5 bytes from python's memory allocator, because the request size is less than **SMALL_REQUEST_THRESHOLD**(512 bytes), it's routed to python's raw memory allocator instead of the system's allocator(**malloc** system call)
 

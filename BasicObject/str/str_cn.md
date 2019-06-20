@@ -1,6 +1,6 @@
 # str
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -10,12 +10,12 @@
 	* [unicode底层存储方式总结](#unicode底层存储方式总结)
 * [compact](#compact)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/unicodeobject.c
 * cpython/Include/unicodeobject.h
 * cpython/Include/cpython/unicodeobject.h
 
-#### 内存构造
+# 内存构造
 
 你可以先读一下这篇 [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) 了解一下 **unicode** 对象的大致存储方式
 
@@ -23,7 +23,7 @@
 
 如果你对 c 语言的 bit-fields 有疑问，请参考 [When to use bit-fields in C?](https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c) 和 [“:” (colon) in C struct - what does it mean?](https://stackoverflow.com/questions/8564532/colon-in-c-struct-what-does-it-mean)
 
-#### 字符串转换
+# 字符串转换
 
 在我们深入的看 unicod 对象如何创建，调整空间之前，我们先来看下 **PyUnicode_AsUTF8** 这个 c 函数
 
@@ -119,7 +119,7 @@ _PyUnicode_UTF8_LENGTH
 
 ![aaa](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/aaa.png)
 
-#### interned
+# interned
 
 所有 **interned** 值设置为 1 的 unicode 对象都会被保存在一个叫 **interned** 的全局变量的字典对象里，
 所有新创建的同样的 unicode 对象都会指向这个字典已经存在的对象，**interned** 这个全局字典实现了单例模式
@@ -139,7 +139,7 @@ _PyUnicode_UTF8_LENGTH
     4314134768
 
 
-#### kind
+# kind
 
 **kind** 在 **PyASCIIObject** 里, 这个值表示 unicode 对象里面真正的字节的存储方式，总共有 4 种不同的形式
 
@@ -253,7 +253,7 @@ _PyUnicode_UTF8_LENGTH
 
 ![4_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/4_byte_kind.png)
 
-##### unicode底层存储方式总结
+## unicode底层存储方式总结
 
 我们现在检验了3种不同的存储方式，到底 cpython 底层会使用多少个字节去存储你的字符串，取决于你字符串里最大的字符的范围，每一个字符在 unicode 对象里占用的空间必须是同样大小的，只有这样才有可能用 O(1) 的时间去获取到unicode对象里任意的第n个字符, 如果 cpython 使用了像 utf8 一样的变长字节数来存储，我们只能做到 O(n) 的时间去获取第 n 个字符
 
@@ -264,7 +264,7 @@ _PyUnicode_UTF8_LENGTH
 
 ![kind_overview](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/kind_overview.png)
 
-#### compact
+# compact
 
 如果 **compact** 设置为 1, 表示所有的字符都存储在了 **PyUnicodeObject** 这一个内存块里，不论 **kind** 为什么值都一样. 上面所有的例子所展示的对象的 **compact** 值都为 1. 如果这个值为 0, data 不再是和 **PyUnicodeObject** 一起的连续的空间，而是单独申请的空间，有点像 redis 里面 **raw** 和 **embstr** 的区别，他们都可以表示 redis 里面的字符串，但是 **raw** 做两次内存分配，**embstr** 做一次
 

@@ -1,6 +1,6 @@
 # set
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -12,17 +12,17 @@
         * [why LINEAR_PROBES?](#why-LINEAR_PROBES)
     * [clear](#clear)
 
-#### related file
+# related file
 * cpython/Objects/setobject.c
 * cpython/Include/setobject.h
 
-#### memory layout
+# memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190312123042232.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### method
+# method
 
-* ##### **new**
+* ## **new**
     * call stack
         * static PyObject * set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             * static PyObject * make_new_set(PyTypeObject *type, PyObject *iterable)
@@ -31,7 +31,7 @@ the following picture shows value in each field in an empty set
 
 ![make new set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/make_new_set.png)
 
-* ##### **add**
+* ## **add**
     * call stack
         * static PyObject *set_add(PySetObject *so, PyObject *key)
             * static int set_add_key(PySetObject *so, PyObject *key)
@@ -57,7 +57,7 @@ add a value 5
 
 ![set_add_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_5.png)
 
-* ###### hash collision
+* ### hash collision
 
 add a value 16, because the mask is 7, hash(16) & 7 ===> 0
 cpython use **LINEAR_PROBES** to solve hash collision instead of **CHAIN**(linked list)
@@ -95,7 +95,7 @@ the 0th position has been taken, the first time **LINEAR_PROBES** find the 1th p
 
 ![set_add_32](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_32.png)
 
-* ##### **resize**
+* ## **resize**
 
 let's insert one more item with value 64, still repeat the **LINEAR_PROBES** progress, insert to the position at index 3
 
@@ -116,11 +116,11 @@ And field **table** no longer points to **smalltable**, instead, it points to a 
 
 ![set_add_64_resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_add_64_resize.png)
 
-* ##### **why LINEAR_PROBES**
+* ## **why LINEAR_PROBES**
     * improve cache locality
     * reduces the cost of hash collisions
 
-* ##### **clear**
+* ## **clear**
     * call stack
         * static PyObject *set_clear(PySetObject *so, PyObject *Py_UNUSED(ignored))
             * static int set_clear_internal(PySetObject *so)

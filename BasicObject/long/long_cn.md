@@ -1,6 +1,6 @@
 # int
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -15,12 +15,12 @@
 	* [第一个保留位](#第一个保留位)
 * [small ints(缓冲池)](#small-ints)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/longobject.c
 * cpython/Include/longobject.h
 * cpython/Include/longintrepr.h
 
-#### 内存构造
+# 内存构造
 
 ![memory layout](https://img-blog.csdnimg.cn/20190314164305131.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -32,9 +32,9 @@
 
 我们来看看
 
-#### 内部元素如何存储
+# 内部元素如何存储
 
-##### 整数 0
+## 整数 0
 
 注意, 当要表示的整数的值为 0 时, **ob_digit** 这个数组为空, 不存储任何东西, **ob_size** 中的 0 就直接表示这个整数的值为 0, 这是一种特殊情况
 
@@ -42,7 +42,7 @@
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
-##### 整数 1
+## 整数 1
 
 **ob_digit** 可以有两种不同的定义, 具体是 uint32_t 还是 unsigned short 取决于操作系统
 
@@ -71,7 +71,7 @@
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
-##### 整数 -1
+## 整数 -1
 
 当 i 变成 -1 时候, 唯一的和整数 1 的区别就是储存在 **ob_size** 里的值变成了 -1, 这里的负号表示这个整数的正负性, 不影响到 **ob_digit** 里面的值
 
@@ -79,26 +79,26 @@
 
 ![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
-##### 整数 1023
+## 整数 1023
 
 对于 PyLongObject 来说, 最基本的存储单位是 **digit**, 在我这里是 2个 byte 的大小(16个bit). 1023 只需要占用最右边的10个bit 就够了, 所以 **ob_size** 里的值仍然是 1
 
 
 ![1023](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1023.png)
 
-##### 整数 32767
+## 整数 32767
 
 整数 32767 的存储方式依旧和上面的存储无大致上的差别
 
 ![32767](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32767.png)
 
-##### 整数 32768
+## 整数 32768
 
 我们发现, cpython 并不会占用掉一个 **digit** 的所有的 bit 去存储一个数, 第一个 bit 会被保留下来, 我们后面会看到这个保留下来的 bit 有什么作用
 
 ![32768](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/32768.png)
 
-##### 小端大端
+## 小端大端
 
 注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序是按照"最重要的在最左边" 的原则存储的(大端存储)
 
@@ -112,7 +112,7 @@
 
 ![262143](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/262143.png)
 
-##### 第一个保留位
+## 第一个保留位
 
 为什么 **digit** 的最左边一位需要保留下来呢? 为什么 **ob_digit** 里面的 **digit** 的顺序是按照小端的顺序存储的呢?
 
@@ -164,7 +164,7 @@ temp 这个变量此时按照 **PyLongObject** 的方式存储了前面两个数
 ![k](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/k.png)
 
 
-##### small ints
+## small ints
 
 cpython 同时也使用了一个全局变量叫做 small_ints 来单例化一部分常见范围的整数, 这么做可以减少频繁的向操作系统申请和释放的次数, 并提高性能
 

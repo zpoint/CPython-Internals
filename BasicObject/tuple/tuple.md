@@ -1,18 +1,18 @@
 # tuple
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
 * [how element stored inside](#how-element-stored-inside)
 * [free list](#free-list)
 
-#### related file
+# related file
 * cpython/Include/cpython/tupleobject.c
 * cpython/Include/tupleobject.h
 * cpython/Objects/tupleobject.c
 
-#### memory layout
+# memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190313121821367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -21,7 +21,7 @@ Obviously, **ob_item** is an array of PyObject* pointer, all elements will be st
 
 Let's see
 
-#### how element stored inside
+# how element stored inside
 
     t = tuple()
 
@@ -37,7 +37,7 @@ Let's see
 
 ![tuple_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
 
-#### free list
+# free list
 
 The free_list mechanism used here is more interesting than [free_list in list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#delete-and-free-list)
 

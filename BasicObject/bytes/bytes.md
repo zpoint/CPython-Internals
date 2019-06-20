@@ -1,6 +1,6 @@
 # bytes
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -13,20 +13,20 @@
     * [ob_size](#ob_size)
     * [summary](#summary)
 
-#### related file
+# related file
 * cpython/Objects/bytesobject.c
 * cpython/Include/bytesobject.h
 * cpython/Objects/clinic/bytesobject.c.h
 
-#### memory layout
+# memory layout
 
 ![memory layout](https://img-blog.csdnimg.cn/20190318160629447.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
 The memory layout of **PyBytesObject** looks like [memory layout of tuple object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#memory-layout) and [memory layout of int object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md#memory-layout), but simpler than any of them.
 
-#### example
+# example
 
-##### empty bytes
+## empty bytes
 
 **bytes** object is an immutable object, whenever you need to modify a **bytes** object, you need to create a new one, which keeps the implementation simple.
 
@@ -34,7 +34,7 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
-##### ascii characters
+## ascii characters
 
 let's initialize a byte object with ascii characters
 
@@ -42,16 +42,16 @@ let's initialize a byte object with ascii characters
 
 ![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
-##### nonascii characters
+## nonascii characters
 
     s = "我是帅哥".encode("utf8")
 
 ![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
-#### summary
+# summary
 
 
-##### ob_shash
+## ob_shash
 
 
 The field **ob_shash** should store the hash value of the byte object, value **-1** means not computed yet.
@@ -60,11 +60,11 @@ The first time the hash value computed, it will be cached to the **ob_shash** fi
 
 the cached hash value can save recalculation and speeds up dictionary lookups
 
-##### ob_size
+## ob_size
 
 field **ob_size** is inside every **PyVarObject**, the **PyBytesObject** uses this **field** to store size information to keep O(1) time complexity for **len()** operation and tracks the size of non-ascii string(may be null characters inside)
 
-##### summary
+## summary
 
 The **PyBytesObject** is a python wrapper of c style null terminate string, with **ob_shash** for caching hash value and **ob_size** for storing the size information of **PyBytesObject**
 

@@ -1,6 +1,6 @@
 # gil
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [introduction](#introduction)
@@ -17,19 +17,19 @@
 	* [switch_cond and switch_mutex](#switch_cond-and-switch_mutex)
 * [when will the gil be released](#when-will-the-gil-be-released)
 
-#### related file
+# related file
 
 * cpython/Python/ceval.c
 * cpython/Python/ceval_gil.h
 * cpython/Include/internal/pycore_gil.h
 
-#### introduction
+# introduction
 
 this is the defination of the [**Global Interpreter Lock**](https://wiki.python.org/moin/GlobalInterpreterLock)
 
 > In CPython, the global interpreter lock, or GIL, is a mutex that protects access to Python objects, preventing multiple threads from executing Python bytecodes at once. This lock is necessary mainly because CPython's memory management is not thread-safe. (However, since the GIL exists, other features have grown to depend on the guarantees that it enforces.)
 
-##### thread scheduling before python32
+## thread scheduling before python32
 
 basically, the **tick** is a counter for how many opcodes current thread executed continuously without releasing the **gil**
 
@@ -51,7 +51,7 @@ the job(thread) schedule mechanism is fully controlled by the operating system, 
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-##### thread scheduling after python32
+## thread scheduling after python32
 
 due to some performance issue in multi-core machine, the implementation of the **gil** has changed a lot after python3.2
 
@@ -71,11 +71,11 @@ if the current thread is waiting for the interval, and owner of the **gil** chan
 
 for those who are interested in detail, please refer to [Understanding the Python GIL(article)](http://www.dabeaz.com/GIL/)
 
-##### memory layout
+## memory layout
 
 ![git_layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_layout.png)
 
-#### fields
+# fields
 
 the python intepreter is a program written in C, every executable program written in C have a `main` function
 
@@ -85,7 +85,7 @@ those `main` related functions are defined in `cpython/Modules/main.c`, you will
 
 ![init](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/init.png)
 
-##### interval
+## interval
 
     >>> import sys
     >>> sys.getswitchinterval()
@@ -95,11 +95,11 @@ those `main` related functions are defined in `cpython/Modules/main.c`, you will
 
 it's stored as microseconds in C and represent as seconds in python
 
-##### last_holder
+## last_holder
 
 **last_holder** stores the C address of the last PyThreadState hloding the **gil**, this helps us know whether anyone else was scheduled after we dropped the **gil**
 
-##### locked
+## locked
 
 **locked** is a field of type **_Py_atomic_int**, -1 indicate uninitialized, 0 means no one is currently holding the **gil**, 1 means someone is holding it. This is atomic because it can be read without any lock taken in ceval.c
 
@@ -133,7 +133,7 @@ it's stored as microseconds in C and represent as seconds in python
         /* omit */
     }
 
-##### switch_number
+## switch_number
 
 **switch_number** is a counter for number of **gil** switches since the beginning
 
@@ -167,15 +167,15 @@ it's used in function `take_gil`
         /* omit */
     }
 
-##### mutex
+## mutex
 
 **mutex** is a mutex used for protecting `locked`, `last_holder`, `switch_number` and other variables in `_gil_runtime_state`
 
-##### cond
+## cond
 
 **cond** is a condition variable, combined with **mutex**, used for signaling release of **gil**
 
-##### switch_cond and switch_mutex
+## switch_cond and switch_mutex
 
 **switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquire the **gil** is not the thread release the **gil**, avoiding waste of time slice
 
@@ -210,7 +210,7 @@ it can be turned off without the defination of `FORCE_SWITCHING`
     #endif
     }
 
-#### when will the gil be released
+# when will the gil be released
 
 the `main_loop` in `cpython/Python/ceval.c` is a big `for loop`, and a big `switch statement`
 

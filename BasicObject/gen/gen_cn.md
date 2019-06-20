@@ -1,6 +1,6 @@
 # gen
 
-### 目录
+# 目录
 
 * [相关位置文件](#相关位置文件)
 * [generator](#generator)
@@ -14,13 +14,13 @@
 	* [示例 async generator](#示例-async-generator)
 	* [free list](#free-list)
 
-### 相关位置文件
+# 相关位置文件
 * cpython/Objects/genobject.c
 * cpython/Include/genobject.h
 
-### generator
+# generator
 
-#### 内存构造 generator
+## 内存构造 generator
 
 **generator**, **coroutine** 和 **async generator** 共享一大部分的定义
 
@@ -63,7 +63,7 @@
 
 ![layout_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_gen.png)
 
-#### 示例 generator
+## 示例 generator
 
 我们来定义一个 **generator** 并一步一步的迭代他
 
@@ -233,9 +233,9 @@
 
 ![example_gen_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_5.png)
 
-### coroutine
+# coroutine
 
-#### 内存构造 coroutine
+## 内存构造 coroutine
 
 **coroutine** 类型和 **generator** 类型的大部分定义是相同的
 
@@ -245,7 +245,7 @@
 
 ![layout_coro](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_coro.png)
 
-#### 示例 coroutine
+## 示例 coroutine
 
 我们可以来跑一个 **coroutine** 类型的示例, 理解一下各个字段的意义
 
@@ -333,15 +333,15 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 
 ![example_coro_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_3.png)
 
-### async generator
+# async generator
 
-#### 内存构造 async generator
+## 内存构造 async generator
 
 除了 **ag_finalizer**, **ag_hooks_inited** and **ag_closed** 这三个额外添加的字段, **async generator** 的构造和 **generator** 是相同的
 
 ![layout_async_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_async_gen.png)
 
-#### 示例 async generator
+## 示例 async generator
 
 **set_asyncgen_hooks** 函数可以设置一个 **firstiter** 和一个 **finalizer**, **firstiter** 会在**async generator** 第一次迭代之前调用, **finalizer** 会在垃圾回收之前进行调用
 
@@ -473,7 +473,7 @@ cor_list[1] 的 **cr_code** 和 cor_list[0] 的 **cr_code** 相同, 但是 **cr_
 
 ![example_async_gen3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_async_gen_3.png)
 
-#### free list
+## free list
 
 在类型 **async_generator_asend** 和 **async_generator_wrapped_value** 上面使用了free list(缓冲池)机制
 

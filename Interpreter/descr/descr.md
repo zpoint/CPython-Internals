@@ -1,6 +1,6 @@
 # descr
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [how does attribute access work in python?](#how-does-attribute-access-work-in-python)
@@ -11,7 +11,7 @@
 * [how to change the behavior of attribute access?](#how-to-change-the-behavior-of-attribute-access)
 * [read more](#read-more)
 
-#### related file
+# related file
 
 * cpython/Objects/descrobject.c
 * cpython/Include/descrobject.h
@@ -20,7 +20,7 @@
 * cpython/Objects/typeobject.c
 * cpython/Include/cpython/object.h
 
-#### how does attribute access work in python
+# how does attribute access work in python
 
 let's see an example first before we look into how descriptor object implements
 
@@ -29,7 +29,7 @@ let's see an example first before we look into how descriptor object implements
 
 what is type **method_descriptor** ? why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ? how does attribute access work in python ?
 
-##### instance attribute access
+## instance attribute access
 
 this is the defination of `inspect.ismethoddescriptor` and `inspect.isdatadescriptor`
 
@@ -283,7 +283,7 @@ until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in
 
 so, the procedure above describes the attribute access of `"str".center`
 
-##### class attribute access
+## class attribute access
 
 let's find the definition of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
 
@@ -342,14 +342,14 @@ now, we have the answers of
 * why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ?
 * how does attribute access work in python ?
 
-#### method_descriptor
+# method_descriptor
 
 let's find out the answer of
 * what is type **method_descriptor** ?
 
 it's defined in `Include/descrobject.h`
 
-##### memory layout
+## memory layout
 
 ![PyMethodDescrObject](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/PyMethodDescrObject.png)
 
@@ -368,7 +368,7 @@ there exists various descriptor type
 
 **PyGetSetDescrObject**: wrapper of **PyGetSetDef**
 
-#### how to change the behavior of attribute access
+# how to change the behavior of attribute access
 
 we know that when you try to access the attribute of an object, the python virtual machine will
 
@@ -420,7 +420,7 @@ notice, provide your own `__getattribute__` may violate the **descriptor protoco
       File "<input>", line 11, in __getattr__
     AttributeError
 
-#### read more
+# read more
 * [descriptor protocol in python](https://docs.python.org/3/howto/descriptor.html)
 * [understanding-python-metaclasses](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses)
 * [The Python 2.3 Method Resolution Order(MRO)](https://www.python.org/download/releases/2.3/mro/)

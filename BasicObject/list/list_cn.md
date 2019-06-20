@@ -1,6 +1,6 @@
 # list
 
-### category
+# category
 
 * [相关位置文件](#相关位置文件)
 * [内存构造](#内存构造)
@@ -11,18 +11,18 @@
 	* [delete 和 free list](#delete-和-free-list)
 		* [为什么用 free list](#为什么用-free-list)
 
-#### 相关位置文件
+# 相关位置文件
 * cpython/Objects/listobject.c
 * cpython/Objects/clinic/listobject.c.h
 * cpython/Include/listobject.h
 
-#### 内存构造
+# 内存构造
 
 ![memory layout](https://img-blog.csdnimg.cn/20190214101628263.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-#### 内建方法
+# 内建方法
 
-* ##### **new**
+* ## **new**
     * call stack
 	    * PyObject * PyList_New(Py_ssize_t size)
 
@@ -33,7 +33,7 @@
 
 ![list_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_empty.png)
 
-* ##### **append**
+* ## **append**
     * call stack
         * static PyObject *list_append(PyListObject *self, PyObject *object)
 		    * static int app1(PyListObject *self, PyObject *v)
@@ -89,7 +89,7 @@
 
 ![append_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_e.png)
 
-* ##### **pop**
+* ## **pop**
     * call stack
         * static PyObject *list_pop_impl(PyListObject *self, Py_ssize_t index)
 
@@ -107,7 +107,7 @@
 
 ![pop_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_d.png)
 
-* ##### **clear**
+* ## **clear**
     * call stack
         * static PyObject * list_clear_impl(PyListObject *self)
         	* static int _list_clear(PyListObject *a)
@@ -117,7 +117,7 @@
 
 ![clear](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/clear.png)
 
-* ##### **delete 和 free list**
+* ## **delete 和 free list**
     * call stack
         * static void list_dealloc(PyListObject *op)
 
@@ -155,6 +155,6 @@
 
 ![new_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/new_a.png)
 
-* ##### **为什么用 free list**
+* ## **为什么用 free list**
     * 提高性能，malloc 这个系统调用是很耗时的(python自己也实现了一套内存管理)
     * 减小内存碎片

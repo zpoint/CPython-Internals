@@ -1,6 +1,6 @@
 # bytearray
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -11,12 +11,12 @@
     * [slice](#slice)
 * [ob_exports/buffer protocol](#ob_exports)
 
-#### related file
+# related file
 * cpython/Objects/bytearrayobject.c
 * cpython/Include/bytearrayobject.h
 * cpython/Objects/clinic/bytearrayobject.c.h
 
-#### memory layout
+# memory layout
 
 The **ob_alloc** field represents the real allocated size in bytes
 
@@ -27,9 +27,9 @@ The **ob_alloc** field represents the real allocated size in bytes
 ![memory layout](https://img-blog.csdnimg.cn/20190315152551189.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
 
-#### example
+# example
 
-##### empty bytearray
+## empty bytearray
 
     >>> a = bytearray(b"")
     >>> id(a)
@@ -41,7 +41,7 @@ The **ob_alloc** field represents the real allocated size in bytes
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/empty.png)
 
-##### append
+## append
 
 after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_start** all points to same address
 
@@ -49,7 +49,7 @@ after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_sta
 
 ![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/append_a.png)
 
-##### resize
+## resize
 
 The size grow pattern is shown in the code
 
@@ -69,7 +69,7 @@ In appending, ob_alloc is 2, and request size is 2, 2 <= 2 * 1.125, so the new a
 
 ![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/resize.png)
 
-##### slice
+## slice
 
     b = bytearray(b"abcdefghijk")
 
@@ -101,7 +101,7 @@ request size is 6, 6 < 6 * 1.125, so new allocated size is 6 + (6 >> 3) + 3 ==> 
 
 ![after_grow_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_grow_slice.png)
 
-##### ob_exports
+## ob_exports
 
 what's field **ob_exports** mean ? If you need detail, you can refer to [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) and [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
 

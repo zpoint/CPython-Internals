@@ -1,6 +1,6 @@
 # iter
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [iterator](#iterator)
@@ -21,13 +21,13 @@
         * [citer1](#citer1)
         * [citer-end](#citer-end)
 
-### related file
+# related file
 * cpython/Objects/iterobject.c
 * cpython/Include/iterobject.h
 
-### iterator
+# iterator
 
-#### memory layout iter
+## memory layout iter
 
 The python sequence iterator is a wrapper of a python object with _\_getitem_\_ defined
 
@@ -68,9 +68,9 @@ so the sequence iterator can iter through the target object by calling the objec
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/layout.png)
 
-#### example
+## example
 
-##### iter0
+### iter0
 
 let's iter through an iterator object
 
@@ -90,7 +90,7 @@ let's iter through an iterator object
 
 ![iter0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter0.png)
 
-##### iter1
+### iter1
 
 the **next(a)** calls object[0], and return the result
 
@@ -99,14 +99,14 @@ the **next(a)** calls object[0], and return the result
 
 ![iter1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter1.png)
 
-##### iter2
+### iter2
 
     >>> next(a)
     ['index 1', 'good boy']
 
 ![iter2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter2.png)
 
-##### iter3
+### iter3
 
 the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 
@@ -115,21 +115,21 @@ the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 
 ![iter3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter3.png)
 
-##### iter4
+### iter4
 
     >>> next(a)
     9
 
 ![iter4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter4.png)
 
-##### iter5
+### iter5
 
     >>> next(a)
     12
 
 ![iter5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter5.png)
 
-##### iter end
+### iter end
 
 now, the **it_idnex** is 5, next(a) will raise an IndexError
 
@@ -151,9 +151,9 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
     StopIteration
 
 
-### callable iterator
+# callable iterator
 
-#### memory layout citer
+## memory layout citer
 
 ![callable_layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/callable_layout.png)
 
@@ -192,9 +192,9 @@ notice, if you call next(a) again, the **"raise by myself"** won't be printed, s
 a callable_iterator calls whatever stores in **it_callable** each time you iter through it, until the result match the **it_sentinel** or a StopIteration raised
 
 
-#### example citer
+## example citer
 
-##### citer0
+### citer0
 
     class A(object):
         def __init__(self):
@@ -211,7 +211,7 @@ a callable_iterator calls whatever stores in **it_callable** each time you iter 
 
 ![citer0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer0.png)
 
-##### citer1
+### citer1
 
 the callable_iterator calls the _\_call_\_ method of the instance of A, and compare the result with the sentinel **2**
 
@@ -222,7 +222,7 @@ the next operation won't change any state of the callable_iterator object, the s
 
 ![citer1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/citer1.png)
 
-##### citer end
+### citer end
 
 this time the instance of A returns PyLongObject 2, which is the same as the object stored inside **it_sentinel** field,
 

@@ -1,6 +1,6 @@
 # method
 
-### contents
+# contents
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
@@ -11,13 +11,13 @@
 * [classmethod](#classmethod)
 * [staticmethod](#staticmethod)
 
-### related file
+# related file
 * cpython/Objects/methodobject.c
 * cpython/Include/methodobject.h
 * cpython/Python/bltinmodule.c
 * cpython/Objects/call.c
 
-#### memory layout
+# memory layout
 
 There's a type named **builtin_function_or_method** in python, as the type name described, all the builtin function or method defined in the c level belong to **builtin_function_or_method**
 
@@ -28,9 +28,9 @@ There's a type named **builtin_function_or_method** in python, as the type name 
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/layout.png)
 
-#### example
+# example
 
-##### print
+## print
 
 let's read code snippet first
 
@@ -72,17 +72,17 @@ the type in **m_self** field is **module**, and type in **m_module** field is **
 
 ![print3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print3.png)
 
-#### fields in PyMethodDef
+# fields in PyMethodDef
 
-##### ml_name
+## ml_name
 
 as you can see in the above picture, field **ml_name** is the name of the built-in method, it's a c style null terminated string "print"
 
-##### ml_meth
+## ml_meth
 
 the real c function pointer that does the job
 
-##### ml_flags
+## ml_flags
 
 bit flag indicates how the c function's behave in the python level
 
@@ -100,7 +100,7 @@ for more detail please refer to [c-api Common Object Structures](https://docs.py
 | METH_STATIC | 0x0020 | null will passed as first parameter, what @staticmethod do |
 | METH_COEXIST | 0x0040 | replace existing defination instead of skip |
 
-##### free_list
+# free_list
 
     static PyCFunctionObject *free_list = NULL;
     static int numfree = 0;
@@ -112,8 +112,8 @@ cpython use a buffer pool with size 256 to reuse the deallocated **PyCFunctionOb
 
 the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md#free_list)
 
-#### classmethod
+# classmethod
 
-#### staticmethod
+# staticmethod
 
 they're more related in **classobject**, I will talk about them later in [class object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)

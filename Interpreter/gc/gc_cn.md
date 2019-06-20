@@ -2,7 +2,7 @@
 
 * 长文, 预计阅读时间在十五分钟以上
 
-## contents
+# contents
 
 * [相关位置文件](#相关位置文件)
 * [介绍](#介绍)
@@ -23,13 +23,13 @@
 * [总结](#总结)
 * [更多资料](#更多资料)
 
-### 相关位置文件
+# 相关位置文件
 
 * cpython/Include/object.h
 * cpython/Modules/gcmodule.c
 * cpython/Include/internal/pycore_pymem.h
 
-### 介绍
+# 介绍
 
 CPython 中的垃圾回收机制包含了两个部分
 
@@ -38,7 +38,7 @@ CPython 中的垃圾回收机制包含了两个部分
 
 实际上 **分代回收机制** 是 **分代回收** 和 **标记清除** 等一系列操作的结合, 这里我为了命名方便就叫做 **分代回收机制**
 
-#### 引用计数器机制
+## 引用计数器机制
 
 如 [维基百科](https://zh.wikipedia.org/wiki/%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0) 所说
 
@@ -160,7 +160,7 @@ CPython 中的垃圾回收机制包含了两个部分
         DISPATCH();
     }
 
-##### 什么时候会触发该机制
+### 什么时候会触发该机制
 
 如果一个对象的引用计数变为了 0, 会直接进入释放空间的流程
 
@@ -185,11 +185,11 @@ CPython 中的垃圾回收机制包含了两个部分
         }
     }
 
-##### 引用循环的问题
+### 引用循环的问题
 
 有一些情况是引用计数器没办法处理的
 
-##### example1
+### example1
 
     class A:
         pass
@@ -210,7 +210,7 @@ CPython 中的垃圾回收机制包含了两个部分
 
 ![ref_cycle2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each2.png)
 
-##### example2
+### example2
 
 	>>> a = list()
 	>>> a.append(a)
@@ -226,7 +226,7 @@ CPython 中的垃圾回收机制包含了两个部分
 
 ![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle2.png)
 
-#### 分代回收机制
+## 分代回收机制
 
 如果只有一个 **引用计数器机制** 在工作, 当上面引用循环的对象变得多起来, 解释器进程就会发生内存泄漏
 
@@ -245,7 +245,7 @@ CPython 中的垃圾回收机制包含了两个部分
     >>> b = list()
     >>> b.append(b)
 
-##### track
+### track
 
 肯定存在一个办法能追踪到所有从 heap 中新分配的对象
 
@@ -259,7 +259,7 @@ CPython 中的垃圾回收机制包含了两个部分
 
 当你创建一个 python 对象比如 `a = list()` 时, 类型为 **list**, 变量名为 **a** 的对象会被添加到 **generation0** 的尾部, 所以 **generation0** 可以追踪到所有通过解释器从 heap 空间分配的对象
 
-##### generational
+### generational
 
 要提高垃圾回收的速度, 要么就改进垃圾回收算法, 加快每次回收的效率, 要么就减小每次回收需要处理的对象
 
@@ -277,7 +277,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![generation](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation.png)
 
-##### update_refs
+### update_refs
 
 我们来跑一个垃圾回收的示例看看
 
@@ -307,7 +307,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![update_ref2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref2.png)
 
-##### subtract_refs
+### subtract_refs
 
 **subtract_refs** 会遍历 **young** 中的所有对象, 对于每个对象, 检查当前对象身上所引用到的所有其他对象, 这些其他对象如果也在 **young** 中, 并且是可回收的对象, 把这个对象复制到 **_gc_prev** 的引用计数部分减1 (用 **tp_traverse** 遍历, 遍历回调函数为 **visit_decref**)
 
@@ -315,7 +315,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![subtract_refs](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/subtract_refs.png)
 
-##### move_unreachable
+### move_unreachable
 
 **move_unreachable** 会创建一个新的叫做 **unreachable** 的链表, 遍历当前名为 **young** 的 **generation**, 把那些上一步处理过的引用计数小于等于 0 的对象移动到 **unreachable** 中
 
@@ -367,7 +367,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
 
-##### finalize
+### finalize
 
 如果一个需要被垃圾回收的对象定义了自己的 `__del__` 怎么办呢? 毕竟有可能在 `__del__` 中增加了新的引用
 
@@ -437,7 +437,7 @@ stp4, 把所有的 **unreachable** 中的对象移动到 **old** 代中
 
 如果 `__del__` 被调用过, **_gc_prev** 上的第一个 bit flag 会被设置, 所以一个对象的 `__del__` 仅会被调用一次
 
-##### threshold
+### threshold
 
 CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个 **threshold**
 
@@ -451,7 +451,7 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
     >>> gc.set_threshold(500)
     >>> gc.set_threshold(100, 20)
 
-##### 什么时候会触发分代回收
+### 什么时候会触发分代回收
 
 一个方式是直接调用 `gc.collect()`, 不传参数的情况下直接从最老年代开始回收
 
@@ -478,13 +478,13 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 如果 gc 回收的是最年长的一代, 回收结束之前会把所有的 **free_list** 也一并释放, 如果你读过主页其他对象的文章比如 [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md) 或 [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md), 上面有 **free_list** 相关的作用
 
-### 总结
+# 总结
 
 因为 CPython 使用的垃圾回收算法并非并发算法, 一个全局锁的存在是有必要的, 比如 [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md), 它可以在设置 track 的时候, 引用计数变更的时候, 进行分代回收, 标记清除等过程中保护这些变量
 
 其他语言会实现会实现可以并发的垃圾回收算法, 比如 [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) 可以配置 **Young GC** 或者 **Mix GC**(涉及到支持全局并发标记的三色标记算法)
 
-### 更多资料
+# 更多资料
 
 * [Garbage collection in Python: things you need to know](https://rushter.com/blog/python-garbage-collector/)
 * [the garbage collector](https://pythoninternal.wordpress.com/2014/08/04/the-garbage-collector/)
