@@ -17,7 +17,7 @@
 		* [update_refs](#update_refs)
 		* [subtract_refs](#subtract_refs)
 		* [move_unreachable](#move_unreachable)
-		* [finalize](#finalize)
+		* [finalizer](#finalizer)
 		* [threshold](#threshold)
 		* [什么时候会触发分代回收](#什么时候会触发分代回收)
 * [总结](#总结)
@@ -367,7 +367,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
 
-### finalize
+### finalizer
 
 如果一个需要被垃圾回收的对象定义了自己的 `__del__` 怎么办呢? 毕竟有可能在 `__del__` 中增加了新的引用
 

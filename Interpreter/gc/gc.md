@@ -17,7 +17,7 @@
 		* [update_refs](#update_refs)
 		* [subtract_refs](#subtract_refs)
 		* [move_unreachable](#move_unreachable)
-		* [finalize](#finalize)
+		* [finalizer](#finalizer)
 		* [threshold](#threshold)
 		* [when will generational gc be triggered](#when-will-generational-gc-be-triggered)
 * [summary](#summary)
@@ -359,7 +359,7 @@ all objects survive this round of garbage collections will be moved to the elder
 
 ![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
 
-### finalize
+### finalizer
 
 what if the object needed to be garbage collected has defined it's own finalizer ?
 
