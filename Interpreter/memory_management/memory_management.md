@@ -17,10 +17,17 @@
 	* [how does memory block organize in pool](#how-does-memory-block-organize-in-pool)
 		* [allocate in pool with no freed block](#allocate-in-pool-with-no-freed-block)
 		* [free in pool](#free-in-pool)
-			* [free a full pool](#free-a-full-pool)
-			* [free a not full pool](#free-a-not-full-pool)
+			* [free in full pool](#free-in-full-pool)
+			* [free in not full pool](#free-in-not-full-pool)
 		* [allocate in pool with freed block](#allocate-in-pool-with-freed-block)
 	* [how does pool organize in arena](#how-does-pool-organize-in-arena)
+		* [arena overview part1](#arena-overview-part1)
+		* [allocate in arena with no freed pool](#allocate-in-arena-with-no-freed-pool)
+		* [free in arena](#free-in-arena)
+		* [allocate in arena with freed pool](#allocate-in-arena-with-freed-pool)
+		* [allocate in arena with freed pool](#allocate-in-arena-with-freed-pool)
+		* [arena overview part2](#arena-overview-part2)
+* [read more](#read-more)
 
 # related file
 
@@ -220,7 +227,7 @@ because the value stored in block **freeblock** pointed to is a NULL pointer, th
 
 ![pool_organize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize2.png)
 
-allocate one more memory block
+request one more memory block
 
 **nextoffset** now exceeds **maxnextoffset**
 
@@ -242,7 +249,7 @@ in higher level view
 
 ### free in pool
 
-#### free a full pool
+#### free in full pool
 
 it's idealize that the used blocks and free blocks are seperated by a **freeblock** pointer in a **pool** and every memory request will be routed to the beginning of the seperated pointer
 
@@ -271,7 +278,7 @@ step4
 * if this is the only free pool in the arena, add the arena back to the `usable_arenas` list
 * sort **usable_arenas** to make sure the **arena** with smaller count of free pools in the front
 
-#### free a not full pool
+#### free in not full pool
 
 let's free the final block in address `0x10ae3dff8` in **pool1**
 
@@ -315,7 +322,7 @@ step4, return
 
 now, there're some blocks called **free** previously in the **pool**
 
-let's allocate one more memory block
+let's request one more memory block
 
 because the value stored in block **freeblock** pointed to is a not a NULL pointer, it's a pointer to other block in the same **pool**, it means this block is used before and freed
 
@@ -331,14 +338,98 @@ if the single linked list reaches the end, it means there're no more blocks used
 
 ![pool_organize_allocate_after_free1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize_allocate_after_free1.png)
 
-allocate one more memory block
+request one more memory block
 
 
 **freeblock** follows to the next position in the single linked list
 
 ![pool_organize_allocate_after_free2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize_allocate_after_free2.png)
 
-if we allocate one more memory block, the **pool** will be full and unlink from the **usedpools**, we've learned before [free in pool](#free-in-pool)
+if we request one more memory block, the **pool** will be full and unlink from the **usedpools**, we've learned before [free in pool](#free-in-pool)
 
-### how-does-pool-organize-in-arena
+### how does pool organize in arena
 
+#### arena overview part1
+
+the **arena** stores a collection of **pool**
+
+this is the initial state
+
+the **usedpools** is empty and there're no alive **arena** object
+
+![arena_orgnaize_overview0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_overview0.png)
+
+when we request a **block** with 10 bytes, 16 **arena** will be created, each **arena** will contain 64 **pool**, each **pool** will occupy 4kb
+
+![arena_orgnaize_overview1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_overview1.png)
+
+the first free **pool** in the first avaliable **arena** will be inserted to the **idx1**
+
+![arena_orgnaize_overview2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_overview2.png)
+
+and the **idx1** of **usedpools** is not empty any more, follow the procedure [allocate in pool with no freed block](#allocate-in-pool-with-no-freed-block), we can get the **block** from **poo1**
+
+#### allocate in arena with no freed pool
+
+"no freed pool" doesn't mean the arena is full and no any other room left, instead, it means no pool allocated in the arena ever called **free**
+
+assume this is the current state of the first arena
+
+![arena_orgnaize0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize0.png)
+
+request one more **pool**
+
+because the **freepools** is a null pointer, and **nfreepools** is greater than 0, the address **pool_address** pointed to will be used as the new **pool**
+
+![arena_orgnaize1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize1.png)
+
+**nfreepools** is decremented and **pool_address** will point to next free **pool**
+
+![arena_orgnaize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize2.png)
+
+request one more **pool**, the **arena** is full
+
+![arena_orgnaize3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize3.png)
+
+#### free in arena
+
+when all the **blocks** in a pool are freed, the **pool** will also be unlink in the **usedpools** and insert to the front of the **arena**
+
+assume we are freeing **pool3**
+
+**nextpool** in **pool3** will be set to the same value as **freepools** in **arena**
+
+![arena_orgnaize_free0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_free0.png)
+
+value of **freepools** in **arena** will be set to the address of **pool3**
+
+**nfreepools** will be incremented
+
+![arena_orgnaize_free1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_free1.png)
+
+let's free **pool63**
+
+**nextpool** of the current freeing **pool** will be set to the value in **freepools** and **freepools** in **arena** will point to the current freeing **pool**
+
+**nfreepools** will be incremented
+
+![arena_orgnaize_free2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_free2.png)
+
+the free strategy of **arena** is similar to **pool**, **freepools** is the pointer to the header of the single linked list
+
+#### allocate in arena with freed pool
+
+request one more **pool**
+
+**nfreepools** is greater than 0, and **freepools** is not a NULL pointer, the first **pool** in the single linked list will be taken
+
+![arena_orgnaize_allocate0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_allocate0.png)
+
+**nfreepools** will be decremented
+
+![arena_orgnaize_allocate2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize_allocate2.png)
+
+#### arena overview part2
+
+# read more
+* [Memory management in Python](https://rushter.com/blog/python-memory-managment/)
