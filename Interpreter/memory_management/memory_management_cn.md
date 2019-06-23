@@ -1,11 +1,11 @@
 # memory management
 
-* you may need more than 20 minutes to read this article
+* 长文, 预计阅读时间在二十分钟以上
 
-# contents
+# 目录
 
-* [related file](#related-file)
-* [introduction](#introduction)
+* [相关位置文件](#相关位置文件)
+* [介绍](#介绍)
 	* [object allocator](#object-allocator)
 	* [raw memory allocator](#raw-memory-allocator)
 	* [block](#block)
@@ -13,24 +13,24 @@
 	* [arena](#arena)
 	* [memory layout](#memory-layout)
 	* [usedpools](#usedpools)
-		* [why only half of the usedpools elements are used](#why-only-half-of-the-usedpools-elements-are-used)
-* [example](#example)
-	* [overview](#overview)
-	* [how does memory block organize in pool](#how-does-memory-block-organize-in-pool)
-		* [allocate in pool with no freed block](#allocate-in-pool-with-no-freed-block)
-		* [free in pool](#free-in-pool)
-			* [free in full pool](#free-in-full-pool)
-			* [free in not full pool](#free-in-not-full-pool)
-		* [allocate in pool with freed block](#allocate-in-pool-with-freed-block)
-	* [how does pool organize in arena](#how-does-pool-organize-in-arena)
-		* [arena overview part1](#arena-overview-part1)
-		* [allocate in arena with no freed pool](#allocate-in-arena-with-no-freed-pool)
-		* [free in arena](#free-in-arena)
-		* [allocate in arena with freed pool](#allocate-in-arena-with-freed-pool)
-		* [arena overview part2](#arena-overview-part2)
-* [read more](#read-more)
+		* [为什么 usedpools 中只用到一半的元素](#为什么-usedpools-中只用到一半的元素)
+* [示例](#示例)
+	* [概述](#概述)
+	* [block 是如何在 pool 中组织的](#block-是如何在-pool-中组织的)
+		* [在未释放过 block 的 pool 中申请新的空间](#在未释放过-block-的-pool-中申请新的空间)
+		* [在 pool 中释放空间](#在-pool-中释放空间)
+			* [在满的 pool 中进行释放](#在满的-pool-中进行释放)
+			* [在有空余空间的 pool 中进行释放](#在有空余空间的-pool-中进行释放)
+		* [在释放过 block 的 pool 中申请新的空间](#在释放过-block-的-pool-中申请新的空间)
+	* [pool 是如何在 arena 中组织的](#pool-是如何在-arena-中组织的)
+		* [arena 概述1](#arena-概述1)
+		* [在未释放过 pool 的 arena 中申请新的空间](#在未释放过-pool-的-arena-中申请新的空间)
+		* [在 arena 中释放空间](#在-arena-中释放空间)
+		* [在释放过 pool 的 arena 中申请新的空间](#在释放过-pool-的-arena-中申请新的空间)
+		* [arena 概述2](#arena-概述2)
+* [相关阅读](#相关阅读)
 
-# related file
+# 相关位置文件
 
 * cpython/Modules/gcmodule.c
 * cpython/Objects/object.c
@@ -39,33 +39,33 @@
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
 
-# introduction
+# 介绍
 
-CPython has implemented it's own memory management mechanism, when you create a new object in python program, it's not directly malloced from the heap
+CPython 实现了自己的内存管理机制, 当你在 python 程序中创建一个新的对象时, 并不是从进程的 heap 空间中直接申请一块对应大小的空间的
 
 ![level](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/level.png)
 
-we will figure out how the **python interpreter** part works internally in the following example
+我们会通过以下的示例来了解 **python interpreter** 部分的工作原理
 
 ## object allocator
 
-this is the created procedure of a `tuple` object with size n
+这是一个创建大小为 n 的 `tuple` 对象的过程
 
-step1, check if there's a chance to reuse `tuple` object in [free_list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md#free-list), if so, goes to step4
+step1, 检查是否能使用 `tuple` 对象中对应 [缓冲池](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md#free-list) 中的空间, 如果可以进到 step4
 
-step2, call **PyObject_GC_NewVar** to get a `PyTupleObject` with size `n` from memory management system(if the size of the object is fixed, **_PyObject_GC_New** will called instead)
+step2, 调用 **PyObject_GC_NewVar** 从 CPython 内存管理系统中获取一个大小为 `n` 的 `PyTupleObject` 对象(如果不是大小为 `n`, 而是其他大小固定的对象, 调用的会是 **_PyObject_GC_New** 函数)
 
-step3, call **_PyObject_GC_TRACK** to link the newly created object to the double linked list in [gc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc.md#track).**generation0**
+step3, 调用 **_PyObject_GC_TRACK** 把这个新创建的 `PyTupleObject` 对象加到 [垃圾回收机制](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc_cn.md#track) 的 **generation0** 中
 
-step4, return
+step4, 返回给调用者
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/tuple_new.png)
 
-the maximum size of memory you are able to allocated is limited in **_PyObject_GC_Alloc**
+你理论上能申请的最大的空间在 **_PyObject_GC_Alloc** 中做了限制
 
 	typedef ssize_t         Py_ssize_t;
 	#define PY_SSIZE_T_MAX ((Py_ssize_t)(((size_t)-1)>>1))
-    # PY_SSIZE_T_MAX is 8388608 TB in my machine, usually you don't need to worry about the limit
+    # PY_SSIZE_T_MAX 在我的机器上是一个 8 字节的有符号类型,  能最大表示 8388608 TB 的大小, 所以通常我们不需要担心在这一步超过了限制
     if (basicsize > PY_SSIZE_T_MAX - sizeof(PyGC_Head))
         return PyErr_NoMemory();
 
@@ -73,32 +73,32 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 ## raw memory allocator
 
-follow the call stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
+跟着调用栈, 我们可以发现 **raw memory allocator** 大部分都是在 `cpython/Objects/obmalloc.c` 中定义的
 
 	#define SMALL_REQUEST_THRESHOLD 512
 
-the procedure is described below
+整个过程大致如下
 
-* if the request memory block is greater than **SMALL_REQUEST_THRESHOLD**(512 bytes), the request will be delegated to the operating system's allocator
-* else, the request will be delegated to python's **raw memory allocator**
+* 如果申请的内存空间超过 **SMALL_REQUEST_THRESHOLD**(512 bytes), 这个申请会转发给默认的 malloc 函数, 交给操作系统从 heap 中申请
+* 如果申请的内存空间不超过 **SMALL_REQUEST_THRESHOLD**(512 bytes), 这个申请会转发给 python 实现的 **raw memory allocator**
 
 ## block
 
-we need to know some concept before we look into how python's memory allocator work
+在了解 python 的 memory allocator 如何工作之前, 我们需要对一些相关的名称有一个初步的了解
 
-**block** is the smallest unit in python's memory management system, the size of a block is the same size as a single **byte**
+**block** 在 python 的内存管理系统中作为一个最小的单元, 一个 **block** 的大小和一个 **byte** 的大小是相同的
 
 	typedef uint8_t block
 
-there're lots of memory **block** in differenct size, word **block** in memory **block** has a different meaning from type **block**, we will see later
+在我这里, 内存块表示一段连续的空间(比如 24 bytes 大小的连续空间), 而 **block**(块) 表示上面定义的最基本单位, 后面会有更多示例
 
 ## pool
 
-a **pool** stores a collection of memory **block** of the same size
+一个 **pool** 存储了许多的大小相同的内存块
 
-usually, the total size of memory blocks in a pool is 4kb, which is the same as most of the system page size
+通常来讲, 一个 **pool** 的大小(包括所有内存块的和) 为 4kb, 和大部分操作系统的 页 大小相同
 
-initially, the addresses for different memory block in the same pool are continously
+在最初的时候, 一个 **pool** 中存储的不同内存块的地址是连续的
 
 ![pool](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool.png)
 
@@ -459,4 +459,5 @@ size of the **arenas** will be doubled, when you need to request a new **pool** 
 ![arena_orgnize_overview_part25](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part25.png)
 
 # read more
+
 * [Memory management in Python](https://rushter.com/blog/python-memory-managment/)
