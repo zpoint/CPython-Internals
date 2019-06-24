@@ -152,7 +152,7 @@ if you get **pool 1** from **idx0**, you can get at least one memory block(8 byt
 
 **idx0** is the head of a double linked list, each element in the double linked list is a pointer to a **pool**, all pools in **idx0** will handle those memory request <= 8 bytes, no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 8 bytes each time
 
-**idx2** is the head of a double linked list, all pools in **idx0** will handle those memory request (9 bytes <= request_size <= 16 bytes), no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 16 bytes each time
+**idx1** is the head of a double linked list, all pools in **idx1** will handle those memory request (9 bytes <= request_size <= 16 bytes), no matter how many bytes caller request, **pool** in **idx1** will only return a memory block of size 16 bytes each time
 
 and so on
 
@@ -194,7 +194,7 @@ assume this is the current state of **pool1**
 
 **nextpool** and **prevpool** are used as chain of the double linked list in **usepools**
 
-**arenaindex** indicates which **arena** current block belongs to
+**arenaindex** indicates which **arena** current **pool** belongs to
 
 **szidx** indicates which size class current pool belongs to, it's same as the **idx** number in **usepools**
 
@@ -270,7 +270,7 @@ step2, make the **freeblock** points to the current freeing **block**
 
 decrement the value in **ref.count**
 
-step3, check whether the **pool** is full(check whether the value in the freeing **block** is NULL pointer), if so, relink the **pool** to used pool and return, else go to step4
+step3, check whether the **pool** is full(check whether the value in the freeing **block** is NULL pointer), if so, relink the **pool** to **usedpools** and return, else go to step4
 
 ![pool_organize_free3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/pool_organize_free3.png)
 
@@ -313,7 +313,7 @@ step2
 
 decrement the value in **ref.count**
 
-step3, the **pool** is not full, so goes to step4
+step3, the **pool1** is not full, so goes to step4
 
 step4, return
 
@@ -321,7 +321,7 @@ step4, return
 
 ### allocate in pool with freed block
 
-now, there're some blocks called **free** previously in the **pool**
+now, there're some blocks called **free** previously in the **pool1**
 
 let's request one more memory block
 
