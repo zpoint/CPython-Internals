@@ -438,13 +438,17 @@ initially, there're 16 **arenas**
 
 if all the **pools** in the **arena** are freed, the **arena** will be moved to a single linked list named **unused_arena_objects**
 
-prior to Python 2.5, arenas were never free()'ed. this strategy is used since Python 2.5
+and those **pools** in the **arena**(256kb totally) will be freed, **arena** in a C structure, thist structure will not be freed
+
+prior to Python 2.5, **pools** in arenas were never free()'ed. this strategy is used since Python 2.5
 
 ![arena_orgnize_overview_part21](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part21.png)
 
 if all **arenas** are used up, and we request a new **arena**
 
 ![arena_orgnize_overview_part22](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part22.png)
+
+python's allocator will malloc 256kb from operating system, and the newly malloced 256kb memory block will be linked to the **arena** structure in the first **unused_arena_objects**
 
 the first **arena** in the **unused_arena_objects** will be taken, and **unused_arena_objects** will be an empty pointer
 

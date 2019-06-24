@@ -438,6 +438,8 @@ step4, 返回
 
 如果 **arena** 中的所有的 **pool** 都被释放了, 那么这个 **arena** 会被移到一个名为 **unused_arena_objects** 的单链表下
 
+并且这个 **arena** 中的所有的 **pools** 占用的空间(一共 256kb)会被释放, 但是 **arena** 这个 C 语言中的结构体不会被释放
+
 在 Python 2.5 之前, **arena** 申请过的空间是从来不会被释放的, 这个策略是在 Python 2.5 之后引入的
 
 ![arena_orgnize_overview_part21](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part21.png)
@@ -445,6 +447,8 @@ step4, 返回
 如果所有的 **arenas** 都用完了, 下一次申请空间我们会需要一个新的 **arena**
 
 ![arena_orgnize_overview_part22](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part22.png)
+
+python 的内存管理机制会重新像操作系统申请 256kb 的空闲空间, 并且这部分新申请的空间会挂到 **unused_arena_objects** 中的第一个 **arena** C 结构体中
 
 **unused_arena_objects** 中的第一个 **arena** 会被返回, 并且此时 **unused_arena_objects** 会成为一个空指针
 
