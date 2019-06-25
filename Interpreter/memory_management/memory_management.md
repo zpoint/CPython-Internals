@@ -126,7 +126,7 @@ element in **usedpools** is of type `pool_header *`, size of **usedpools** is 12
 
 **usedpools** stores **pool** object with free blocks, every **pool** object in **usedpools** has at least one free memory block
 
-if you get **pool 1** from **idx0**, you can get at least one memory block(8 bytes) from **pool 1**, if you get **pool 4** from **idx2**, you can get at least one memory block(24 bytes) from **pool 4**, and so on
+if you get **pool 1** from **idx0**, you can get one memory block(8 bytes) from **pool 1** each time, if you get **pool 4** from **idx2**, you can get one memory block(24 bytes) from **pool 4** each time, and so on
 
 	 cpython/Objects/obmalloc.c
      * For small requests we have the following table:

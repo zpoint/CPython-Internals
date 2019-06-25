@@ -110,7 +110,7 @@ step4, 返回给调用者
 
 ![arena](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena.png)
 
-##内存构造
+## 内存构造
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/layout.png)
 
@@ -126,7 +126,7 @@ step4, 返回给调用者
 
 **usedpools** 存储了含有空闲空间的 **pool** 对象, **usedpools** 中的每一个 **pool** 至少含有一个未使用的内存块
 
-如果你从 **idx0** 中获取到了 **pool 1**, 那么从 **pool 1** 中你至少能获得一个内存块(8 bytes)大小的空余空间, 如果你从 **idx2** 中获取到了 **pool 4**, 那么从 **pool 4** 中你至少能获得一个内存块(24 bytes)大小的空余空间, 以此类推
+如果你从 **idx0** 中获取到了 **pool 1**, 那么从 **pool 1** 中你每次能获得一个内存块(8 bytes)大小的空余空间, 如果你从 **idx2** 中获取到了 **pool 4**, 那么从 **pool 4** 中你每次能获得一个内存块(24 bytes)大小的空余空间, 以此类推
 
 
 	 cpython/Objects/obmalloc.c
