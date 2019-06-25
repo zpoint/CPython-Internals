@@ -388,7 +388,7 @@ step4, 返回
 
 ![arena_orgnaize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize2.png)
 
-在申请一个新的 **pool**, **arena** 现在满了
+再申请一个新的 **pool**, **arena** 现在满了
 
 ![arena_orgnaize3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnaize3.png)
 
