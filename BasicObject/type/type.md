@@ -4,11 +4,16 @@
 
 * [related file](#related-file)
 * [memory layout](#memory-layout)
-* [example](#example)
+* [mro](#mro)
+* [create](#create)
 
 # related file
-* cpython/Objects/bytesobject.c
+* cpython/Objects/typeobject.c
+* cpython/Objects/clinic/typeobject.c.h
+* cpython/Include/cpython/object.h
 
 # memory layout
 
-# example
+
+
+# mro

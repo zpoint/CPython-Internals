@@ -38,6 +38,7 @@
 * cpython/Include/object.h
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
+* cpython/Python/pyarena.c
 
 # 介绍
 
@@ -461,6 +462,8 @@ python 的内存管理机制会重新像操作系统申请 256kb 的空闲空间
 内存管理机制会向操作系统申请多一倍的 **arena**, 当你需要新的 **pool** 时, 下一个 **arena**(位置 17) 上面的 **pool** 会被返回
 
 ![arena_orgnize_overview_part25](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part25.png)
+
+调用 `sys._debugmallocstats()` 可以获得一些当前内存使用状态的统计信息
 
 # 相关阅读
 

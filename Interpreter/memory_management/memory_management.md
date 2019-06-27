@@ -38,6 +38,7 @@
 * cpython/Include/object.h
 * cpython/Include/objimpl.h
 * cpython/Objects/obmalloc.c
+* cpython/Python/pyarena.c
 
 # introduction
 
@@ -461,6 +462,8 @@ if all **arenas** are used up, and we request a new **arena** again when the **u
 size of the **arenas** will be doubled, when you need to request a new **pool** from **arena**, the next **arena**(position 17) will be chosen
 
 ![arena_orgnize_overview_part25](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part25.png)
+
+you can call `sys._debugmallocstats()` to get some static information about the memory management
 
 # read more
 * [Memory management in Python](https://rushter.com/blog/python-memory-managment/)
