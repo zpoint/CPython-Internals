@@ -437,9 +437,7 @@ initially, there're 16 **arenas**
 
 ![arena_orgnize_overview_part20](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/arena_orgnize_overview_part20.png)
 
-if all the **pools** in the **arena** are freed, the **arena** will be moved to a single linked list named **unused_arena_objects**
-
-and those **pools** in the **arena**(256kb totally) will be freed, **arena** in a C structure, thist structure will not be freed
+if all the **pools** in the **arena** are freed, the memory(256kb) these **pools** used will be returned to operating system, and the **arena** structure be moved to a single linked list named **unused_arena_objects**, what's in **unused_arena_objects** is only a shell, it does not contains any **pool** free to use
 
 prior to Python 2.5, **pools** in arenas were never free()'ed. this strategy is used since Python 2.5
 
