@@ -4,9 +4,9 @@
 
 * [related file](#related-file)
 * [mro](#mro)
-	* [before python2.3](#before python2.3)
-	* [after python2.3](#after python2.3)
-	* [difference bwtween python2 and python3](#difference bwtween python2 and python3)
+	* [before python2.3](#before-python2.3)
+	* [after python2.3](#after-python2.3)
+	* [difference bwtween python2 and python3](#difference-bwtween-python2-and-python3)
 * [creation of class](#creation-of-class)
 * [slot](#slot)
 
@@ -14,6 +14,7 @@
 * cpython/Objects/typeobject.c
 * cpython/Objects/clinic/typeobject.c.h
 * cpython/Include/cpython/object.h
+* cpython/Python/bltinmodule.c
 
 
 # mro
@@ -48,7 +49,7 @@ let's define an example
     class F(D, E):
         pass
 
-![mro_ hierarchy](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/mro_ hierarchy.png)
+![mro_ hierarchy](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/mro_hierarchy.png)
 
 the **mro** order implementation before python2.3 is a Depth-First, Left-Most algorithm
 
@@ -144,4 +145,33 @@ while in python3, they both implicit inherted from `object`, objects inherted fr
 	>>> f = F()
 	>>> f.who() # E is in front of B
 	I am E
+
+# creation of class
+
+if we `dis` the above code
+
+     26          96 LOAD_BUILD_CLASS
+                 98 LOAD_CONST              12 (<code object F at 0x10edf4150, file "mro.py", line 26>)
+                100 LOAD_CONST              13 ('F')
+                102 MAKE_FUNCTION            0
+                104 LOAD_CONST              13 ('F')
+                106 LOAD_NAME                6 (D)
+                108 LOAD_NAME                7 (E)
+                110 CALL_FUNCTION            4
+                112 STORE_NAME               8 (F)
+
+`LOAD_BUILD_CLASS` simply pushes the function `__build_class__` to stack
+
+and the following opcodes push all the variables `__build_class__` to stack
+
+`110 CALL_FUNCTION            4` calls the `__build_class__` to generate the class
+
+the `__build_class__`  finds the `metaclass`, `name`, `bases`, and `ns` and delegates the call to `metaclass`
+
+for example, the `class F`
+
+	metaclass: <class 'type'>
+	name: 'F'
+    bases: (<class '__main__.D'>, <class '__main__.E'>)
+    ns: {'__module__': '__main__', '__qualname__': 'F'}, cls: <class '__main__.F'>
 
