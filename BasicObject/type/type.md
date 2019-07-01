@@ -162,11 +162,11 @@ if we `dis` the above code
 
 `LOAD_BUILD_CLASS` simply pushes the function `__build_class__` to stack
 
-and the following opcodes push all the variables `__build_class__` to stack
+and the following opcodes push all the variables `__build_class__` needed to stack
 
 `110 CALL_FUNCTION            4` calls the `__build_class__` to generate the class
 
-the `__build_class__`  finds the `metaclass`, `name`, `bases`, and `ns` and delegates the call to `metaclass`
+the `__build_class__`  will find the `metaclass`, `name`, `bases`, and `ns`(namespace) and delegates the call to `metaclass.__call__` attribute
 
 for example, the `class F`
 
@@ -174,4 +174,10 @@ for example, the `class F`
 	name: 'F'
     bases: (<class '__main__.D'>, <class '__main__.E'>)
     ns: {'__module__': '__main__', '__qualname__': 'F'}, cls: <class '__main__.F'>
+
+in the example `class F`, what does `<class 'type'>.__call__` do ?
+
+the function is defined in `cpython/Objects/typeobject.c`, prototype is `static PyObject *type_call(PyTypeObject *type, PyObject *args, PyObject *kwds)`
+
+![creation_of_class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/creation_of_class.png)
 
