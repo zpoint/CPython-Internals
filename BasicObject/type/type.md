@@ -8,7 +8,8 @@
 	* [after python2.3](#after-python2.3)
 	* [difference bwtween python2 and python3](#difference-bwtween-python2-and-python3)
 * [creation of class](#creation-of-class)
-* [slot](#slot)
+* [creation of instance](#creation-of-instance)
+* [metaclass](#metaclass)
 
 # related file
 * cpython/Objects/typeobject.c
@@ -177,7 +178,76 @@ for example, the `class F`
 
 in the example `class F`, what does `<class 'type'>.__call__` do ?
 
-the function is defined in `cpython/Objects/typeobject.c`, prototype is `static PyObject *type_call(PyTypeObject *type, PyObject *args, PyObject *kwds)`
+the function is defined in `cpython/Objects/typeobject.c`
+
+prototype is `static PyObject *type_call(PyTypeObject *type, PyObject *args, PyObject *kwds)`
+
+we can draw the following procedure according to the source code
 
 ![creation_of_class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/creation_of_class.png)
 
+# creation of instance
+
+if we add the following line to the tail of the above codes
+
+	f = F()
+
+we can find other snippet of the `dis` result
+
+
+     31         130 LOAD_NAME                9 (F)
+                132 CALL_FUNCTION            0
+                134 STORE_NAME              10 (f)
+
+it simply calls the `__call__` attribute of `F`
+
+
+    >>> F.__call__
+    <method-wrapper '__call__' of type object at 0x7fa5fa725ec8>
+
+![creation_of_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/creation_of_instance.png)
+
+# metaclass
+
+in the above procedures, we can learn that **metaclass** controls the creation of a **class**, the creation of **instance** doesn't invoke the **metaclass**, it just calls the '__call__' attribute of the class to create the instance
+
+![difference_between_class_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/difference_between_class_instance.png)
+
+we can change the behaviour of a class by manually define a **metaclass**
+
+
+    class MyMeta(type):
+        def __new__(mcs, name, bases, attrs, **kwargs):
+            if F in bases:
+                return F
+
+            newly_created_cls = super().__new__(mcs, name, bases, attrs)
+            if "Animal" in name:
+                newly_created_cls.leg = 4
+            else:
+                newly_created_cls.leg = 0
+            return newly_created_cls
+
+
+    class Animal1(metaclass=MyMeta):
+        pass
+
+
+    class Normal(metaclass=MyMeta):
+        pass
+
+
+    class AnotherF(F, metaclass=MyMeta):
+        pass
+
+
+    print(Animal1.leg) # 4
+    print(Normal.leg)  # 0
+    print(AnotherF)  # <class '__main__.F'>
+
+pretty fun!
+
+# read more
+* [Amit Kumar: Demystifying Python Method Resolution Order - PyCon APAC 2016](https://www.youtube.com/watch?v=cuonAMJjHow&t=400s)
+* [The Python 2.3 Method Resolution Order(MRO)](https://www.python.org/download/releases/2.3/mro/)
+* [understanding-python-metaclasses](https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses)
