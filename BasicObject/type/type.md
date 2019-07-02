@@ -209,7 +209,7 @@ it simply calls the `__call__` attribute of `F`
 
 # metaclass
 
-in the above procedures, we can learn that **metaclass** controls the creation of a **class**, the creation of **instance** doesn't invoke the **metaclass**, it just calls the '__call__' attribute of the class to create the instance
+in the above procedures, we can learn that **metaclass** controls the creation of a **class**, the creation of **instance** doesn't invoke the **metaclass**, it just calls the `__call__` attribute of the class to create the instance
 
 ![difference_between_class_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/difference_between_class_instance.png)
 
