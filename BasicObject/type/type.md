@@ -10,6 +10,7 @@
 * [creation of class](#creation-of-class)
 * [creation of instance](#creation-of-instance)
 * [metaclass](#metaclass)
+* [read more](#read-more)
 
 # related file
 * cpython/Objects/typeobject.c
@@ -72,7 +73,7 @@ the **merge** part of the **C3** algorithm can be simply summarized as the follo
 * take the head of the first list
 * if this head is not in the tail of any of the other lists, then add it to the linearization of C and remove it from the lists in the merge
 * otherwise look at the head of the next list and take it, if it is a good head
-* then repeat the operation until all the class are removed or it is impossible to find good heads
+* then repeat the operation until all the class are removed or it is impossible to find good heads(the inherted order need to be monotonous, or the algorithm won't terminate, for more detail please refer to the first video in [read more](#read-more))
 
 mro of **D** is computed as
 
@@ -213,7 +214,7 @@ in the above procedures, we can learn that **metaclass** controls the creation o
 
 ![difference_between_class_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/difference_between_class_instance.png)
 
-we can change the behaviour of a class by manually define a **metaclass**
+we can change the behaviour of a class on the fly by manually define a **metaclass**
 
 
     class MyMeta(type):
