@@ -25,7 +25,7 @@
 
 # 字符串转换
 
-在我们深入的看 unicod 对象如何创建，调整空间之前，我们先来看下 **PyUnicode_AsUTF8** 这个 c 函数
+在我们深入的看 unicode 对象如何创建，调整空间之前，我们先来看下 **PyUnicode_AsUTF8** 这个 c 函数
 
     /*
        每当我需要在 cpython 里面尝试把 一个 PyUnicodeObject 转换成 const char* 指针时，我会调用这个函数
@@ -169,7 +169,7 @@ _PyUnicode_UTF8_LENGTH
 	s = "\u0088\u0011\u00f1"
 
 现在，因为第一个字符为 **U+0088**, **ascii** 的值变为 0,
-**PyUnicode_UTF8(unicode)** 不再返回 **utf8_length** 这里的地址，而是返回 **char *utf8** 这个字段里面存储的值，这个值为 0
+**PyUnicode_UTF8(unicode)** 不再返回 **utf8_length** 这里的地址，而是返回 `char *utf8` 这个字段里面存储的值，这个值为 0
 
 如果 **PyUnicode_UTF8(unicode)** 为 0，这三个 unicode 字符存在哪里呢，我们还没有用过 **PyUnicodeObject** 里面的 **data** 字段，我们尝试下打印这里面的字段看看
 (花了我一点点时间才找到打印 latin1 这个字段里的值的方法)

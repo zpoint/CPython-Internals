@@ -218,7 +218,7 @@ python2.3 之前的 MRO 策略是深度优先, 从左往右
 
 # metaclass
 
-在上面的过程中, 我们可以发现, **metaclass** 控制了 class 的创建, instance(实例) 的创建过程并没有 **metaclass** 什么事, 在创建示例的过程中仅仅是调用了 class 的 `__call__` 属性去生成一个实例
+在上面的过程中, 我们可以发现, **metaclass** 控制了 class 的创建, instance(实例) 的创建过程并没有 **metaclass** 什么事, 在创建实例的过程中仅仅是调用了 class 的 `__call__` 属性去生成一个实例
 
 ![difference_between_class_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/difference_between_class_instance.png)
 
