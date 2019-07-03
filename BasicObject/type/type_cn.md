@@ -90,7 +90,7 @@ python2.3 之前的 MRO 策略是深度优先, 从左往右
     D + merge(A, B, AB)
     # A 是下一个 list 的头部, 并且不在任何其他 list 的尾部中, 取出 A, 并把 A 从其他的所有的 list 中移除
     D + A + merge(B, B)
-    # list 中的第一个元素是头部元素l 不是尾部元素, 所以 B 符合要求
+    # list 中的第一个元素是头部元素e而不是尾部元素, 所以 B 符合要求
     D + A + B
 
 **E** 的 MRO 计算结果如下
@@ -107,7 +107,7 @@ python2.3 之前的 MRO 策略是深度优先, 从左往右
     F + D + merge(AB, EBC, E)
     F + D + A + merge(B, EBC, E)
     # 现在 B 在第二个 list 的尾部中, 第二个 list 的头部元素是 "E"
-    # 尾部元素是 "BC", 所以 B 不符合要求, 从下一个 list 的头部 "E" 开始匹配
+    # 尾部元素是 "BC", 这个尾部存在了 B, 所以 B 不符合要求, 从下一个 list 的头部 "E" 开始匹配
     F + D + A + E + merge(B, BC)
     F + D + A + E + B + C
 
@@ -116,7 +116,7 @@ python2.3 之前的 MRO 策略是深度优先, 从左往右
 	>>> f.who() # E 现在在 B 的前面
 	I am E
 
-## python2-和-python3-的区别
+## python2 和 python3 的区别
 
 在如下示例代码中
 
