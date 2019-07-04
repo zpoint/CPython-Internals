@@ -39,6 +39,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
  - [x] [type(mro/metaclass)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md)
+ 	- [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
 
 # Modules
 

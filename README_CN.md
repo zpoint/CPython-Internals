@@ -38,6 +38,7 @@
 - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex_cn.md)
 - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum_cn.md)
 - [x] [type(mro/metaclass)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type_cn.md)
+ 	- [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
 
 # 模块
 
