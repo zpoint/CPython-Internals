@@ -54,12 +54,12 @@
  - [x] [gil(全局解释器锁)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
  - [x] [gc(垃圾回收机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc_cn.md)
  - [x] [memory management(内存管理机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management_cn.md)
- - [x] [descr(访问(类/实例)属性时发生了什么/`__get__`/`__set__`)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
+ - [x] [descr(访问(类/实例)属性时发生了什么/`__get__`/`__getattribute__`/`__getattr__`)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md)
  - [x] [exception(异常处理机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception_cn.md)
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
+ - [ ] [slot/`__slot__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
  - [ ] namespace
  - [ ] thread
  - [ ] interpreter

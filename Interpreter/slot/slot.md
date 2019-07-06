@@ -6,11 +6,17 @@
 * [slot](#slot)
 * [example](#example)
 * [access instance](#access-instance)
-	* [access wing](#access-wing)
-	* [before set a value](#before-set-a-value)
-	* [after set a value](#after-set-a-value)
-	* [access x](#access-x)
+	* [access instance wing](#access-instance-wing)
+		* [before set a value](#before-set-a-value)
+		* [after set a value](#after-set-a-value)
+	* [access instance x](#access-instance-x)
 * [access type](#access-type)
+	* [access type wing](#access-type-wing)
+	* [access type x](#access-type-x)
+* [creation of class](#creation-of-class)
+* [difference](#difference)
+	* [with slot](#with-slot)
+	* [without slot](#without-slot)
 * [read more](#read-more)
 
 # related file
@@ -35,7 +41,7 @@ what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
 # access instance
 
-## access wing
+## access instance wing
 
 ### before set a value
 
@@ -51,7 +57,7 @@ we can draw the procedure of accessing `a.wing` in  higher level
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
-the **descriptor protocol** will help us find an object named `descr`, type is `member_descriptor`, if you call
+the **descriptor protocol** help us find an object named `descr`, type is `member_descriptor`, if you call
 
 	repr(descr)
     descr: <member 'wing' of 'A' objects>
@@ -93,7 +99,7 @@ in the current example, if the begin address of the instance `a` is `0x00`, addr
 
 because wing attribute of instance `a` is set before, `AttributeError` won't be raised
 
-## access x
+## access instance x
 
 	>>> a.x
 	>>> 3
@@ -111,7 +117,25 @@ you are not able to create any other attribute in instance `a` if `A` defined `_
 
 # access type
 
+## access type wing
 
+	>>> A.wing
+	<member 'wing' of 'A' objects>
+    >>> type(A.wing)
+    <class 'member_descriptor'>
+
+the procedure of accessing `A.wing` is nearly the same as `a.wing`
+
+![type_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_desc.png)
+
+## access type x
+
+	>>> A.x
+	3
+
+the procedure of accessing `A.x` is nearly the same as `a.x`
+
+![type_normal](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_normal.png)
 
 creation of `class A` ?
 
