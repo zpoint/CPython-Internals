@@ -39,7 +39,6 @@ Trying to illustrate every detail of cpython implementation
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
  - [x] [type(mro/metaclass)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md)
- 	- [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
 
 # Modules
 
@@ -61,6 +60,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
+ - [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
  - [ ] namespace
  - [ ] thread
  - [ ] interpreter

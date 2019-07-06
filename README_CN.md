@@ -38,7 +38,6 @@
 - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex_cn.md)
 - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum_cn.md)
 - [x] [type(mro/metaclass)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type_cn.md)
- 	- [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
 
 # 模块
 
@@ -60,6 +59,7 @@
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
+ - [ ] [slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
  - [ ] namespace
  - [ ] thread
  - [ ] interpreter
