@@ -5,18 +5,24 @@
 * [related file](#related-file)
 * [slot](#slot)
 * [example](#example)
-* [access instance](#access-instance)
-	* [access instance wing](#access-instance-wing)
+* [instance access](#instance-access)
+	* [instance access wing](#instance-access-wing)
 		* [before set a value](#before-set-a-value)
 		* [after set a value](#after-set-a-value)
-	* [access instance x](#access-instance-x)
-* [access type](#access-type)
-	* [access type wing](#access-type-wing)
-	* [access type x](#access-type-x)
-* [creation of class](#creation-of-class)
+	* [instance access x](#instance-access-x)
+* [type-access](#type-access)
+	* [type access wing](#type-access-wing)
+	* [type access x](#type-access-x)
 * [difference](#difference)
 	* [with slot](#with-slot)
+		* [how does attributes initialized in the creation of `class A`](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
+		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
+		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
 	* [without slot](#without-slot)
+		* [how does attributes initialized in the creation of `class A`](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
+		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
+		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
+	* [memory saving measurement](#memory-saving-measurement)
 * [read more](#read-more)
 
 # related file
@@ -39,9 +45,9 @@ what's the difference of accessing attribute `wing` and `x` of instance `a` ?
 
 what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
-# access instance
+# instance access
 
-## access instance wing
+## instance access wing
 
 ### before set a value
 
@@ -53,7 +59,7 @@ what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
 according to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
 
-we can draw the procedure of accessing `a.wing` in  higher level
+we can draw the procedure of accessing `a.wing` in  a brief level
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
@@ -99,7 +105,7 @@ in the current example, if the begin address of the instance `a` is `0x00`, addr
 
 because wing attribute of instance `a` is set before, `AttributeError` won't be raised
 
-## access instance x
+## instance access x
 
 	>>> a.x
 	>>> 3
@@ -117,7 +123,7 @@ you are not able to create any other attribute in instance `a` if `A` defined `_
 
 # access type
 
-## access type wing
+## type access wing
 
 	>>> A.wing
 	<member 'wing' of 'A' objects>
@@ -128,7 +134,7 @@ the procedure of accessing `A.wing` is nearly the same as `a.wing`
 
 ![type_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_desc.png)
 
-## access type x
+## type access x
 
 	>>> A.x
 	3
@@ -137,7 +143,41 @@ the procedure of accessing `A.x` is nearly the same as `a.x`
 
 ![type_normal](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_normal.png)
 
-creation of `class A` ?
+# difference
+
+## with slot
+
+### how does attributes initialized in the creation of `class A` ?
+
+we can laern about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
+
+`type` object has many fields in it's C structure, the following picture only shows what's necessary for this topic
+
+what's in the `__slots__` is sorted and stored as a tuple in `ht_slots`
+
+the two attributes in `__slots__` is preallocated in the tail of the newly created type object `A` and two `PyMemberDef` pointers are stored in the order of `ht_slots`
+
+while attribute `x` stays in the `__dict__`
+
+![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
+
+### how does attributes initialized in the creation of `instance a` ?
+
+the memory location of the attributes in `__slots__` are preallocated
+
+![instance_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_create.png)
+
+### lookup procedure in MRO ?
+
+## without slot
+
+### how does attributes initialized in the creation of `class A` ?
+
+### how does attributes initialized in the creation of `instance a` ?
+
+### lookup procedure in MRO ?
+
+## memory saving measurement
 
 # read more
 * [`__slots__`magic](http://book.pythontips.com/en/latest/__slots__magic.html)
