@@ -10,25 +10,31 @@
 		* [before set a value](#before-set-a-value)
 		* [after set a value](#after-set-a-value)
 	* [instance access x](#instance-access-x)
-* [type-access](#type-access)
+* [type access](#type-access)
 	* [type access wing](#type-access-wing)
 	* [type access x](#type-access-x)
 * [difference](#difference)
 	* [with slot](#with-slot)
-		* [how does attributes initialized in the creation of `class A`](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
+		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
 		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
 	* [without slot](#without-slot)
-		* [how does attributes initialized in the creation of `class A`](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
+		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
 		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
 	* [memory saving measurement](#memory-saving-measurement)
 * [read more](#read-more)
 
 # related file
+
 * cpython/Objects/typeobject.c
 * cpython/Objects/clinic/typeobject.c.h
+* cpython/Objects/object.c
 * cpython/Include/cpython/object.h
+* cpython/Objects/descrobject.c
+* cpython/Include/descrobject.h
+* cpython/Python/structmember.c
+* cpython/Include/structmember.h
 
 
 # slot
@@ -59,7 +65,7 @@ what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
 according to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
 
-we can draw the procedure of accessing `a.wing` in  a brief level
+we can draw the procedure of accessing `a.wing` in  a brief view
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
@@ -169,11 +175,44 @@ the memory location of the attributes in `__slots__` are preallocated
 
 ### lookup procedure in MRO ?
 
+it just iter through every type object in MRO, and if the name in `__dict__` attribute, retuen `__dict__[name]`
+
+	/* cpython/Objects/typeobject.c */
+    /* for the instance a, if we access a.wing
+       type: <class '__main__.A'>
+       mro: (<class '__main__.A'>, <class 'object'>)
+       name: 'wing'
+    */
+	mro = type->tp_mro;
+    n = PyTuple_GET_SIZE(mro);
+    for (i = 0; i < n; i++) {
+        base = PyTuple_GET_ITEM(mro, i);
+        dict = ((PyTypeObject *)base)->tp_dict;
+        // in python representation: res = dict[name]
+        res = _PyDict_GetItem_KnownHash(dict, name, hash);
+        if (res != NULL)
+            break;
+        if (PyErr_Occurred()) {
+            *error = -1;
+            goto done;
+        }
+    }
+
 ## without slot
+
+    class A(object):
+
+        x = 3
+        wing = "wingA"
+        leg = "legA"
 
 ### how does attributes initialized in the creation of `class A` ?
 
+![type_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create_no_slot.png)
+
 ### how does attributes initialized in the creation of `instance a` ?
+
+![instance_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_create_no_slot.png)
 
 ### lookup procedure in MRO ?
 
