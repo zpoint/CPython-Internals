@@ -39,6 +39,11 @@
 
 # slot
 
+prerequisites
+
+* python's attribute accessing behaviour (described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md))
+* python's descriptor protocol (mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md))
+
 # example
 
     class A(object):
@@ -163,7 +168,9 @@ what's in the `__slots__` is sorted and stored as a tuple in `ht_slots`
 
 the two attributes in `__slots__` is preallocated in the tail of the newly created type object `A` and two `PyMemberDef` pointers are stored in the order of `ht_slots`
 
-while attribute `x` stays in the `__dict__`
+while attribute `x` stays in the `tp_dict` field
+
+the `tp_dict` field does not have a key named `__dict__`
 
 ![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
 
@@ -198,6 +205,35 @@ it just iter through every type object in MRO, and if the name in `__dict__` att
         }
     }
 
+if we try to access attribute `wing`
+
+	>>> type(A.wing)
+	<class 'member_descriptor'>
+	>>> type(a).__mro__
+	(<class '__main__.A'>, <class 'object'>)
+    >>> print(a.wing)
+    wingA
+
+the following pseudo shows what's going on
+
+	res = None
+    for each_type in type(a).__mro__
+    	if "wing" each_type.__dict__:
+        	res = each_type.__dict__["wing"]
+            break
+    # do the attribute accessing procedure described in the other article
+    ...
+    if res is a data_descriptor:
+    	# res is A.wing, it's type is member_descriptor
+        # it stores the offset and some other information of the real object stored in instance
+        # member_descriptor.__get__ will find the address in a + offset, and cast it to a PyObject and return that object
+    	return res.__get__(a, type(a))
+    ...
+
+![access_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute.png)
+
+![access_slot_attribute2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute2.png)
+
 ## without slot
 
     class A(object):
@@ -207,6 +243,8 @@ it just iter through every type object in MRO, and if the name in `__dict__` att
         leg = "legA"
 
 ### how does attributes initialized in the creation of `class A` ?
+
+the `tp_dict` field has a key named `__dict__`
 
 ![type_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create_no_slot.png)
 
