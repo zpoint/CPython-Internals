@@ -59,7 +59,7 @@
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [ ] [slot/`__slot__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
+ - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
  - [ ] namespace
  - [ ] thread
  - [ ] interpreter

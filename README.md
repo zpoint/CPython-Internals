@@ -60,7 +60,7 @@ Trying to illustrate every detail of cpython implementation
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
- - [ ] [slot/`__slot__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
+ - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
  - [ ] namespace
  - [ ] thread
  - [ ] interpreter

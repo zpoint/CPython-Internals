@@ -43,6 +43,7 @@ prerequisites
 
 * python's attribute accessing behaviour (described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md))
 * python's descriptor protocol (mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md))
+* python MRO (described in [type](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md))
 
 # example
 
@@ -70,7 +71,7 @@ what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
 according to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
 
-we can draw the procedure of accessing `a.wing` in  a brief view
+we can draw the procedure of accessing `a.wing` in a brief view
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
@@ -182,7 +183,7 @@ the memory location of the attributes in `__slots__` are preallocated
 
 ### lookup procedure in MRO ?
 
-it just iter through every type object in MRO, and if the name in `__dict__` attribute, retuen `__dict__[name]`
+it just iter through every type object in MRO, and if the name in `tp_dict` field, retuen `tp_dict[name]`
 
 	/* cpython/Objects/typeobject.c */
     /* for the instance a, if we access a.wing
@@ -234,6 +235,30 @@ the following pseudo shows what's going on
 
 ![access_slot_attribute2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute2.png)
 
+if we try to access or set a not exist attribute
+
+	>>> a.not_exist = 33
+    Traceback (most recent call last):
+      File "<input>", line 1, in <module>
+    AttributeError: 'A' object has no attribute 'not_exist'
+
+follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we found
+
+	res = None
+	for each_type in type(a).__mro__:
+   		if "not_exist" each_type.__dict__:
+        	res = each_type.__dict__["not_exist"]
+        	break
+    if res is None:
+    	try to find wing" in a.__dict__
+
+whe the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
+
+so `AttributeError` will be raised
+
+![access_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_not_exist_attribute.png)
+
+
 ## without slot
 
     class A(object):
@@ -254,7 +279,66 @@ the `tp_dict` field has a key named `__dict__`
 
 ### lookup procedure in MRO ?
 
+the lookup procedure is the same as the procedure in [with slot](#with-slot)
+
+![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute.png)
+
+if we try to access or set a not exist attribute
+
+	>>> a.not_exist = 33
+	>>> print(a.not_exist)
+
+follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we found
+
+	res = None
+	for each_type in type(a).__mro__:
+   		if "not_exist" each_type.__dict__:
+        	res = each_type.__dict__["not_exist"]
+        	break
+    if res is None:
+    	try to find "not_exist" in a.__dict__
+
+the `__slots__` attribute is not set, `tp_dictoffset` of `type(a)` is 16, it means instance `a` does have `__dict__` attribute to stores other attribute name, the location is in `(char *)a + 16`
+
+so attribute name can be stored in `a.__dict__`
+
+![access_no_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_not_exist_attribute.png)
+
 ## memory saving measurement
+
+with slot
+
+	./ipython
+	>>> import ipython_memory_usage.ipython_memory_usage as imu
+    >>> imu.start_watching_memory()
+    In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
+    class MyClass(object):
+        __slots__ = ['name', 'identifier']
+        def __init__(self, name, identifier):
+                self.name = name
+                self.identifier = identifier
+    num = 1024*256
+    x = [MyClass(1,1) for i in range(num)]
+
+    used 27.5508 MiB RAM in 0.28s, peaked 0.00 MiB above current, total RAM usage 69.18 MiB
+
+without slot
+
+    ./ipython
+	>>> import ipython_memory_usage.ipython_memory_usage as imu
+    >>> imu.start_watching_memory()
+    In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
+
+    class MyClass(object):
+            def __init__(self, name, identifier):
+                    self.name = name
+                    self.identifier = identifier
+    num = 1024*256
+    x = [MyClass(1,1) for i in range(num)]
+
+    used 56.0234 MiB RAM in 0.34s, peaked 0.00 MiB above current, total RAM usage 97.63 MiB
+
+the class without `__slots__` consumes nearly twice memory than the class with `__slots__`, it mainly because attributes in the class with `__slots__` is preallocated, and the class without `__slots__` has the overhead of the [dict object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
 
 # read more
 * [`__slots__`magic](http://book.pythontips.com/en/latest/__slots__magic.html)
