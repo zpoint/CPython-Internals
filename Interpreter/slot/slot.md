@@ -14,11 +14,11 @@
 	* [type access wing](#type-access-wing)
 	* [type access x](#type-access-x)
 * [difference](#difference)
-	* [with slot](#with-slot)
+	* [with slots](#with-slots)
 		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
 		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
-	* [without slot](#without-slot)
+	* [without slots](#without-slots)
 		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
 		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
@@ -157,7 +157,7 @@ the procedure of accessing `A.x` is nearly the same as `a.x`
 
 # difference
 
-## with slot
+## with slots
 
 ### how does attributes initialized in the creation of `class A` ?
 
@@ -259,7 +259,7 @@ so `AttributeError` will be raised
 ![access_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_not_exist_attribute.png)
 
 
-## without slot
+## without slots
 
     class A(object):
 
@@ -279,9 +279,11 @@ the `tp_dict` field has a key named `__dict__`
 
 ### lookup procedure in MRO ?
 
-the lookup procedure is the same as the procedure in [with slot](#with-slot)
+the lookup procedure is the same as the procedure in [with slots](#with-slots)
 
 ![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute.png)
+
+![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute2.png)
 
 if we try to access or set a not exist attribute
 
@@ -306,7 +308,7 @@ so attribute name can be stored in `a.__dict__`
 
 ## memory saving measurement
 
-with slot
+with `__slots__`
 
 	./ipython
 	>>> import ipython_memory_usage.ipython_memory_usage as imu
@@ -322,7 +324,7 @@ with slot
 
     used 27.5508 MiB RAM in 0.28s, peaked 0.00 MiB above current, total RAM usage 69.18 MiB
 
-without slot
+without `__slots__`
 
     ./ipython
 	>>> import ipython_memory_usage.ipython_memory_usage as imu

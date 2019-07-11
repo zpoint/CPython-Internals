@@ -14,11 +14,11 @@
 	* [访问类属性wing](#访问类属性wing)
 	* [访问类属性x](#访问类属性x)
 * [不同](#不同)
-	* [有slot](#有slot)
+	* [有slots](#有slots)
 		* [在创建 `class A` 时属性是如何初始化的 ?](#在创建-class-A-时属性是如何初始化的-?)
 		* [在创建 `instance a` 时属性是如何初始化的 ?](#在创建instance-a时属性是如何初始化的-?)
 		* [MRO中的属性搜索过程?](#MRO中的属性搜索过程?)
-	* [没有slot](#没有slot)
+	* [没有slots](#没有slots)
 		* [在创建 `class A` 时属性是如何初始化的 ?](#在创建-class-A-时属性是如何初始化的-?)
 		* [在创建 `instance a` 时属性是如何初始化的 ?](#在创建instance-a时属性是如何初始化的-?)
 		* [MRO中的属性搜索过程?](#MRO中的属性搜索过程?)
@@ -154,7 +154,7 @@
 
 # 不同
 
-## 有slot
+## 有slots
 
 ### 在创建`class A`时属性是如何初始化的 ?
 
@@ -258,7 +258,7 @@
 ![access_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_not_exist_attribute.png)
 
 
-## 没有slot
+## 没有slots
 
     class A(object):
 
@@ -266,21 +266,23 @@
         wing = "wingA"
         leg = "legA"
 
-### 在创建`class A`时属性是如何初始化的
+### 在创建`class A`时属性是如何初始化的 ?
 
 `tp_dict` 指向的字典对象现在有一个名为 `__dict__` 的 key
 
 ![type_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create_no_slot.png)
 
-### 在创建`class A`时属性是如何初始化的 ?
+### 在创建`instance a`时属性是如何初始化的 ?
 
 ![instance_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_create_no_slot.png)
 
 ### MRO中的属性搜索过程 ?
 
-搜索过程和 [有slot](#有slot) 的搜索过程类似
+搜索过程和 [有slots](#有slots) 的搜索过程类似
 
 ![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute.png)
+
+![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute2.png)
 
 如果我们尝试访问或者设置一个不存在的属性
 
@@ -305,7 +307,7 @@
 
 ## 内存消耗测试
 
-有slot
+有 `__slots__`
 
 	./ipython
 	>>> import ipython_memory_usage.ipython_memory_usage as imu
@@ -321,7 +323,7 @@
 
     used 27.5508 MiB RAM in 0.28s, peaked 0.00 MiB above current, total RAM usage 69.18 MiB
 
-没有slot
+没有 `__slots__`
 
     ./ipython
 	>>> import ipython_memory_usage.ipython_memory_usage as imu
