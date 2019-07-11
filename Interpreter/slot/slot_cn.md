@@ -119,7 +119,7 @@
 	>>> a.x
 	>>> 3
 
-`descr` 的类型为 `int`, 它并不是一个 data descriptor(没有定义 __get__` 或者 `__set__` 方法), 所以这个 `descr` 对象会被直接返回
+`descr` 的类型为 `int`, 它并不是一个 data descriptor(没有定义 `__get__` 或者 `__set__` 方法), 所以这个 `descr` 对象会被直接返回
 
 ![instance_normal](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_normal.png)
 
@@ -164,11 +164,11 @@
 
 `__slots__` 中定义的属性名称在类型A的创建过程中会被排序, 并转换为一个元组对象, 之后存储在类型A的 `ht_slots` 字段中
 
-当前定义的 `__slots__` 中的两个属性会在新创建的类型A的尾部中预先分配好位置, 并以 PyMemberDef` 指针的形式按照 `ht_slots` 中的顺序存储在其中
+当前定义的 `__slots__` 中的两个属性会在新创建的类型A的尾部中预先分配好位置, 并以 `PyMemberDef` 指针的形式按照 `ht_slots` 中的顺序存储在其中
 
 对于属性 `x` 并无特殊处理, 保存在 `tp_dict` 字段指向的字典中
 
-并且 `tp_dict` 字段指向的字典中没有 `__dict__` 这个 key (只要定义了 `__slots__` 就没有)
+并且 `tp_dict` 字段指向的字典中没有 `"__dict__"` 这个 key (只要定义了 `__slots__` 的类型都不会有ß)
 
 ![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
 
