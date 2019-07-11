@@ -223,7 +223,7 @@
     ...
     # 这是属性访问过程的一个情况, 也是访问当前属性时会发生的情况
     if res is a data_descriptor:
-    	# res 在这里是 A.wing, 它的类型是 member_descriptor
+        # res 在这里是 A.wing, 它的类型是 member_descriptor
         # 它存储了这个属性的位置偏移等信息, 实例可以根据这个上面的信息快速的获取到需要的对象
         # member_descriptor.__get__ 会找到 a + offset 的地址, 并把这个地址强制转换为 PyObject *, 并返回给调用着
     	return res.__get__(a, type(a))

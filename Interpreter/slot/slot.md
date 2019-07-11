@@ -225,7 +225,7 @@ the following pseudo shows what's going on
     # do the attribute accessing procedure described in the other article
     ...
     if res is a data_descriptor:
-    	# res is A.wing, it's type is member_descriptor
+        # res is A.wing, it's type is member_descriptor
         # it stores the offset and some other information of the real object stored in instance
         # member_descriptor.__get__ will find the address in a + offset, and cast it to a PyObject and return that object
     	return res.__get__(a, type(a))

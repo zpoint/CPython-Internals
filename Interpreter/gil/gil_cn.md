@@ -4,8 +4,8 @@
 
 * [相关位置文件](#相关位置文件)
 * [介绍](#介绍)
-	* [python3.2-之前的线程切换](#python32-之前的线程切换)
-	* [python3.2-之后的线程切换](#python3.2-之后的线程切换)
+	* [python3.2 之前的线程切换](#python32-之前的线程切换)
+	* [python3.2 之后的线程切换](#python3.2-之后的线程切换)
 	* [内存构造](#内存构造)
 * [字段](#字段)
 	* [interval](#interval)
@@ -52,7 +52,7 @@
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (图片来自 [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-## python3.2-之后的线程切换
+## python32 之后的线程切换
 
 由于上面列出的多核机器下可能导致的性能等方面的影响, **gil** 的实现在 python3.2 之后进行了一些优化
 
