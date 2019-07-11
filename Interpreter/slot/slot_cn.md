@@ -282,8 +282,6 @@
 
 ![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute.png)
 
-![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute2.png)
-
 如果我们尝试访问或者设置一个不存在的属性
 
 	>>> a.not_exist = 33
@@ -304,6 +302,8 @@
 所以属性名称可以存储在 `a.__dict__` 中
 
 ![access_no_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_not_exist_attribute.png)
+
+![access_no_slot_not_exist_attribute2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_not_exist_attribute2.png)
 
 ## 内存消耗测试
 

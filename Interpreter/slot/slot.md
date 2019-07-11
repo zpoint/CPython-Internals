@@ -161,7 +161,7 @@ the procedure of accessing `A.x` is nearly the same as `a.x`
 
 ### how does attributes initialized in the creation of `class A` ?
 
-we can laern about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
+we can learn about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
 
 `type` object has many fields in it's C structure, the following picture only shows what's necessary for this topic
 
@@ -283,8 +283,6 @@ the lookup procedure is the same as the procedure in [with slots](#with-slots)
 
 ![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute.png)
 
-![access_no_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_attribute2.png)
-
 if we try to access or set a not exist attribute
 
 	>>> a.not_exist = 33
@@ -305,6 +303,8 @@ the `__slots__` attribute is not set, `tp_dictoffset` of `type(a)` is 16, it mea
 so attribute name can be stored in `a.__dict__`
 
 ![access_no_slot_not_exist_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_not_exist_attribute.png)
+
+![access_no_slot_not_exist_attribute2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_no_slot_not_exist_attribute2.png)
 
 ## memory saving measurement
 
