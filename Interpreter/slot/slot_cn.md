@@ -168,7 +168,7 @@
 
 对于属性 `x` 并无特殊处理, 保存在 `tp_dict` 字段指向的字典中
 
-并且 `tp_dict` 字段指向的字典中没有 `"__dict__"` 这个 key (只要定义了 `__slots__` 的类型都不会有ß)
+并且 `tp_dict` 字段指向的字典中没有 `"__dict__"` 这个 key (只要定义了 `__slots__` 的类型都不会有)
 
 ![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
 
@@ -226,7 +226,7 @@
         # res 在这里是 A.wing, 它的类型是 member_descriptor
         # 它存储了这个属性的位置偏移等信息, 实例可以根据这个上面的信息快速的获取到需要的对象
         # member_descriptor.__get__ 会找到 a + offset 的地址, 并把这个地址强制转换为 PyObject *, 并返回给调用着
-    	return res.__get__(a, type(a))
+        return res.__get__(a, type(a))
     ...
 
 ![access_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute.png)
@@ -240,7 +240,7 @@
       File "<input>", line 1, in <module>
     AttributeError: 'A' object has no attribute 'not_exist'
 
-根据 [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md) 中提到的 descriptor protocol, 我们可以同样写出下面的伪代码
+根据 [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr_cn.md) 中提到的 **descriptor protocol** 过程, 我们可以同样写出下面的伪代码
 
 	res = None
 	for each_type in type(a).__mro__:
