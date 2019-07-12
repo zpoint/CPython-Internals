@@ -11,6 +11,7 @@ Trying to illustrate every detail of cpython implementation
     cd cpython
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
+The following contents are suitable for those who have python programming experience and interested in internal of python interpreter, for those who needs beginner or advanced material please refer to [awesome-python-books](https://github.com/Junnplus/awesome-python-books)
 
 # Table of Contents
 
@@ -18,6 +19,7 @@ Trying to illustrate every detail of cpython implementation
 * [Modules](#Modules)
 * [Lib](#Lib)
 * [Interpreter](#Interpreter)
+* [Extension](#Extension)
 * [learning material](#learning-material)
 
 
@@ -61,9 +63,20 @@ Trying to illustrate every detail of cpython implementation
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
  - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
- - [ ] namespace
  - [ ] thread
  - [ ] interpreter
+
+# Extension
+
+ - [ ] Cython(C extension)
+ - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
+
+# Grammar
+
+I will come back to this part when I finish reading [< < Compilers > >](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811) and [< < SICP > >](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871) and have a better understanding of this kind of stuffs
+
+In the meantime, my routine work will have a higher priority, so you may need months to see updates in this part
+
 
 # learning material
 

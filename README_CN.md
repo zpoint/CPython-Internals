@@ -11,12 +11,15 @@
     cd cpython
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
+这里的内容适用于有过 python 编程经验并且对解释器的实现感兴趣的同学, 如果你需要的的是入门到进阶之类的学习资料, 请参考 [awesome-python-books](https://github.com/Junnplus/awesome-python-books/blob/master/README-ZH_CN.md)
+
 # 目录
 
 * [基本对象](#基本对象)
 * [模块](#模块)
 * [库](#库)
 * [解释器相关](#解释器相关)
+* [扩展](#扩展)
 * [学习资料](#学习资料)
 
 
@@ -60,9 +63,18 @@
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
  - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
- - [ ] namespace
  - [ ] thread
  - [ ] interpreter
+
+# 扩展
+
+ - [ ] Cython(C extension)
+ - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
+
+# 语法
+
+这一部分我计划在读完 [< < Compilers > >](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811) 和 [< < SICP > >](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871) 之后对这类知识有更好的理解之后再来更新, 与此同时我还需要处理优先级更高的日常工作, 所以可能数月之后这部分才会有更新
+
 
 # 学习资料
 
