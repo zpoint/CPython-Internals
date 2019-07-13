@@ -228,7 +228,7 @@ the following pseudo shows what's going on
         # res is A.wing, it's type is member_descriptor
         # it stores the offset and some other information of the real object stored in instance
         # member_descriptor.__get__ will find the address in a + offset, and cast it to a PyObject and return that object
-    	return res.__get__(a, type(a))
+        return res.__get__(a, type(a))
     ...
 
 ![access_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute.png)
@@ -239,7 +239,7 @@ if we try to access or set a not exist attribute
 
 	>>> a.not_exist = 33
     Traceback (most recent call last):
-      File "<input>", line 1, in <module>
+    File "<input>", line 1, in <module>
     AttributeError: 'A' object has no attribute 'not_exist'
 
 follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we found

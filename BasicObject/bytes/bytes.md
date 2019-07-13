@@ -56,7 +56,7 @@ let's initialize a byte object with ascii characters
 
 The field **ob_shash** should store the hash value of the byte object, value **-1** means not computed yet.
 
-The first time the hash value computed, it will be cached to the **ob_shash** field
+The first time the hash value computed, it will be cached in the **ob_shash** field
 
 the cached hash value can save recalculation and speeds up dictionary lookups
 
