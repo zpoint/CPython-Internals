@@ -28,7 +28,7 @@ because the **PyDictObject** is a little bit more complicated than other basic o
 
 before we dive into the memory layout of python dictionary, let's imagine what normal dictionary object looks like
 
-usually, we implement a dictionary as a hash table, it takes O(1) time to look up an element, that's what exactly CPython does.
+usually, we implement a dictionary as a hash table, it takes O(1) time to look up an element, that's how exactly CPython does.
 
 this is an entry, which points to a hash table inside the python dictionary object before python3.6
 
@@ -75,7 +75,7 @@ In what situation will different dict object shares same keys but different valu
     b1 = B()
     b2 = B()
 
-    # the __dict__ object isn't generated yet
+    # the __dict__ object hasn't generated yet
     >>> b1.b
     1
     >>> b2.b
