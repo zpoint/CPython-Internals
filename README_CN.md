@@ -63,7 +63,7 @@
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
  - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
- - [ ] [thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread_cn.md)
+ - [x] [thread(线程)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread_cn.md)
  - [ ] interpreter
  - [ ] PyObject(基础篇/概述)
 

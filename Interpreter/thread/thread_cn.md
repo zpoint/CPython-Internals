@@ -1,17 +1,17 @@
 # thread
 
-# contents
+# 目录
 
-* [related file](#related-file)
-* [prerequisites](#prerequisites)
-* [memory layout](#memory-layout)
+* [相关位置文件](#相关位置文件)
+* [阅读须知](#阅读须知)
+* [内存构造](#内存构造)
 * [start_new_thread](#start_new_thread)
 * [allocate_lock](#allocate_lock)
 * [allocate_rlock](#allocate_rlock)
 * [exit_thread](#exit_thread)
 * [stack_size](#thread_stack_size)
 
-# related file
+# 相关位置文件
 
 * cpython/Modules/_threadmodule.c
 * cpython/Python/thread.c
@@ -20,29 +20,30 @@
 * cpython/Python/pystate.c
 * cpython/Include/cpython/pystate.h
 
-# prerequisites
+# 阅读须知
 
-the following contents will show you how CPython implements thread related function, you are able to get the answer of "Does posix semaphore or mutex used as a python thread lock ?"
+以下的内容展示的是 CPython 实现线程的时候使用的是哪些相关的系统函数, 你可以通过下文了解到比如 "posix 信号量 还是 posix 互斥锁 被用在了 python 线程锁的实现中 ?", 如果你的疑问是 "**posix 线程** 是什么 ?  **posix 信号量** 是什么 ? 你应该先参考 [APUE](https://www.amazon.cn/dp/B01AG3ZVOA) 的 第 11 和 第 13 章, 还有 [UNP 卷 2](https://www.amazon.cn/dp/B01CK7JI44)
 
-if you are confused about what **posix thread** is or what **posix semaphore** is, you need to refer to Chapter 11 and Chapter 12 of [APUE](https://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739) and [UNP vol 2](https://www.amazon.com/UNIX-Network-Programming-Interprocess-Communications/dp/0130810819)
+如果你感兴趣的是 线程的 c 结构体表示, 以及线程如何组织的, 接下来会有一篇 [概览](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/overview/overview_cn.md) 来说明
 
-if you are interested in how thread/intepreter organized, please refer to [overwview](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/overview/overview.md)(update later)
+# 内存构造
 
-# memory layout
-
-a bootstate structure stores every informations a new python thread needed
+一个 bootstate 结构体存储了一个 python 线程所需要的一切信息
 
 ![bootstate](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/bootstate.png)
 
-**thread.c** import **thread_nt.h** or **thread_pthread.h**, depending on the compiling machine's operating system
+**thread.c** 会根据编译时的系统环境, 选择导入 **thread_nt.h** 或者 **thread_pthread.h**
 
-**thread_nt.h** and **thread_pthread.h** both define the same functionality API, delegate the thread creation or lock procedure to the related system call
+**thread_nt.h** 和 **thread_pthread.h** 都定义了相同的线程相关的 API 函数接口, 调用这些函数的时候会转发到对应的系统环境的系统调用上
 
 ![thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.png)
 
-the following content will only shows the posix part defined in **thread_pthread.h**, for other platform, even if the API of the system call is different, the idea is the same
+下面的内容展现的是 **thread_pthread.h** 中定义的 posix 部分, 对于其他平台(比如 windows nt), 你可以直接查看对应的代码, 即使系统调用的接口不同, 但封装后对外的接口是相同的
 
-notice, you're not encouraged to use module `_thread` directly, use `threading` instead, the following code use `_thread` for illustration
+注意, 不推荐代码中直接使用 `_thread` 模块的方式调用, 它是 C 语言写好的直接暴露出来的接口, 偏底层, 下面的代码实例仅供展示说明
+
+你应该使用 `threading` 等封装了更丰富的功能的模块
+
 
 # example
 
@@ -53,11 +54,13 @@ notice, you're not encouraged to use module `_thread` directly, use `threading` 
 
     Thread(target=my_func, args=("hello world", "Who are you")).start()
 
-module **threading** is a wrapper for the built-in **_thread** module, **threading** is written in pure python, you can read the source code directly
+**threading** 提供了更丰富的线程相关的功能, 它是用 python 实现的集成在标准库中的对 **_thread** 的封装, 你可以直接读它的代码实现
 
 # start_new_thread
 
-**PyEval_InitThreads** will create [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) if it's not created before, thread scheduling strategy has changed after python3.2, there's no need to give another thread a chance to run periodly when there's only one python intepreter thread
+**PyEval_InitThreads** 会在之前没有创建过的情况下创建 [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
+
+由于在 python3.2 线程切换策略的升级, 单线程的情况下无需循环的释放并且重新获取 [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md)
 
 	/* cpython/Modules/_threadmodule.c */
     static PyObject *
@@ -67,9 +70,9 @@ module **threading** is a wrapper for the built-in **_thread** module, **threadi
         struct bootstate *boot;
         unsigned long ident;
 
-        /* ignore some detail
-        unpack func, args, keyw form fargs, and check their type
-        if you are using threading like the above example, these unpacked objects will look like
+        /* 忽略一些细节
+        从 fargs 中提取出 func, args, keyw, 并且检查他们的类型
+        如果你跑的是上面的例子, 那么提取出的几个元素如下所示
         func: <bound method Thread._bootstrap of <Thread(Thread-1, initial)>>
         args: ()
         keyw: NULL
@@ -89,19 +92,19 @@ module **threading** is a wrapper for the built-in **_thread** module, **threadi
         Py_INCREF(func);
         Py_INCREF(args);
         Py_XINCREF(keyw);
-        /* PyEval_InitThreads will create gil if it's not created before */
+        /* PyEval_InitThreads 会检查是否需要创建 gil */
         PyEval_InitThreads();
-        /* delegate to the system call, in my platform, it's pthread_create */
+        /* 找到对应的系统函数并调用, 在我的平台上是 pthread_create */
         ident = PyThread_start_new_thread(t_bootstrap, (void*) boot);
         if (ident == PYTHREAD_INVALID_THREAD_ID) {
-            /* handle error */
+            /* 处理错误 */
         }
         return PyLong_FromUnsignedLong(ident);
     }
 
 # allocate_lock
 
-this is the normal lock object
+这是一个普通的线程锁
 
 	>>> r = _thread.allocate_lock()
 	>>> type(r)
@@ -115,7 +118,7 @@ this is the normal lock object
 
 ![lock_object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/lock_object.png)
 
-in the posix system, the defination and allocation of **lock_lock**
+在 posix 系统中, **lock_lock** 的创建过程如下
 
 	/* cpython/Include/pythread.h */
 	typedef void *PyThread_type_lock;
@@ -156,11 +159,12 @@ in the posix system, the defination and allocation of **lock_lock**
     	/* implement with pthread mutex */
     }
 
-from the above code we can know that CPython perfer implement the field in **lock_lock** as [posix semaphores](http://www.csc.villanova.edu/~mdamian/threads/posixsem.html) to [posix mutex](http://www.skrenta.com/rt/man/pthread_mutex_init.3.html), below examples use semaphores for illustration
+从上面的代码中我们可以发现, CPython 会优先使用 [posix 信号量](http://www.csc.villanova.edu/~mdamian/threads/posixsem.html) 来实现 **lock_lock**, 如果系统不支持则使用 [posix 互斥锁](http://www.skrenta.com/rt/man/pthread_mutex_init.3.html) 来实现, 下面的部分用 信号量来展示
 
 	>>> r.acquire_lock()
 
-if you try to acquire the lock, several posix system call will be invoked according to the timeout value
+如果你尝试获取一个线程锁, 根据你传入的 timeout 的值的不同, 会调用对应的不同的系统函数
+
 
 	/* cpython/Python/thread_pthread.h */
     while (1) {
@@ -173,36 +177,33 @@ if you try to acquire the lock, several posix system call will be invoked accord
         else {
             status = fix_status(sem_wait(thelock));
         }
-
-        /* Retry if interrupted by a signal, unless the caller wants to be
-           notified.  */
+		/* 如果被 signal 中断了, 如果调用者需要被通知到这个 signal, 通知它, 如果不需要, 继续等待 */
         if (intr_flag || status != EINTR) {
             break;
         }
 
         if (microseconds > 0) {
-            /* wait interrupted by a signal (EINTR): recompute the timeout */
+            /* 被 signal 中断了 (EINTR): 重新计算 timeout 值 */
         }
     }
 
-if you acquire the lock successfully, field locked will become 1
+如果你成功的获取到了这个线程锁, locked 上的值会变为 1
 
 ![lock_object_locked](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/lock_object_locked.png)
 
 # allocate_rlock
 
-**rlock** is the abbreviation of recursive lock, as [wikipedia](https://en.wikipedia.org/wiki/Reentrant_mutex) says
+**rlock** 是递归互斥锁的简称, 如 [维基百科](https://zh.wikipedia.org/wiki/%E5%8F%AF%E9%87%8D%E5%85%A5%E4%BA%92%E6%96%A5%E9%94%81) 所说
 
-> In computer science, the reentrant mutex (recursive mutex, recursive lock) is a particular type of mutual exclusion (mutex) device that may be locked multiple times by the same process/thread, without causing a deadlock.
+> 计算机科学中，可重入互斥锁（英语：reentrant mutex）是互斥锁的一种，同一线程对其多次加锁不会产生死锁。可重入互斥锁也称递归互斥锁（英语：recursive mutex）或递归锁（英语：recursive lock）
 
 ![rlock_object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/rlock_object.png)
 
-
 	>>> r = _thread.RLock()
 
-the procedure of allocation of **lock_lock** in rlock object is the same as the above example
+创建 rlock 结构体中的 **lock_lock** 的过程和上面创建普通锁的过程类似
 
-before acquire the lock, **rlock_owner** and **rlock_count** are all set to 0
+在获取锁之前, **rlock_owner** 和 **rlock_count** 都会被设置成 0
 
 	>>> r.acquire()
 
@@ -212,9 +213,9 @@ before acquire the lock, **rlock_owner** and **rlock_count** are all set to 0
 
 ![rlock_object_acquire2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/rlock_object_acquire2.png)
 
-we found that **rlock_owner** is the current thread's ident, and **rlock_count** is a counter of how many times the lock is currently acquired
+我们发现 **rlock_owner** 的值为当前线程的 ident, **rlock_count** 是一个计数器, 表示这把锁当前被几个调用者持有中
 
-the acquire procedure is very clear
+获取锁的过程非常简明
 
 	/* cpython/Modules/_threadmodule.c */
     static PyObject *
@@ -229,7 +230,7 @@ the acquire procedure is very clear
 
         tid = PyThread_get_thread_ident();
         if (self->rlock_count > 0 && tid == self->rlock_owner) {
-        	/* acquire before, just increase the rlock_count */
+        	/* 之前已经获得过了, 直接增加 rlock_count 上的值即可 */
             unsigned long count = self->rlock_count + 1;
             if (count <= self->rlock_count) {
                 PyErr_SetString(PyExc_OverflowError,
@@ -239,37 +240,37 @@ the acquire procedure is very clear
             self->rlock_count = count;
             Py_RETURN_TRUE;
         }
-		/* delegate the acquire to the posix system call */
+        /* 调用对应的 posix 系统调用去获得这把锁 */
         r = acquire_timed(self->rlock_lock, timeout);
         if (r == PY_LOCK_ACQUIRED) {
-        	/* if never acquired before, success in acquiring the lock */
+        	/* 如果当前没有其他线程获得过这把锁, 并且自己之前也没有获得过, 那么获取成功后进入这里 */
             assert(self->rlock_count == 0);
             self->rlock_owner = tid;
             self->rlock_count = 1;
         }
         else if (r == PY_LOCK_INTR) {
-        	/* the lock is acquired by another thread, fail in acquiring the lock */
+        	/* 如果这把锁正被其他线程持有中, 则无法获得, 进入这里 */
             return NULL;
         }
         return PyBool_FromLong(r == PY_LOCK_ACQUIRED);
     }
 
 
-the release procedure
+锁的释放过程
 
 	/* cpython/Modules/_threadmodule.c */
     static PyObject *
     rlock_release(rlockobject *self, PyObject *Py_UNUSED(ignored))
     {
         unsigned long tid = PyThread_get_thread_ident();
-		/* check if the rlock_count reaches 0 or release by other thread */
+        /* 检查 rlock_count 的值是否变为了 0, 或者是否是其他线程进行的释放 */
         if (self->rlock_count == 0 || self->rlock_owner != tid) {
             PyErr_SetString(PyExc_RuntimeError,
                             "cannot release un-acquired lock");
             return NULL;
         }
-        /* decrement the rlock_count
-        reset rlock_owner to give other thread a chance to acquire the lock if rlock_count reaches 0 */
+        /* 减小 rlock_count 的值,
+        如果 rlock_count 变为 0, 把 rlock_owner 也设置为 0, 这样其他线程也能获得这把锁 */
         if (--self->rlock_count == 0) {
             self->rlock_owner = 0;
             PyThread_release_lock(self->rlock_lock);
@@ -283,18 +284,19 @@ the release procedure
     static PyObject *
     thread_PyThread_exit_thread(PyObject *self, PyObject *Py_UNUSED(ignored))
     {
-    	/* just raise SystemExit exception */
+    	/* 抛出一个 SystemExit 的异常 */
         PyErr_SetNone(PyExc_SystemExit);
         return NULL;
     }
 
 # stack_size
 
-you can set the stack size to 100kb by calling
+你可以更改当前线程的 stack 空间大小, 这个空间是由操作系统控制的
 
+	# 设置为 100 kb
 	>>> _thread.stack_size(102400) # threading.stack_size(102400)
 
-which will delegate to [`pthread_attr_setstacksize`](http://man7.org/linux/man-pages/man3/pthread_attr_setstacksize.3.html)
+最后会调用到对应的 [`pthread_attr_setstacksize`](http://man7.org/linux/man-pages/man3/pthread_attr_setstacksize.3.html) 这个系统函数
 
     _pythread_pthread_set_stacksize(size_t size)
     {
@@ -304,7 +306,7 @@ which will delegate to [`pthread_attr_setstacksize`](http://man7.org/linux/man-p
         int rc = 0;
     #endif
 
-        /* set to default */
+        /* 设为默认值 */
         if (size == 0) {
             _PyInterpreterState_GET_UNSAFE()->pythread_stacksize = 0;
             return 0;
@@ -318,7 +320,7 @@ which will delegate to [`pthread_attr_setstacksize`](http://man7.org/linux/man-p
         tss_min = THREAD_STACK_MIN;
     #endif
         if (size >= tss_min) {
-            /* validate stack size by setting thread attribute */
+            /* 调用对应的系统函数去设置这个值, 看能不能设置成功 */
             if (pthread_attr_init(&attrs) == 0) {
                 rc = pthread_attr_setstacksize(&attrs, size);
                 pthread_attr_destroy(&attrs);
