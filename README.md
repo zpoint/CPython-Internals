@@ -64,8 +64,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
  - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
  - [x] [thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.md)
- - [ ] interpreter
- - [ ] PyObject(overview)
+ - [ ] [PyObject(overview)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md)
 
 # Extension
 
