@@ -13,6 +13,7 @@
 * cpython/Include/object.h
 * cpython/Include/cpython/object.h
 * cpython/Python/ceval.c
+* cpython/Include/ceval.h
 * cpython/Python/pythonrun.c
 
 # memory layout
@@ -40,4 +41,23 @@ the compiled `pyx` file will not boost the run time of the program, instead, the
 ![executePy](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/executePy.png)
 
 # ceval
+
+the main loop of the interpreter is defined in `cpython/Python/ceval.c`
+
+    main_loop:
+        for (;;) {
+        	// jump to fast_next_opcode if necessary
+        	// check for signal hndler/async io handler
+            // drop gil if needed
+			fast_next_opcode:
+                switch (opcode) {
+                    /* ... */
+                }
+        }
+
+we can draw the procedure
+
+![ceval](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/ceval.png)
+
+# intepreter and thread
 
