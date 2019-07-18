@@ -61,3 +61,13 @@ we can draw the procedure
 
 # intepreter and thread
 
+this is the defination of **PyInterpreterState**
+
+![PyInterpreterState](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/PyInterpreterState.png)
+
+this is the defination of **PyThreadState**
+
+![PyThreadState](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/PyThreadState.png)
+
+their relationship
+

@@ -10,6 +10,7 @@
 * [allocate_rlock](#allocate_rlock)
 * [exit_thread](#exit_thread)
 * [stack_size](#thread_stack_size)
+* [thread local](#thread-local)
 
 # 相关位置文件
 
@@ -335,3 +336,7 @@
         return -2;
     #endif
     }
+
+# thread local
+
+thread local storage 的实现为每个线程的数据结构(**PyThreadState**)里面存储一个自己本身才能使用的 [字典](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_cn.md) 对象, 可以理解为线程级的缓存

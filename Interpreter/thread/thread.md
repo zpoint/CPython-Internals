@@ -10,6 +10,7 @@
 * [allocate_rlock](#allocate_rlock)
 * [exit_thread](#exit_thread)
 * [stack_size](#thread_stack_size)
+* [thread local](#thread-local)
 
 # related file
 
@@ -333,3 +334,7 @@ which will delegate to [`pthread_attr_setstacksize`](http://man7.org/linux/man-p
         return -2;
     #endif
     }
+
+# thread local
+
+the implementation of thread local storage is a per thread [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md) object stored inside the **PyThreadState** structure
