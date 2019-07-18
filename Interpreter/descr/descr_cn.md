@@ -51,7 +51,7 @@
         tp = type(object)
         return hasattr(tp, "__set__") and hasattr(tp, "__get__")
 
-通过上面的代码和注释, 我们知道类型 **method_descriptor** 或者以 **_descriptor** 结尾的类型, 是那类 getsets 和成员变量在 C 中定义的类型
+通过上面的代码和注释, 我们知道 **data descriptor** 同时定义了 `__set__` and `__get__` 属性, 而 **method descriptor** 只定义了 `__get__` 属性
 
 (同时也知道定义了 `__get__` 和 `__set__` 的类型的示例被叫做 Data descriptors, 有关 Data descriptors 的资料请参考 [相关阅读](#相关阅读), 下面的内容主要是梳理上面提到的问题)
 

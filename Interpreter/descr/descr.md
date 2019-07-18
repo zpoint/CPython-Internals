@@ -54,7 +54,7 @@ this is the defination of `inspect.ismethoddescriptor` and `inspect.isdatadescri
         tp = type(object)
         return hasattr(tp, "__set__") and hasattr(tp, "__get__")
 
-according to the comments, we know that type **method_descriptor** or type name ends with **_descriptor** are the objects that getsets and members defined in C
+according to the comments, we know that **data descriptor** has both `__set__` and `__get__` attribute defined while **method descriptor** has only `__get__` defined
 
 if we **dis** the `print(type(str.center))`
 
