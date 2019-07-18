@@ -18,7 +18,7 @@
 
 # memory layout
 
-this is the layout of **PyObject**, it's the basic part of every other python type
+this is the layout of **PyObject**, it's the basic part of every other python object
 
 every object in python can be cast to **PyObject**, i.e, list, tuple and etc
 
@@ -69,5 +69,6 @@ this is the defination of **PyThreadState**
 
 ![PyThreadState](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/PyThreadState.png)
 
-their relationship
+if we have two thread currently running
 
+![organize](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/organize.png)

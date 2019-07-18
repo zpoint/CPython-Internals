@@ -64,7 +64,7 @@
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
  - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
  - [x] [thread(线程)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread_cn.md)
- - [ ] [PyObject(基础篇/概述)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject_cn.md)
+ - [x] [PyObject(基础篇/概述)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject_cn.md)
 
 # 扩展
 
