@@ -246,11 +246,15 @@ follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CP
 
 	res = None
 	for each_type in type(a).__mro__:
-   		if "not_exist" each_type.__dict__:
+   		if "not_exist" in each_type.__dict__:
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	try to find wing" in a.__dict__
+    	# try to find "not_exist" in a.__dict__
+        if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
+        	# go to here
+        	raise AttributeError
+       	return a.__dict__["not_exist"]
 
 whe the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
 
@@ -292,11 +296,15 @@ follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CP
 
 	res = None
 	for each_type in type(a).__mro__:
-   		if "not_exist" each_type.__dict__:
+   		if "not_exist" in each_type.__dict__:
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	try to find "not_exist" in a.__dict__
+    	# try to find "not_exist" in a.__dict__
+        if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
+        	raise AttributeError
+        # go to here
+       	return a.__dict__["not_exist"]
 
 the `__slots__` attribute is not set, `tp_dictoffset` of `type(a)` is 16, it means instance `a` does have `__dict__` attribute to stores other attribute name, the location is in `(char *)a + 16`
 
@@ -340,7 +348,7 @@ without `__slots__`
 
     used 56.0234 MiB RAM in 0.34s, peaked 0.00 MiB above current, total RAM usage 97.63 MiB
 
-the class without `__slots__` consumes nearly twice memory than the class with `__slots__`, it mainly because attributes in the class with `__slots__` is preallocated, and the class without `__slots__` has the overhead of the [dict object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
+the class without `__slots__` consumes nearly twice memory than the class with `__slots__`, it mainly because attributes in the class with `__slots__` is preallocated, which occupies 8 bytes per python object pointer, and the class without `__slots__` has the overhead of the [dict object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md), which occupies more than a dozen 8 bytes pointers even without storing any elements
 
 # read more
 * [`__slots__`magic](http://book.pythontips.com/en/latest/__slots__magic.html)

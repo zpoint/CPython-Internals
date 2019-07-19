@@ -20,7 +20,7 @@ The following contents are suitable for those who have python programming experi
 * [Lib](#Lib)
 * [Interpreter](#Interpreter)
 * [Extension](#Extension)
-* [Learning material](#learning-material)
+* [Learning material](#Learning-material)
 
 
 # Objects
