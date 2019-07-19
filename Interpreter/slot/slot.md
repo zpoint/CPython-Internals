@@ -250,11 +250,11 @@ follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CP
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	# try to find "not_exist" in a.__dict__
+        # try to find "not_exist" in a.__dict__
         if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
         	# go to here
         	raise AttributeError
-       	return a.__dict__["not_exist"]
+        return a.__dict__["not_exist"]
 
 whe the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
 
@@ -300,11 +300,11 @@ follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CP
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	# try to find "not_exist" in a.__dict__
+        # try to find "not_exist" in a.__dict__
         if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
         	raise AttributeError
         # go to here
-       	return a.__dict__["not_exist"]
+        return a.__dict__["not_exist"]
 
 the `__slots__` attribute is not set, `tp_dictoffset` of `type(a)` is 16, it means instance `a` does have `__dict__` attribute to stores other attribute name, the location is in `(char *)a + 16`
 

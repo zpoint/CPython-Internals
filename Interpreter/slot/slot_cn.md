@@ -248,11 +248,11 @@
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	# 尝试在 a.__dict__ 中查找 "not_exist"
+        # 尝试在 a.__dict__ 中查找 "not_exist"
         if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
         	# 运行到这里
         	raise AttributeError
-       	return a.__dict__["not_exist"]
+        return a.__dict__["not_exist"]
 
 当定义了 `__slots__` 时, `type(a)` 中的 `tp_dictoffset` 值为 0, 表示实例 `a` 并不存在 `__dict__` 属性, 也就是说没有存储其他任何属性的位置, 上面进入的搜索分支会识别这种情况并报错
 
@@ -298,11 +298,11 @@
         	res = each_type.__dict__["not_exist"]
         	break
     if res is None:
-    	# 尝试在 a.__dict__ 中查找 "not_exist"
+        # 尝试在 a.__dict__ 中查找 "not_exist"
         if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
         	raise AttributeError
         # 运行到这里
-       	return a.__dict__["not_exist"]
+        return a.__dict__["not_exist"]
 
 这一次没有定义 `__slots__`, `type(a)` 中的 `tp_dictoffset` 值为 16, 表示实例 `a` 拥有 `__dict__` 属性, 可以存储任意其他的属性名称, 这个 `__dict__` 对象的地址为 `(char *)a + 16`
 
