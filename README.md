@@ -20,7 +20,7 @@ The following contents are suitable for those who have python programming experi
 * [Lib](#Lib)
 * [Interpreter](#Interpreter)
 * [Extension](#Extension)
-* [learning material](#learning-material)
+* [Learning material](#learning-material)
 
 
 # Objects
@@ -78,7 +78,7 @@ I will come back to this part when I finish reading [< < Compilers > >](https://
 In the meantime, my routine work will have a higher priority, so you may need months to see updates in this part
 
 
-# learning material
+# Learning material
 
 I will only recommend what I've read
 
