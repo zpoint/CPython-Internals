@@ -7,6 +7,7 @@
 * [overview](#overview)
 * [ceval](#ceval)
 * [intepreter and thread](#intepreter-and-thread)
+* [read more](#read-more)
 
 # related file
 
@@ -34,9 +35,11 @@ every object in python can be cast to **PyObject**, i.e, list, tuple and etc
 
 whenever you execute a python program for a `.py` file, the compile phase will translate the human readable source code to a form called python bytecode
 
-the `pyx` file will be generated if necessary, and the interpreter phase will start the main loop, execute the bytecode in the `pyx` file line by line
+the `pyc` file will be generated if necessary, and the interpreter phase will start the main loop, execute the bytecode in the `pyc` file line by line
 
-the compiled `pyx` file will not boost the run time of the program, instead, the load time of the program will be faster because it doesn't need to generate `pyx` file again
+the compiled `pyc` file will not boost the run time of the program, instead, the load time of the program will be faster because it doesn't need to generate `pyc` file again
+
+according to [pep-3147](https://www.python.org/dev/peps/pep-3147/), after python 3.3, `pyc` file will only be generated in the `import` mechanism, and `pyc` file will exists under the `__pycache__` directory
 
 ![executePy](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/executePy.png)
 
@@ -72,3 +75,7 @@ this is the defination of **PyThreadState**
 if we have two thread currently running
 
 ![organize](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/organize.png)
+
+# read more
+[pep-3147](https://www.python.org/dev/peps/pep-3147/)
+[Junnplus's blog: Python中的code对象](https://github.com/Junnplus/blog/issues/16)

@@ -7,6 +7,7 @@
 * [概述](#概述)
 * [ceval](#ceval)
 * [intepreter 和 thread](#intepreter-和-thread)
+* [更多资料](#更多资料)
 
 # 相关位置文件
 
@@ -34,9 +35,11 @@
 
 python 解释器不仅仅是一个解释器, 它包括很多个部分
 
-当你通过 `.py` 文件来执行一个 python 程序时, 编译的部分会把你写的源代码转换为一种叫做 python 字节码的形式, 这个时候会生生 `pyx` 文件, 生成的字节码还有参数等信息会存储在这个 `pyx` 中, 解释器会读取这个文件, 开始 main loop 循环, 一个字节码一个字节码的读取, 并执行
+当你通过 `.py` 文件来执行一个 python 程序时, 编译的部分会把你写的源代码转换为一种叫做 python 字节码的形式, 这个时候会生成 `pyc` 文件, 生成的字节码还有参数等信息会存储在这个 `pyc` 中, 解释器会读取这个文件, 开始 main loop 循环, 一个字节码一个字节码的读取, 并执行
 
-这个 `pyx` 文件并不会提高你的程序运行速度, 它只会提高你程序的加载速度, 你只要没有修改过源代码文件, 则下次启动可以跳过生成 `pyx` 的部分, 仅此而已
+这个 `pyc` 文件并不会提高你的程序运行速度, 它只会提高你程序的加载速度, 你只要没有修改过源代码文件, 则下次启动可以跳过生成 `pyc` 的部分, 仅此而已
+
+根据 [pep-3147](https://www.python.org/dev/peps/pep-3147/) 所描述的, 在 python 版本 3.3 之后, `pyc` 文件只会在 `import` 机制下产生, 并且 `pyc` 文件会保存在 `__pycache__` 目录下
 
 ![executePy](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/executePy.png)
 
@@ -72,3 +75,7 @@ main loop 循环主要定义在如下位置 `cpython/Python/ceval.c`
 如果我们当前有两个线程在运行中
 
 ![organize](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/organize.png)
+
+# 更多资料
+[pep-3147](https://www.python.org/dev/peps/pep-3147/)
+[Junnplus's blog: Python中的code对象](https://github.com/Junnplus/blog/issues/16)
