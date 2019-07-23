@@ -7,9 +7,10 @@
 * [示例](#示例)
 * [如何调试 import](#如何调试-import)
 * [import 是如何实现的](#import-是如何实现的)
-	* [BuiltinImporter](#BuiltinImporter)
-	* [FrozenImporter](#FrozenImporter)
-	* [PathFinder](#PathFinder)
+	* [finder](#finder)
+        * [BuiltinImporter](#BuiltinImporter)
+        * [FrozenImporter](#FrozenImporter)
+        * [PathFinder](#PathFinder)
 
 # 相关位置文件
 
@@ -143,18 +144,18 @@
 
 ![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
 
-# import 是如何实现的
+## finder
 
-默认情况下 sys.meta_path` 只有 3 个不同的 finder
+默认情况下 `sys.meta_path` 只有 3 个不同的 finder
 
     >>> sys.meta_path
     [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
 
-## BuiltinImporter
+### BuiltinImporter
 
 `BuiltinImporter` 会处理所有的 built-in 模块, 比如当我们运行
 
-	`import _locale`
+	import _locale
 
 `BuiltinImporter` 定义的位置是在 `Lib/importlib/_bootstrap.py`, `BuiltinImporter.find_spec` 会返回一个 `ModuleSpec` 对象, `ModuleSpec` 有一个 `loader` 属性, 在返回的时候这个 `loader` 已经和 `BuiltinImporter` 绑定在一起了
 
@@ -207,7 +208,7 @@
     }
     */
 
-## FrozenImporter
+### FrozenImporter
 
 `FrozenImporter.loader.create_module` 的定义, 调用方式等和 `BuiltinImporter` 类似
 
@@ -265,7 +266,7 @@
     const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
     */
 
-## PathFinder
+### PathFinder
 
 `PathFinder.loader.create_module` 会最终调用 `_new_module` 返回, 而不是像上面的调用 `create_module` 返回, 外层函数定义的位置在 `cpython/Lib/importlib/_bootstrap.py`, `_new_module` 不会调用 c 函数, `create_module` 会调用对应的 c 函数
 

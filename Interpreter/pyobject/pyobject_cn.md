@@ -77,5 +77,5 @@ main loop 循环主要定义在如下位置 `cpython/Python/ceval.c`
 ![organize](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/organize.png)
 
 # 更多资料
-[pep-3147](https://www.python.org/dev/peps/pep-3147/)
-[Junnplus's blog: Python中的code对象](https://github.com/Junnplus/blog/issues/16)
+* [pep-3147](https://www.python.org/dev/peps/pep-3147/)
+* [Junnplus's blog: Python中的code对象](https://github.com/Junnplus/blog/issues/16)

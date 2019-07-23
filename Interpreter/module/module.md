@@ -7,9 +7,10 @@
 * [example](#example)
 * [how to debug import](#how-to-debug-import)
 * [how does import work](#how-does-import-work)
-	* [BuiltinImporter](#BuiltinImporter)
-	* [FrozenImporter](#FrozenImporter)
-	* [PathFinder](#PathFinder)
+	* [how does finder work](#how-does-finder-work)
+        * [BuiltinImporter](#BuiltinImporter)
+        * [FrozenImporter](#FrozenImporter)
+        * [PathFinder](#PathFinder)
 
 # related file
 
@@ -142,14 +143,14 @@ in `position 5`, it will acquire the lock `_imp` before the call of every `finde
 
 ![import procedure2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/import%20procedure2.png)
 
-# how does finder work
+## how does finder work
 
 there're currently three different finder in my `sys.meta_path`
 
     >>> sys.meta_path
     [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
 
-## BuiltinImporter
+### BuiltinImporter
 
 `BuiltinImporter` will handle all the built-in module, when we call 
 
@@ -203,7 +204,7 @@ there're currently three different finder in my `sys.meta_path`
     }
     */
 
-## FrozenImporter
+### FrozenImporter
 
 defination of `FrozenImporter.loader.create_module` is similiar to `BuiltinImporter`
 
@@ -261,7 +262,7 @@ defination of `FrozenImporter.loader.create_module` is similiar to `BuiltinImpor
     const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
     */
 
-## PathFinder
+### PathFinder
 
 `PathFinder.loader.create_module` will simply call `_new_module`, which is defined in `cpython/Lib/importlib/_bootstrap.py`, there's no c function to be called
 
