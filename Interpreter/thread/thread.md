@@ -27,7 +27,7 @@ the following contents will show you how CPython implements thread related funct
 
 if you are confused about what **posix thread** is or what **posix semaphore** is, you need to refer to Chapter 11 and Chapter 12 of [APUE](https://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739) and [UNP vol 2](https://www.amazon.com/UNIX-Network-Programming-Interprocess-Communications/dp/0130810819)
 
-if you are interested in how thread/intepreter organized, please refer to [overwview](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/overview/overview.md)(update later)
+if you are interested in how thread/intepreter organized, please refer to [overwview](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md#intepreter-and-thread)
 
 # memory layout
 
@@ -284,7 +284,7 @@ the release procedure
     static PyObject *
     thread_PyThread_exit_thread(PyObject *self, PyObject *Py_UNUSED(ignored))
     {
-    	/* just raise SystemExit exception */
+        /* just raise SystemExit exception */
         PyErr_SetNone(PyExc_SystemExit);
         return NULL;
     }

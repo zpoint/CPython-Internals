@@ -25,7 +25,7 @@
 
 以下的内容展示的是 CPython 实现线程的时候使用的是哪些相关的系统函数, 你可以通过下文了解到比如 "posix 信号量 还是 posix 互斥锁 被用在了 python 线程锁的实现中 ?", 如果你的疑问是 "**posix 线程** 是什么 ?  **posix 信号量** 是什么 ? 你应该先参考 [APUE](https://www.amazon.cn/dp/B01AG3ZVOA) 的 第 11 和 第 13 章, 还有 [UNP 卷 2](https://www.amazon.cn/dp/B01CK7JI44)
 
-如果你感兴趣的是 线程的 c 结构体表示, 以及线程如何组织的, 接下来会有一篇 [概览](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/overview/overview_cn.md) 来说明
+如果你感兴趣的是 线程的 C 结构体表示以及组织方式, 请参考 [概览](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject_cn.md#intepreter-%E5%92%8C-thread)
 
 # 内存构造
 
@@ -285,7 +285,7 @@
     static PyObject *
     thread_PyThread_exit_thread(PyObject *self, PyObject *Py_UNUSED(ignored))
     {
-    	/* 抛出一个 SystemExit 的异常 */
+        /* 抛出一个 SystemExit 的异常 */
         PyErr_SetNone(PyExc_SystemExit);
         return NULL;
     }
