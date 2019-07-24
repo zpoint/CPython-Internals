@@ -215,8 +215,8 @@
 下面的伪代码翻译了 C 语言中搜索过程
 
 	res = None
-    for each_type in type(a).__mro__
-    	if "wing" each_type.__dict__:
+    for each_type in type(a).__mro__:
+    	if "wing" in each_type.__dict__:
         	res = each_type.__dict__["wing"]
             break
     # 接下来是另一篇文章提到的属性访问过程

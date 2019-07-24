@@ -218,8 +218,8 @@ if we try to access attribute `wing`
 the following pseudo shows what's going on
 
 	res = None
-    for each_type in type(a).__mro__
-    	if "wing" each_type.__dict__:
+    for each_type in type(a).__mro__:
+    	if "wing" in each_type.__dict__:
         	res = each_type.__dict__["wing"]
             break
     # do the attribute accessing procedure described in the other article
@@ -256,7 +256,7 @@ follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CP
         	raise AttributeError
         return a.__dict__["not_exist"]
 
-whe the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
+when the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
 
 so `AttributeError` will be raised
 
