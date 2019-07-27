@@ -68,7 +68,7 @@
 
 # 扩展
 
- - [ ] [C API(如何用C语言写扩展)](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c_cn.md)
+ - [x] [C API(python 性能分析和 C 扩展)](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c_cn.md)
  - [ ] Cython(C extension)
  - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
 

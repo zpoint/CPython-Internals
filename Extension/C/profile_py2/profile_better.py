@@ -1,12 +1,13 @@
 import line_profiler
 import atexit
+import my_module
 profile = line_profiler.LineProfiler()
 atexit.register(profile.print_stats)
 
 meaningless_dict = {chr(i) if i < 256 else i: i for i in range(500)}
 
 
-@profile
+# @profile
 def my_cpu_bound_task(x, y):
     """
     meaningless code
@@ -24,7 +25,7 @@ def my_cpu_bound_task(x, y):
 @profile
 def run():
     for i in range(9999):
-        my_cpu_bound_task(i, i+1)
+        my_module.my_cpu_bound_task(i, i+1)
 
 
 if __name__ == "__main__":

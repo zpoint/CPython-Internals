@@ -1,7 +1,7 @@
 /* the following code is only tested on Mac */
 #define PY_SSIZE_T_CLEAN
-/* check your system path, sometimes it's <Python.h> */
-#include <Python/Python.h>
+/* check your system path, sometimes it's <Python/Python.h> */
+#include <Python.h>
 
 static PyObject* my_cpu_bound_task(PyObject *self, PyObject *args)
 {
@@ -15,7 +15,7 @@ static PyObject* my_cpu_bound_task(PyObject *self, PyObject *args)
     if (meaningless_py_str == NULL)
     {
         // it should be check if allocate successfully anf free if necessary, I don't do that here
-        meaningless_py_str = PyString_FromString("meaningless_dict");
+        meaningless_py_str = PyUnicode_FromString("meaningless_dict");
     }
 
     if (!PyArg_ParseTuple(args, "OO", &py_x, &py_y))
@@ -64,7 +64,7 @@ static PyObject* my_cpu_bound_task(PyObject *self, PyObject *args)
         r[index] = y;
 
     }
-    return PyString_FromStringAndSize((const char *)r, 1000);
+    return PyBytes_FromStringAndSize((const char *)r, 1000);
 }
 
 static PyMethodDef MyMethods[] = {
@@ -72,12 +72,21 @@ static PyMethodDef MyMethods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-PyMODINIT_FUNC
-initmy_module(void)
-{
+static struct PyModuleDef my_module = {
+   PyModuleDef_HEAD_INIT,
+   "my_module",
+   "my module to compute my task in a faster way!!!",
+   -1,
+   MyMethods
+};
+
+PyMODINIT_FUNC PyInit_my_module(void) {
     PyObject *m;
 
-    m = Py_InitModule("my_module", MyMethods);
+    m = PyModule_Create(&my_module);
     if (m == NULL)
-        return;
+        return NULL;
+
+    return m;
 }
+
