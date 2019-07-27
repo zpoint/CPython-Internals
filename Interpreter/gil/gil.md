@@ -223,7 +223,7 @@ not every opcode will check the `gil_drop_request`, some opcode ends with `FAST_
 	/* cpython/Python/ceval.c */
     main_loop:
         for (;;) {
- 			/* omit */
+            /* omit */
             if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
                 opcode = _Py_OPCODE(*next_instr);
                 if (opcode == SETUP_FINALLY ||

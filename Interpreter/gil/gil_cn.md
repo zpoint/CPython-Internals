@@ -221,7 +221,7 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 	/* cpython/Python/ceval.c */
     main_loop:
         for (;;) {
- 			/* 忽略 */
+            /* 忽略 */
             if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
                 opcode = _Py_OPCODE(*next_instr);
                 if (opcode == SETUP_FINALLY ||
