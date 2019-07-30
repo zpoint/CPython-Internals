@@ -12,7 +12,7 @@
 
 # overview
 
-recently I get a task to improve someone else's API written in Django server, the API will start an async job and in some cases last several minutes, I manage to improve a 40 seconds CPU bound task to lower than 1 second
+recently I get a task to improve someone else's API performance written in Django server, the API will start an async job and in some cases last several minutes, I manage to improve a 40 seconds CPU bound task to lower than 1 second
 
 # example
 

@@ -190,7 +190,7 @@
     $ python3 profile_py3.py
     # 运行需要大概 40 秒钟, 产生和上面类似的结果
 	$ cd my_mod/
-    # build the C extension module
+    # 编译 C 扩展模块
     $ python3 setup.py build
     # 下面的路径根据操作系统不同, 路径也会不同
     $ ls build/
