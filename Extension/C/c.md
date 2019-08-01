@@ -56,7 +56,7 @@ I am running with `python2.7`
 
 notice, if you're running django server with `python manage.py runserver`, the default behaviour of `runserver` will spawn a thread to handle your request, there will be at least two thread register the `profile.print_stats`, their output may interleave together and become confused
 
-you may need to call `profile.print_stats()` manually in your code and wihout register the `profile.print_stats`
+you may need to call `profile.print_stats()` manually in your code without register the `profile.print_stats`
 
 this is the output
 
