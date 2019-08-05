@@ -43,7 +43,7 @@
     nfrees = PyTuple_GET_SIZE(code->co_freevars);
     extras = code->co_stacksize + code->co_nlocals + ncells + nfrees;
     /* 忽略 */
-    if (free_list == NULL) { /* omit */
+    if (free_list == NULL) { /* 忽略 */
         f = PyObject_GC_NewVar(PyFrameObject, &PyFrame_Type, extras);
     }
     else { /* 忽略 */

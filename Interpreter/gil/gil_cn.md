@@ -195,7 +195,7 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
             {
             /* 如果 last_holder 是当前线程, 释放 switch_mutex 这把互斥锁, 等待 switch_cond 这个条件变量的信号 */
             RESET_GIL_DROP_REQUEST();
-            	/* 注意, 如果 COND_WAIT 不在互斥锁释放后原子的启动,
+                /* 注意, 如果 COND_WAIT 不在互斥锁释放后原子的启动,
                 另一个线程有可能会在这中间拿到 gil 并释放,
                 '并且重置这个条件变量, 这个过程发生在了 COND_WAIT 之前 */
                 COND_WAIT(_PyRuntime.ceval.gil.switch_cond,

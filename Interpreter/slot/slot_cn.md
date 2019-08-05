@@ -75,7 +75,7 @@
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
-根据 **descriptor protocol** 第一步找到的对象未 `descr`, 类型为 `member_descriptor`, 如果你执行
+根据 **descriptor protocol** 第一步找到的对象为 `descr`, 类型为 `member_descriptor`, 如果你执行
 
 	repr(descr)
     descr: <member 'wing' of 'A' objects>

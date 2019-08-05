@@ -2,6 +2,7 @@
 
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
 * 如果你需要接收更新通知, 点击右上角的 **Watch**, 当有文章更新时会在 issue 发布相关标题和链接
+* 如果有任何链接无法打开请自行搭梯子O(∩_∩)O
 
 这个仓库是笔者分析 [cpython](https://github.com/python/cpython) 源码的时候做的记录/博客
 
@@ -12,6 +13,7 @@
     git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
 这里的内容适用于有过 python 编程经验并且对解释器的实现感兴趣的同学, 如果你需要的的是入门到进阶之类的学习资料, 请参考 [awesome-python-books](https://github.com/Junnplus/awesome-python-books/blob/master/README-ZH_CN.md)
+
 
 # 目录
 
@@ -80,8 +82,6 @@
 # 学习资料
 
 以下的资料笔者遵循先阅读后推荐的原则
-
-若页面无法打开请自行搭梯子O(∩_∩)O
 
 * [rushter](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
