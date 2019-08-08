@@ -30,7 +30,7 @@
 - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long_cn.md)
 - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str_cn.md)
 - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set_cn.md)
-- [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md)
+- [ ] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_cn.md)
 - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_cn.md)
 - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes_cn.md)
 - [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray_cn.md)
@@ -48,6 +48,7 @@
 
  - [ ] io
  	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio_cn.md)
+ - [ ] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle_cn.md)
 
 # 库
 

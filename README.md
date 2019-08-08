@@ -28,7 +28,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
  - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set.md)
- - [x] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
+ - [ ] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
  - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
@@ -46,6 +46,7 @@ The following contents are suitable for those who have python programming experi
 
  - [ ] io
  	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio.md)
+ - [ ] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle.md)
 
 # Lib
 

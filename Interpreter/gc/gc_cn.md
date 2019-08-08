@@ -359,7 +359,7 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 ![move_unreachable8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable8.png)
 
-下一个对象是 `d1`, 它的复制引用计数 > 0, 重置它的 **_gc_prev** 指针并
+下一个对象是 `d1`, 它的复制引用计数 > 0, 重置它的 **_gc_prev** 指针
 
 我们到达了 **generation** 的尾部, 现在这一刻, **unreachable** 中的所有对象可以进行真正的回收流程
 
