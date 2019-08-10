@@ -65,7 +65,7 @@
  - [x] [module(import实现机制)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module_cn.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame_cn.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
- - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
+ - [x] [slots/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md)
  - [x] [thread(线程)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread_cn.md)
  - [x] [PyObject(基础篇/概述)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject_cn.md)
 
@@ -84,9 +84,10 @@
 
 以下的资料笔者遵循先阅读后推荐的原则
 
-* [rushter](https://rushter.com/)
-* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
 * [CPython internals - Interpreter and source code overview(油管视频)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 * [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
 * [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
-
+* [rushter(blog/eng)](https://rushter.com/)
+* [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
+* [manjusaka(blog/中文)](https://book.douban.com/subject/3117898/)
+* [manjusaka(blog/中文)](https://book.douban.com/subject/3117898/)

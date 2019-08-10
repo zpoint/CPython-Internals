@@ -63,7 +63,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
- - [x] [slot/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
+ - [x] [slots/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
  - [x] [thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.md)
  - [x] [PyObject(overview)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md)
 
@@ -84,8 +84,10 @@ In the meantime, my routine work will have a higher priority, so you may need mo
 
 I will only recommend what I've read
 
-* [rushter](https://rushter.com/)
-* [YET ANOTHER PYTHON INTERNALS BLOG](https://pythoninternal.wordpress.com/)
-* [CPython internals - Interpreter and source code overview](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
+* [CPython internals - Interpreter and source code overview(youtube video)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 * [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
 * [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
+* [rushter(blog/eng)](https://rushter.com/)
+* [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
+* [Junnplus(blog/cn)](https://github.com/Junnplus/blog/issues)
+* [manjusaka(blog/cn)](https://book.douban.com/subject/3117898/)

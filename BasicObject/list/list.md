@@ -104,6 +104,8 @@ the algorithm CPyton used in sorting `list` is quiet complicated
 	>>> l = [9, 3, 5, 4, 2, 6, 7, 8, 0, 1, 10]
     >>> l.sort()
 
+I've modified some parameter in source code for illustration, I will explain later
+
 
 
 # free_list
