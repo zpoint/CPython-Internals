@@ -90,4 +90,4 @@ I will only recommend what I've read
 * [rushter(blog/eng)](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
 * [Junnplus(blog/cn)](https://github.com/Junnplus/blog/issues)
-* [manjusaka(blog/cn)](https://book.douban.com/subject/3117898/)
+* [manjusaka(blog/cn)](https://manjusaka.itscoder.com/)
