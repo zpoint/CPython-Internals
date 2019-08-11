@@ -89,5 +89,5 @@
 * [< < Python源码剖析 > >](https://book.douban.com/subject/3117898/)
 * [rushter(blog/eng)](https://rushter.com/)
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
-* [manjusaka(blog/中文)](https://book.douban.com/subject/3117898/)
+* [Junnplus(blog/中文)](https://github.com/Junnplus/blog/issues)
 * [manjusaka(blog/中文)](https://manjusaka.itscoder.com/)

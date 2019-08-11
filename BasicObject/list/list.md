@@ -99,12 +99,34 @@ but the actual realloc will be called only if the newsize falls lower than half 
 
 # sort
 
+## binary_sort
+
+## Timsort
+
 the algorithm CPyton used in sorting `list` is quiet complicated
 
-	>>> l = [9, 3, 5, 4, 2, 6, 7, 8, 0, 1, 10]
+	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
     >>> l.sort()
 
 I've modified some parameter in source code for illustration, I will explain later
+
+A structure named `MergeState` is created for helping the **Timsort** algorithm
+
+![MergeState](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/MergeState.png)
+
+This is the state after preparing
+
+![sort_begin1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin1.png)
+
+Assume `minrun` is 5, we will see what `minrun` is and how `minrun` calculated later, for now, we run the sort algorithm and ignore these detail for illustration
+
+![sort_begin2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin2.png)
+
+`binary_sort` will be used for sorting a group of elements, the number of elements in a group is called `run(minrun)` here
+
+after `binary_sort` the first group
+
+![sort_begin3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin3.png)
 
 
 
