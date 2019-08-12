@@ -7,6 +7,9 @@
 * [append](#append)
 * [pop](#pop)
 * [sort](#sort)
+	* [binary_sort](#binary_sort)
+	* [timsort](#timsort)
+	* [merge_at](#merge_at)
 * [free_list](#free_list)
 * [read more](#read-more)
 
@@ -101,9 +104,9 @@ but the actual realloc will be called only if the newsize falls lower than half 
 
 ## binary_sort
 
-## Timsort
+## timsort
 
-the algorithm CPyton used in sorting `list` is quiet complicated
+the algorithm CPyton used in sorting `list` is **timsort**, it's quiet complicated
 
 	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
     >>> l.sort()
@@ -118,15 +121,109 @@ This is the state after preparing
 
 ![sort_begin1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin1.png)
 
-Assume `minrun` is 5, we will see what `minrun` is and how `minrun` calculated later, for now, we run the sort algorithm and ignore these detail for illustration
+Assume `minrun` is 5, we will see what `minrun` is and how `minrun` calculated later, for now, we run the sort algorithm and ignore these details for illustration
 
 ![sort_begin2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin2.png)
 
 `binary_sort` will be used for sorting a group of elements, the number of elements in a group is called `run(minrun)` here
 
-after `binary_sort` the first group
+After `binary_sort` the first group, `nremaining` becomes 15, `count_run` becomes 2, `n` of the `MergeState` becomes 1, because the `pending` is preallocated, the elements in `pending` is meaningless, `n` means how many elements in the `pending` array does mean something
 
 ![sort_begin3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin3.png)
+
+After `binary_sort` the second group
+
+![sort_begin4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin4.png)
+
+The second group is sorted by [binary_sort](#binary_sort), and the next index of `pending` stores the information of the second group
+
+We can learn from the above graph that `pending` act as a stack, every time a group is sorted, the group info will be pushed onto this stack, a function named `merge_collapse` will be called after the psuh operation
+
+    /* cpython/Objects/listobject.c */
+    /* Examine the stack of runs waiting to be merged, merging adjacent runs
+     * until the stack invariants are re-established:
+     *
+     * 1. len[-3] > len[-2] + len[-1]
+     * 2. len[-2] > len[-1]
+     */
+    static int
+    merge_collapse(MergeState *ms)
+    {
+        struct s_slice *p = ms->pending;
+
+        assert(ms);
+        while (ms->n > 1) {
+            Py_ssize_t n = ms->n - 2;
+            if ((n > 0 && p[n-1].len <= p[n].len + p[n+1].len) ||
+                /* case 1:
+                   pending[0]: [---------------------------]
+                   pending[1]: [-----------------------] (n)
+                   pending[2]: [-----------------------]
+                   ...                                   (ms->n)
+                   len(pending[0]) <= len(pending[1])  + len(pending[2])
+                */
+                (n > 1 && p[n-2].len <= p[n-1].len + p[n].len)) {
+                /* case 2:
+                   ...
+                   pending[3]: [-----------------------------------------------------------------]
+                   pending[4]: [-----------------------------------------------------------------]
+                   pending[5]: [-----------------------] (n)
+                   pending[6]: [-----------------------]
+                   pending[7]: [-----------------------] (ms->n)
+                   len(pending[3]) <= len(pending[4])  + len(pending[5])
+                */
+                if (p[n-1].len < p[n+1].len)
+                   /* pending[0]: [-----------------] (new_n)
+                      pending[1]: [-----------------------] (n)
+                      pending[2]: [-----------------------]
+                   */
+                    --n;
+                if (merge_at(ms, n) < 0)
+                    return -1;
+            }
+            else if (p[n].len <= p[n+1].len) {
+                   /* case 3:
+                   pending[0]: [--------------] (n)
+                   pending[1]: [--------------]
+                   */
+                if (merge_at(ms, n) < 0)
+                    return -1;
+            }
+            else
+                break;
+        }
+        return 0;
+    }
+
+The current state is case 3, `merge_at` will merge the two runs at stack indices `i` and `i+1`
+
+## merge_at
+
+`merge_at` is the combination of [merge_sort](https://github.com/zpoint/Algorithms/tree/master/Sort/merge%20sort) and **galloping mode**
+
+![ms](https://github.com/zpoint/Algorithms/blob/master/screenshots/ms.gif)
+
+After `merge_collapse`, the first two runs are merged and valid length of `pending` becomes 1
+
+![sort_begin5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin5.png)
+
+After [binary_sort](#binary_sort) the next run
+
+![sort_begin6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin6.png)
+
+The `merge_collapse` won't merge any of the `run`because the stack invariants are good
+
+After [binary_sort](#binary_sort) the final run
+
+![sort_begin7](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin7.png)
+
+It meets `case 1`, and the last two runs will be merged first
+
+![sort_begin8](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin8.png)
+
+In the while loop of `merge_collapse`, merge will happen again in `case 3`, after this merge, we've finished our [timsort](#timsort) algorithm and all the `ob_item` in `list` are sorted
+
+![sort_begin9](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin9.png)
 
 
 
