@@ -28,7 +28,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
  - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
  - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set.md)
- - [ ] [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
+ - [x] [list(timsort)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
  - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
  - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
  - [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
