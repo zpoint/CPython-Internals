@@ -12,6 +12,7 @@
 	* [galloping mode](#galloping-mode)
 	* [binary_sort](#binary_sort)
 	* [run](#run)
+	* [时间复杂度](#时间复杂度)
 * [free_list(缓冲池)](#free_list)
 * [更多资料](#更多资料)
 
@@ -303,6 +304,8 @@ CPyton 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一
         }
         return n + r;
     }
+
+## 时间复杂度
 
 [timsort](#timsort) 的时间复杂度如下
 

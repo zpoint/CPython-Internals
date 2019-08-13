@@ -12,6 +12,7 @@
 	* [galloping mode](#galloping-mode)
 	* [binary_sort](#binary_sort)
 	* [run](#run)
+	* [time complexity](#time-complexity)
 * [free_list](#free_list)
 * [read more](#read-more)
 
@@ -306,6 +307,8 @@ I've changed this const to a smaller value so that the example above can fit int
         }
         return n + r;
     }
+
+## time complexity
 
 time complexity of [timsort](#timsort)
 
