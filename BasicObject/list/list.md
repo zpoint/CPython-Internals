@@ -307,6 +307,10 @@ I've changed this const to a smaller value so that the example above can fit int
         return n + r;
     }
 
+time complexity of [timsort](#timsort)
+
+![complexity](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/complexity.png)
+
 # free_list
 
     #ifndef PyList_MAXFREELIST

@@ -304,6 +304,10 @@ CPyton 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一
         return n + r;
     }
 
+[timsort](#timsort) 的时间复杂度如下
+
+![complexity](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/complexity.png)
+
 # free_list
 
     #ifndef PyList_MAXFREELIST
