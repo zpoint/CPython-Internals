@@ -46,7 +46,7 @@ because the **tick** is not time-based, some thread might run far longer than ot
 
 in multi-core machine, if two threads both running CPU-bound tasks, the os might schedule the two threads running on different cores, there might be a situation that one thread holding the **gil** executing it's task in it's **100 ticks cycle** in a core, while the thread in the other core wakes up preiodly try to acquire the **gil** but fail, spinning the CPU
 
-the job(thread) schedule mechanism is fully controlled by the operating system, the thread handling IO-bound task have to wait for other thread to release the **gil**, and other thread might re-acquire the **gil** after it release the **gil**, which makes the current IO-bound task thread wait even longer (actually, the thread that cause os's context-switch by it self will have higher priority than those thread forced by os, programmer can utilize this feature by put the IO-bound thread to sleep as soon as possible)
+the job(thread) schedule mechanism is fully controlled by the operating system, the thread handling IO-bound task have to wait for other thread to release the **gil**, and other thread might re-acquire the **gil** after it release the **gil**, which makes the current IO-bound task thread wait even longer (actually, the thread that cause os's context-switch by it self will have higher priority than those thread forced by os, programmer can utilize this feature by putting the IO-bound thread to sleep as soon as possible)
 
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))

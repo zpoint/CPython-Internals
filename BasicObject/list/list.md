@@ -292,7 +292,7 @@ and set element in `start` to `pivot`, we've finished the binary_sort algorithm
 
 actually `minrun` will be computed in the following function, if the current `run` number is lower than 64, it will be [binary_sort](#binary_sort) directly, else half of it's size will be shrink until there's a result size lower than 64
 
-I've changed this const to a smaller value so that the example above can fit into my graph
+I've changed this constant to a smaller value so that the example above can fit into my graph
 
 
     static Py_ssize_t
