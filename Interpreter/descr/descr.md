@@ -368,7 +368,7 @@ now, we have the answers of
 
 Assume you've read the following two parts
 
-* [how does attributes initialized in the creation of class/instance](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md#without-slots)
+* [how does attributes initialize in the creation of class/instance](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md#without-slots)
 * [creation of class/instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
 
 ### self defined types instance attribute access

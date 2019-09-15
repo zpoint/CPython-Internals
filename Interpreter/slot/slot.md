@@ -15,12 +15,12 @@
 	* [type access x](#type-access-x)
 * [difference](#difference)
 	* [with slots](#with-slots)
-		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
-		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
+		* [how does attributes initialize in the creation of `class A` ?](#how-does-attributes-initialize-in-the-creation-of-class-A-?)
+		* [how does attributes initialize in the creation of `instance a` ?](#how-does-attributes-initialize-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
 	* [without slots](#without-slots)
-		* [how does attributes initialized in the creation of `class A` ?](#how-does-attributes-initialized-in-the-creation-of-class-A-?)
-		* [how does attributes initialized in the creation of `instance a` ?](#how-does-attributes-initialized-in-the-creation-of-instance-a-?)
+		* [how does attributes initialize in the creation of `class A` ?](#how-does-attributes-initialize-in-the-creation-of-class-A-?)
+		* [how does attributes initialize in the creation of `instance a` ?](#how-does-attributes-initialize-in-the-creation-of-instance-a-?)
 		* [lookup procedure in MRO ?](#lookup-procedure-in-MRO-?)
 	* [memory saving measurement](#memory-saving-measurement)
 * [read more](#read-more)
@@ -159,7 +159,7 @@ the procedure of accessing `A.x` is nearly the same as `a.x`
 
 ## with slots
 
-### how does attributes initialized in the creation of `class A` ?
+### how does attributes initialize in the creation of `class A` ?
 
 we can learn about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
 
@@ -175,7 +175,7 @@ the `tp_dict` field does not have a key named `__dict__`
 
 ![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
 
-### how does attributes initialized in the creation of `instance a` ?
+### how does attributes initialize in the creation of `instance a` ?
 
 the memory location of the attributes in `__slots__` are preallocated
 
@@ -271,13 +271,13 @@ so `AttributeError` will be raised
         wing = "wingA"
         leg = "legA"
 
-### how does attributes initialized in the creation of `class A` ?
+### how does attributes initialize in the creation of `class A` ?
 
 the `tp_dict` field has a key named `__dict__`
 
 ![type_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create_no_slot.png)
 
-### how does attributes initialized in the creation of `instance a` ?
+### how does attributes initialize in the creation of `instance a` ?
 
 ![instance_create_no_slot](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_create_no_slot.png)
 
