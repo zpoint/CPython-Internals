@@ -1,11 +1,17 @@
 # descr
 
+Thanks @Hanaasagi for pointing out the errors [#19](https://github.com/zpoint/CPython-Internals/issues/19) of this article
+
 # contents
 
 * [related file](#related-file)
 * [how does attribute access work in python?](#how-does-attribute-access-work-in-python)
-    * [instance attribute access](#instance-attribute-access)
-    * [class attribute access](#class-attribute-access)
+	* [built-in types](#built-in-types)
+        * [instance attribute access](#instance-attribute-access)
+        * [class attribute access](#class-attribute-access)
+    * [self defined types](#built-in-types)
+    	* [self defined types instance attribute access](#self-defined-types-instance-attribute-access)
+    	* [self defined types class attribute access](#self-defined-types-class-attribute-access)
 * [method_descriptor](#method_descriptor)
     * [memory layout](#memory-layout)
 * [how to change the behavior of attribute access?](#how-to-change-the-behavior-of-attribute-access)
@@ -22,6 +28,8 @@
 
 # how does attribute access work in python
 
+## built in types
+
 let's see an example first before we look into how descriptor object implements
 
     print(type(str.center)) # <class 'method_descriptor'>
@@ -29,7 +37,7 @@ let's see an example first before we look into how descriptor object implements
 
 what is type **method_descriptor** ? why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ? how does attribute access work in python ?
 
-## instance attribute access
+### instance attribute access
 
 this is the defination of `inspect.ismethoddescriptor` and `inspect.isdatadescriptor`
 
@@ -93,25 +101,39 @@ we can see that the core **opcode** is `LOAD_ATTR`, follow the `LOAD_ATTR` to th
                          name->ob_type->tp_name);
             return NULL;
         }
-        /* first call the __getattribute__ method */
+        /* first call the tp_getattro function in C level */
         if (tp->tp_getattro != NULL)
             return (*tp->tp_getattro)(v, name);
-        /* if __getattribute__ fail, try to call the __getattr__ method */
+        /* if there's not a tp_getattro C function, try to call the tp_getattr function */
         if (tp->tp_getattr != NULL) {
             const char *name_str = PyUnicode_AsUTF8(name);
             if (name_str == NULL)
                 return NULL;
             return (*tp->tp_getattr)(v, (char *)name_str);
         }
+        /* If there's not a tp_getattr C function either, raise an exception */
         PyErr_Format(PyExc_AttributeError,
                      "'%.50s' object has no attribute '%U'",
                      tp->tp_name, name);
         return NULL;
     }
 
-**tp_getattro** is the `__getattribute__` method
+[**tp_getattro**](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_getattro) is
 
-**tp_getattr** is the `__getattr__` method
+> an optional pointer to the get-attribute function.
+
+it accepts two parameters, `PyObject *o, PyObject *attr_name`
+
+[**tp_getattr**](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_getattr) is
+
+> an optional pointer to the get-attribute-string function.
+> This field is deprecated. When it is defined, it should point to a function that acts the same as the tp_getattro function, but taking a C string instead of a Python string object to give the attribute name.
+
+it accepts two parameters, `PyObject *o, char *attr_name`
+
+The only difference between them is the second parameter, which is of type `PyObject *` in **tp_getattro** and type `char *` in **tp_getattr**
+
+From the above `PyObject_GetAttr` function, we can learn that `tp_getattro` have a higher priority than `tp_getattr`
 
 we can see how type **str** is defined in `Objects/unicodeobject.c`
 
@@ -137,7 +159,7 @@ we can see how type **str** is defined in `Objects/unicodeobject.c`
         0,                            /* tp_setattro */
         ...
 
-it's using the widely used c function `PyObject_GenericGetAttr` in cpython as it's `tp_getattro` (alias of ` __getattribute__`), which is defined in `Objects/object.c`
+it's using the widely used c function `PyObject_GenericGetAttr` in cpython as it's `tp_getattro`, which is defined in `Objects/object.c`
 
     PyObject *
     PyObject_GenericGetAttr(PyObject *obj, PyObject *name)
@@ -265,7 +287,7 @@ we can draw the process according to the code above
 
 ![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
-until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in `PyUnicode_Type` will not be called in `str.center`, otherwise, it will be called in `"str".center`, you can tell the differences in the following codes
+until now, I made a mistake, the `tp_getattro` in `PyUnicode_Type` will not be called in `str.center`, otherwise, it will be called in `"str".center`, you can tell the differences in the following codes
 
     >>> type("str")
     <class 'str'>
@@ -283,11 +305,11 @@ until now, I made a mistake, the `tp_getattro` (alias of ` __getattribute__`) in
 
 so, the procedure above describes the attribute access of `"str".center`
 
-## class attribute access
+### class attribute access
 
 let's find the definition of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
 
-for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(alias of `__getattribute__`)
+for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro`
 
     PyTypeObject PyType_Type = {
         PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -323,7 +345,7 @@ for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro` method(
 
 ![str_attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/str_attribute_access.png)
 
-from the above pictures and codes, we can know that even if the `__getattribute__` method of `str` and `"str"` are different, they both calls the same `tp_descr_get` (alias of `__get__`) defined in a type named `method_descriptor`
+from the above pictures and codes, we can know that even if the `tp_getattro` function of `str` and `"str"` are different, they both calls the same `tp_descr_get` (alias of `__get__`) defined in a type named `method_descriptor`
 
     /* in cpython/Objects/descrobject.c */
     static PyObject *
@@ -341,6 +363,200 @@ from the above pictures and codes, we can know that even if the `__getattribute_
 now, we have the answers of
 * why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ?
 * how does attribute access work in python ?
+
+## self defined types
+
+Assume you've read the following two parts
+
+* [how does attributes initialized in the creation of class/instance](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md#without-slots)
+* [creation of class/instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
+
+### self defined types instance attribute access
+
+From the above analyzation, we can laern that the key point is `tp_getattro` defined in `type(instance)`, `tp_getattro` function of those built-in types is pre defined in C, while user defined type is created on the fly, some function will be attached to the newly created type in the `tp_getattro` field
+
+    class A(object):
+        def __getattr__(self, item):
+            pass
+
+
+    class B(object):
+        def __getattribute__(self, item):
+            pass
+
+
+    class C(object):
+        pass
+
+What is in the `tp_getattro` field of `class A`, `class B` and `class C` ?
+
+The following codes are snippests of the creation of a type
+
+    /* cpython/Objects/typeobject.c */
+    static slotdef slotdefs[] = {
+        /* ... */
+        TPSLOT("__getattribute__", tp_getattro, slot_tp_getattr_hook,
+        wrap_binaryfunc,
+        "__getattribute__($self, name, /)\n--\n\nReturn getattr(self, name)."),
+        TPSLOT("__getattr__", tp_getattro, slot_tp_getattr_hook, NULL, ""),
+        TPSLOT("__setattr__", tp_setattro, slot_tp_setattro, wrap_setattr,
+        /* ... */
+    }
+
+    static PyObject *
+    type_new(PyTypeObject *metatype, PyObject *args, PyObject *kwds)
+    {
+            /* ... */
+            /* Put the proper slots in place */
+            fixup_slot_dispatchers(type);
+            /* ... */
+    }
+
+    /* Store the proper functions in the slot dispatches at class (type)
+       definition time, based upon which operations the class overrides in its
+       dict. */
+    static void
+    fixup_slot_dispatchers(PyTypeObject *type)
+    {
+        slotdef *p;
+
+        init_slotdefs();
+        for (p = slotdefs; p->name; )
+            p = update_one_slot(type, p);
+    }
+
+    static slotdef *
+    update_one_slot(PyTypeObject *type, slotdef *p)
+    {
+        PyObject *descr;
+        PyWrapperDescrObject *d;
+        void *generic = NULL, *specific = NULL;
+        int use_generic = 0;
+        int offset = p->offset;
+        int error;
+        void **ptr = slotptr(type, offset);
+
+        if (ptr == NULL) {
+            do {
+                ++p;
+            } while (p->offset == offset);
+            return p;
+        }
+        assert(!PyErr_Occurred());
+        do {
+            descr = find_name_in_mro(type, p->name_strobj, &error);
+            if (descr == NULL) {
+                if (error == -1) {
+                    PyErr_Clear();
+                }
+                if (ptr == (void**)&type->tp_iternext) {
+                    specific = (void *)_PyObject_NextNotImplemented;
+                }
+                continue;
+            }
+            if (Py_TYPE(descr) == &PyWrapperDescr_Type &&
+                ((PyWrapperDescrObject *)descr)->d_base->name_strobj == p->name_strobj) {
+                void **tptr = resolve_slotdups(type, p->name_strobj);
+                if (tptr == NULL || tptr == ptr)
+                    generic = p->function;
+                d = (PyWrapperDescrObject *)descr;
+                if (d->d_base->wrapper == p->wrapper &&
+                PyType_IsSubtype(type, PyDescr_TYPE(d)))
+                {
+                    if (specific == NULL ||
+                        specific == d->d_wrapped)
+                        specific = d->d_wrapped;
+                    else
+                        use_generic = 1;
+                }
+            }
+            else if (Py_TYPE(descr) == &PyCFunction_Type &&
+                     PyCFunction_GET_FUNCTION(descr) ==
+                     (PyCFunction)(void(*)(void))tp_new_wrapper &&
+                     ptr == (void**)&type->tp_new)
+            {
+                /* ... */
+                specific = (void *)type->tp_new;
+                /* ... */
+            }
+            else if (descr == Py_None &&
+                     ptr == (void**)&type->tp_hash) {
+                /* ... */
+                specific = (void *)PyObject_HashNotImplemented;
+                /* ... */
+            }
+            else {
+                use_generic = 1;
+                generic = p->function;
+            }
+        } while ((++p)->offset == offset);
+        if (specific && !use_generic)
+            *ptr = specific;
+        else
+            *ptr = generic;
+        return p;
+    }
+
+We can learn that for every pre defined slot attribute in the `slotdefs`, `update_one_slot` will install the proper function/object to the newly created type
+
+`__getattribute__` and `__getattr__` have same offset in every newly created type(you can learn from `slotdefs` structure)
+
+For `class A`, when installing `__getattribute__`, `offset` is `144`, the `descr` is `<slot wrapper '__getattribute__' of 'object' objects>`, `PyType_IsSubtype(type, PyDescr_TYPE(d))` is True, so `specific` will be `d->d_wrapped`, which is `PyObject_GenericGetAttr`. In the next while loop, when installing `__getattr__`, `offset` is also `144`, this time `descr` will be `<function A.__getattr__ at 0x1013260c0>`, the final `else` inside the while loop will set `generic` to `p->function`, which is `slot_tp_getattr_hook`, now the while loop terminate and offset `144` stores `slot_tp_getattr_hook`
+
+For `class B`, when installing `__getattribute__`, `offset` is `144`, the `descr` is `<function B.__getattribute__ at 0x103ad6140>`,  the final `else` inside the while loop will set `generic` to `p->function`, which is `slot_tp_getattr_hook`, In the next while loop, when installing `__getattr__`, `offset` is also `144`, this time `descr` is a `null` pointer, so the `continue` statement will terminate the while loop, offset `144` stores `slot_tp_getattr_hook`
+
+For `class C`, when installing `__getattribute__`, `offset` is `144`, the `descr` is `<slot wrapper '__getattribute__' of 'object' objects>`, `PyType_IsSubtype(type, PyDescr_TYPE(d))` is True, so `specific` will be `d->d_wrapped`, which is `PyObject_GenericGetAttr`, In the next while loop, when installing `__getattr__`, `offset` is also `144`, this time `descr` is a `null` pointer, so the `continue` statement will terminate the while loop, offset `144` stores `PyObject_GenericGetAttr`
+
+`slot_tp_getattr_hook` is defined as
+
+    /* python/Objects/typeobject.c */
+    static PyObject *
+    slot_tp_getattro(PyObject *self, PyObject *name)
+    {
+        PyObject *stack[1] = {name};
+        return call_method(self, &PyId___getattribute__, stack, 1);
+    }
+
+    static PyObject *
+    slot_tp_getattr_hook(PyObject *self, PyObject *name)
+    {
+        PyTypeObject *tp = Py_TYPE(self);
+        PyObject *getattr, *getattribute, *res;
+        _Py_IDENTIFIER(__getattr__);
+
+        getattr = _PyType_LookupId(tp, &PyId___getattr__);
+        if (getattr == NULL) {
+            /* No __getattr__ hook: use a simpler dispatcher */
+            tp->tp_getattro = slot_tp_getattro;
+            return slot_tp_getattro(self, name);
+        }
+        Py_INCREF(getattr);
+        getattribute = _PyType_LookupId(tp, &PyId___getattribute__);
+        if (getattribute == NULL ||
+            (Py_TYPE(getattribute) == &PyWrapperDescr_Type &&
+             ((PyWrapperDescrObject *)getattribute)->d_wrapped ==
+             (void *)PyObject_GenericGetAttr))
+            res = PyObject_GenericGetAttr(self, name);
+        else {
+            Py_INCREF(getattribute);
+            res = call_attribute(self, getattribute, name);
+            Py_DECREF(getattribute);
+        }
+        if (res == NULL && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+            PyErr_Clear();
+            res = call_attribute(self, getattr, name);
+        }
+        Py_DECREF(getattr);
+        return res;
+    }
+
+If there's no `___getattr__` method, `slot_tp_getattr_hook` will only call `___getattribute__` directly
+
+If there defines `__getattr__`, `slot_tp_getattr_hook` will call `___getattribute__`, if there's no result and occurs `PyExc_AttributeError`, try to call `__getattr__`
+
+### self defined types class attribute access
+
+Because `type(newly_created_class)` will always return `<class 'type'>`, and the `tp_getattro` of `<class 'type'>` is pre defined in C and not able to be customized, the behaviour of attribute accessing is same as [class attribute access](#class-attribute-access)
 
 # method_descriptor
 
@@ -373,18 +589,17 @@ there exists various descriptor type
 we know that when you try to access the attribute of an object, the python virtual machine will
 
 1. execute the opcode `LOAD_ATTR`
-2. `LOAD_ATTR` will try to call `__getattribute__` method of the object, if success go to 5
-3. call `__getattr__` method of the object, if success go to 5
-4. raise an exception
-5. return what's returned
+2. `LOAD_ATTR` will try to call `tp_getattro` function of the object, if success go to 4
+3. raise an exception
+4. return what's returned
 
-the default `__getattribute__` is written in C, it implements the **descriptor protocol** which we learned above from the source code
+the default `__getattribute__` will be installed in the creation process of the newly created type, different behaviour depends on what methods are override by user, generally, the default `__getattribute__` is `PyObject_GenericGetAttr` which implements the **descriptor protocol**(we learned above from the source code)
 
 when we define a python object, if we need to change the behavior of attribute access
 
 we are not able to change the behavior of opcode `LOAD_ATTR`, it's written in C
 
-instead, we can provide our own `__getattribute__` and `__getattr__` instead of the default `tp_getattro`(in C) and `tp_getattr`(in C)
+instead, we can provide our own `__getattribute__` and `__getattr__` to change the function installed in the `tp_getattro` slot of the newly created type
 
 notice, provide your own `__getattribute__` may violate the **descriptor protocol**, I will not recommend you to do that(usually we only need to define our own `__getattr__`)
 

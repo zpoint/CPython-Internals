@@ -1,11 +1,17 @@
 # descr
 
+感谢 @Hanaasagi 指出之前本章节存在的问题 [#19](https://github.com/zpoint/CPython-Internals/issues/19) 已改正
+
 # 目录
 
 * [相关位置文件](#相关位置文件)
 * [python 中的属性访问机制是如何运作的?](#python-中的属性访问机制是如何运作的)
-	* [实例属性访问](#实例属性访问)
-	* [类属性访问](#类属性访问)
+	* [内建类型](#内建类型)
+        * [实例属性访问](#实例属性访问)
+        * [类属性访问](#类属性访问)
+	* [自定义类型](#自定义类型)
+        * [自定义类型的实例属性访问](#自定义类型的实例属性访问)
+        * [自定义类型的类属性访问](#自定义类型的类属性访问)
 * [method_descriptor](#method_descriptor)
 	* [内存构造](#内存构造)
 * [如何更改属性访问机制的行为?](#如何更改属性访问机制的行为)
@@ -29,7 +35,9 @@
 
 **method_descriptor** 是什么类型 ? 为什么 `str.center` 返回的类型是 **method_descriptor** 而 `"str".center` 返回的类型是 **builtin_function_or_method** ? python 中的属性访问机制是如何运作的 ?
 
-## 实例属性访问
+## 内建类型
+
+### 实例属性访问
 
 这是 `inspect.ismethoddescriptor` 和 `inspect.isdatadescriptor` 的定义
 
@@ -92,25 +100,39 @@
                          name->ob_type->tp_name);
             return NULL;
         }
-        /* 首先尝试调用 __getattribute__ 方法 */
+        /* 首先尝试调用 C 结构体中定义的 tp_getattro 字段/位置方法 */
         if (tp->tp_getattro != NULL)
             return (*tp->tp_getattro)(v, name);
-        /* 如果 __getattribute__ 失败了, 则尝试调用 __getattr__ 方法 */
+        /* 如果没有定义 tp_getattro, 则尝试调用 tp_getattr 方法 */
         if (tp->tp_getattr != NULL) {
             const char *name_str = PyUnicode_AsUTF8(name);
             if (name_str == NULL)
                 return NULL;
             return (*tp->tp_getattr)(v, (char *)name_str);
         }
+        /* 如果连 tp_getattr 也没有定义, 则抛出异常 */
         PyErr_Format(PyExc_AttributeError,
                      "'%.50s' object has no attribute '%U'",
                      tp->tp_name, name);
         return NULL;
     }
 
-**tp_getattro** 在 c 里面表示 `__getattribute__` 方法
+[**tp_getattro**](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_getattro) 在文档中描述如下
 
-**tp_getattr** 在 c 里面表示 `__getattr__` 方法
+> 一个可选的指向获取属性的函数的指针
+
+这个函数接受两个参数, `PyObject *o, PyObject *attr_name`
+
+[**tp_getattr**](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_getattr) 在文档中描述如下
+
+> 一个可选的指向获取字符串属性的函数的指针
+> 这个字段已经弃用了, 当这个字段指向了定义的函数时, 它应该指向一个功能和 tp_getattro 相同的函数, 但是第二个作为属性名称的参数应该是一个 C 字符串而不是 Python 字符串
+
+这个函数接受两个参数, `PyObject *o, char *attr_name`
+
+他们唯一的区别就是第二个参数, **tp_getattro** 接受 `PyObject *` 作为第二个参数, **tp_getattr** 接受 `char *` 作为第二个参数
+
+并且从前面的 `PyObject_GetAttr` 函数, 我们可以发现 `tp_getattro` 比起 `tp_getattr` 有更高的优先级
 
 我们可以在 `Objects/unicodeobject.c` 找到 **str** 这个类型的定义
 
@@ -136,7 +158,7 @@
         0,                            /* tp_setattro */
         ...
 
-我们可以发现, 它使用了一个通用的默认方法 `PyObject_GenericGetAttr` 放在它的 `tp_getattro` (在 python 中的名称为 ` __getattribute__` ) 字段中, 我们在 `Objects/object.c` 中可以看到这个方法的定义
+我们可以发现, 它使用了一个通用的默认方法 `PyObject_GenericGetAttr` 放在它的 `tp_getattro` 字段中, 我们在 `Objects/object.c` 中可以看到这个方法的定义
 
     PyObject *
     PyObject_GenericGetAttr(PyObject *obj, PyObject *name)
@@ -257,7 +279,7 @@
 
 ![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
-到了这里, 我发现我弄错了一个地方, 执行命令 `str.center` 的时候, `PyUnicode_Type` 中的 `tp_getattro`(在 python 中的名称为 ` __getattribute__` ) 实际上是不会被调用的. 相反, 他们会在命令 `"str".center` 的过程中被调用, 下面的代码可以在表面看到这两个方式的不同
+到了这里, 我发现我弄错了一个地方, 执行命令 `str.center` 的时候, `PyUnicode_Type` 中的 `tp_getattro`实际上是不会被调用的. 相反, 他们会在命令 `"str".center` 的过程中被调用, 下面的代码可以在表面看到这两个方式的不同
 
     >>> type("str")
     <class 'str'>
@@ -275,11 +297,11 @@
 
 所以, 到这里之前上面讲的所有过程都是 `"str".center` 这个实例的属性访问
 
-## 类属性访问
+### 类属性访问
 
 我们来找找 `<class 'type'>` 的定义, 还有 `str.center` 的属性访问是如何工作的(大致上和 `"str".center` 相同)
 
-对于类型 `<class 'type'>`, opcode `LOAD_ATTR` 依然会调用 `type_getattro` 字段中存储的函数(python 中叫做`__getattribute__`)
+对于类型 `<class 'type'>`, opcode `LOAD_ATTR` 依然会调用 `type_getattro` 字段中存储的函数
 
     PyTypeObject PyType_Type = {
         PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -336,6 +358,199 @@
 * 为什么 `str.center` 返回的类型是 **method_descriptor** 而 `"str".center` 返回的类型是 **builtin_function_or_method** ?
 * python 中的属性访问机制是如何运作的 ?
 
+## 自定义类型
+
+假设你已经了解了如下两个过程
+
+* [属性在类/实例创建时是如何初始化的](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot_cn.md#%E6%B2%A1%E6%9C%89slots)
+* [类/实例的创建过程](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type_cn.md#class-%E7%9A%84%E5%88%9B%E5%BB%BA)
+
+### 自定义类型的实例属性访问
+
+通过以上的分析, 我们可以知道关键的部分就是 `type(instance)` 中字段 `tp_getattro` 所存储的值, 对于内建类型 `tp_getattro` 字段所存储的函数都是预先在 C 中定义好的, 然而用户创建的类型却是在解释器运行时在创建类的过程中给 `tp_getattro` 这个字段赋上的一个值, 在这个过程中, 肯定有哪一个函数的指针被存储到了新创建对象的 `tp_getattro` 字段中
+
+    class A(object):
+        def __getattr__(self, item):
+            pass
+
+
+    class B(object):
+        def __getattribute__(self, item):
+            pass
+
+
+    class C(object):
+        pass
+
+`class A`, `class B` 和 `class C` 中 `tp_getattro` 字段存储的值是什么呢 ?
+
+下面是类创建过程中的部分代码段
+
+    /* cpython/Objects/typeobject.c */
+    static slotdef slotdefs[] = {
+        /* ... */
+        TPSLOT("__getattribute__", tp_getattro, slot_tp_getattr_hook,
+        wrap_binaryfunc,
+        "__getattribute__($self, name, /)\n--\n\nReturn getattr(self, name)."),
+        TPSLOT("__getattr__", tp_getattro, slot_tp_getattr_hook, NULL, ""),
+        TPSLOT("__setattr__", tp_setattro, slot_tp_setattro, wrap_setattr,
+        /* ... */
+    }
+
+    static PyObject *
+    type_new(PyTypeObject *metatype, PyObject *args, PyObject *kwds)
+    {
+            /* ... */
+            /* 把对应的 slots 放到对应的位置上 */
+            fixup_slot_dispatchers(type);
+            /* ... */
+    }
+
+    /* 在创建 class (type) 时, 根据用户覆写的函数情况, 把对应的函数存储到对应的位置上 */
+    static void
+    fixup_slot_dispatchers(PyTypeObject *type)
+    {
+        slotdef *p;
+
+        init_slotdefs();
+        for (p = slotdefs; p->name; )
+            p = update_one_slot(type, p);
+    }
+
+    static slotdef *
+    update_one_slot(PyTypeObject *type, slotdef *p)
+    {
+        PyObject *descr;
+        PyWrapperDescrObject *d;
+        void *generic = NULL, *specific = NULL;
+        int use_generic = 0;
+        int offset = p->offset;
+        int error;
+        void **ptr = slotptr(type, offset);
+
+        if (ptr == NULL) {
+            do {
+                ++p;
+            } while (p->offset == offset);
+            return p;
+        }
+        assert(!PyErr_Occurred());
+        do {
+            descr = find_name_in_mro(type, p->name_strobj, &error);
+            if (descr == NULL) {
+                if (error == -1) {
+                    PyErr_Clear();
+                }
+                if (ptr == (void**)&type->tp_iternext) {
+                    specific = (void *)_PyObject_NextNotImplemented;
+                }
+                continue;
+            }
+            if (Py_TYPE(descr) == &PyWrapperDescr_Type &&
+                ((PyWrapperDescrObject *)descr)->d_base->name_strobj == p->name_strobj) {
+                void **tptr = resolve_slotdups(type, p->name_strobj);
+                if (tptr == NULL || tptr == ptr)
+                    generic = p->function;
+                d = (PyWrapperDescrObject *)descr;
+                if (d->d_base->wrapper == p->wrapper &&
+                PyType_IsSubtype(type, PyDescr_TYPE(d)))
+                {
+                    if (specific == NULL ||
+                        specific == d->d_wrapped)
+                        specific = d->d_wrapped;
+                    else
+                        use_generic = 1;
+                }
+            }
+            else if (Py_TYPE(descr) == &PyCFunction_Type &&
+                     PyCFunction_GET_FUNCTION(descr) ==
+                     (PyCFunction)(void(*)(void))tp_new_wrapper &&
+                     ptr == (void**)&type->tp_new)
+            {
+                /* ... */
+                specific = (void *)type->tp_new;
+                /* ... */
+            }
+            else if (descr == Py_None &&
+                     ptr == (void**)&type->tp_hash) {
+                /* ... */
+                specific = (void *)PyObject_HashNotImplemented;
+                /* ... */
+            }
+            else {
+                use_generic = 1;
+                generic = p->function;
+            }
+        } while ((++p)->offset == offset);
+        if (specific && !use_generic)
+            *ptr = specific;
+        else
+            *ptr = generic;
+        return p;
+    }
+
+从上面的代码段我们可以发现, `slotdefs` 预先设定了一个类所必须的属性值, 对于每一个属性值, `update_one_slot` 会根据情况把用户覆写的或者系统内置的函数放到新创建的类的对应的位置上
+
+对于每一个新创建的类, `slotdefs`  为 `__getattribute__` 和 `__getattr__` 检测和设置值时候, 他们拥有同样的 offset, 也就是说这两个属性在新创建的类型的 C 结构体中, 他们的存储的位置相同, 后存储的函数指针会覆盖先存储的函数指针
+
+对于 `class A`, 当设置 `__getattribute__` 时, `offset` 为 `144`, `descr` 的值为 `<slot wrapper '__getattribute__' of 'object' objects>`, `PyType_IsSubtype(type, PyDescr_TYPE(d))` 为真, 所以 `specific` 会成为 `d->d_wrapped`, 也就是 `PyObject_GenericGetAttr`. 在下一个 while 循环中, 当为 `__getattr__` 设置值时, `offset` 也是 `144`, 此时 `descr` 的值变成了 `<function A.__getattr__ at 0x1013260c0>`, while 循环中最后的 `else` 会把 `generic` 设置为 `p->function`, 也就是 `slot_tp_getattr_hook`, 此时 while 循环结束, offset `144` 中存储的值为 `slot_tp_getattr_hook`
+
+对于 `class B`, 当设置 `__getattribute__` 时, `offset` 为 `144`, `descr` 的值为 `<function B.__getattribute__ at 0x103ad6140>`,  while 循环中最后的 `else` 会把 `generic` 设置为 `p->function`, 也就是 `slot_tp_getattr_hook`, 在下一个 while 循环中, 当为 `__getattr__` 设置值时, `offset` 也是 `144`, 此时 `descr` 为一个 `null` 指针, 所以会执行到 `continue` 并结束此次 while 循环, offset `144` 中存储的值为 `slot_tp_getattr_hook`
+
+对于 `class C`, 当设置 `__getattribute__` 时, `offset` 为 `144`, `descr` 的值为 `<slot wrapper '__getattribute__' of 'object' objects>`, `PyType_IsSubtype(type, PyDescr_TYPE(d))` 为真, 所以 `specific` 会被设置为 `d->d_wrapped`, 也就是 `PyObject_GenericGetAttr`, 在下一个 while 循环中, 当为 `__getattr__` 设置值时, `offset` 也是 `144`, 此时 `descr` 为一个 `null` 指针, 所以会执行到 `continue` 并结束此次 while 循环, offset `144` 中存储的值为 `PyObject_GenericGetAttr`
+
+`slot_tp_getattr_hook` 的定义如下
+
+    /* python/Objects/typeobject.c */
+    static PyObject *
+    slot_tp_getattro(PyObject *self, PyObject *name)
+    {
+        PyObject *stack[1] = {name};
+        return call_method(self, &PyId___getattribute__, stack, 1);
+    }
+
+    static PyObject *
+    slot_tp_getattr_hook(PyObject *self, PyObject *name)
+    {
+        PyTypeObject *tp = Py_TYPE(self);
+        PyObject *getattr, *getattribute, *res;
+        _Py_IDENTIFIER(__getattr__);
+
+        getattr = _PyType_LookupId(tp, &PyId___getattr__);
+        if (getattr == NULL) {
+            /* No __getattr__ hook: use a simpler dispatcher */
+            tp->tp_getattro = slot_tp_getattro;
+            return slot_tp_getattro(self, name);
+        }
+        Py_INCREF(getattr);
+        getattribute = _PyType_LookupId(tp, &PyId___getattribute__);
+        if (getattribute == NULL ||
+            (Py_TYPE(getattribute) == &PyWrapperDescr_Type &&
+             ((PyWrapperDescrObject *)getattribute)->d_wrapped ==
+             (void *)PyObject_GenericGetAttr))
+            res = PyObject_GenericGetAttr(self, name);
+        else {
+            Py_INCREF(getattribute);
+            res = call_attribute(self, getattribute, name);
+            Py_DECREF(getattribute);
+        }
+        if (res == NULL && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+            PyErr_Clear();
+            res = call_attribute(self, getattr, name);
+        }
+        Py_DECREF(getattr);
+        return res;
+    }
+
+如果不存在 `___getattr__` 方法, `slot_tp_getattr_hook` 会直接调用 `___getattribute__` 方法
+
+如果有存在 `__getattr__` 方法, `slot_tp_getattr_hook` 会调用 `___getattribute__`, 如果调用没有结果返回并且抛出了 `PyExc_AttributeError` 异常, 那么再尝试调用 `__getattr__` 方法
+
+### 自定义类型的类属性访问
+
+因为 `type(newly_created_class)` 总是会返回 `<class 'type'>`, 并且 `<class 'type'>` 中 `tp_getattro` 字段的值是在 C 中预先定义好的, 无法进行定制化, 所以这里的属性访问行为和 [类属性访问](#类属性访问) 相同
+
+
 # method_descriptor
 
 我们来尝试找到剩下的问题的答案
@@ -365,20 +580,19 @@
 我们现在知道了当你尝试访问一个对象的属性时, python 虚拟机会执行以下操作
 
 1. 执行 opcode `LOAD_ATTR`
-2. `LOAD_ATTR` 会尝试调用该对象的 `__getattribute__` 方法, 如果成功返回跳转到 5
-3. 调用该对象的 `__getattr__` 方法, 如果成功返回跳转到 5
-4. 抛出一个异常
-5. 返回前面函数返回的东西给调用者
+2. `LOAD_ATTR` 会尝试调用该对象类型的 `tp_getattro` 中存储的方法, 如果成功返回跳转到 4
+3. 抛出异常
+4. 返回前面函数返回的东西给调用者
 
-默认的 `__getattribute__` 是用 C 写好的, 它实现了 **descriptor protocol** (我们在前面的部分通过源代码分析了解过了, 你也可以参考 [相关阅读](#相关阅读) 里的内容)
+默认的 `__getattribute__` 会在类创建的时候设置好, 具体设置的是哪一个函数取决于这个类是否自定义, 用户覆写函数的情况, 通常情况下是 `PyObject_GenericGetAttr`, 它实现了 **descriptor protocol** (我们在前面的部分通过源代码分析了解过了, 你也可以参考 [相关阅读](#相关阅读) 里的内容)
 
 当我们定义一个 python 对象时, 并且我们想更改这个对象的属性访问的行为时该怎么做呢?
 
 我们没有办法更改 opcode `LOAD_ATTR` 的行为, 它是用 C 语言写好的并集成在了 python 虚拟机内
 
-但是我们可以提供自定义的 `__getattribute__` 和 `__getattr__` 函数并覆写默认的 `tp_getattro`(C 中的名称) 和 `tp_getattr`(C 中的名称)
+但是我们可以提供自定义的 `__getattribute__` 和 `__getattr__` 来影响创建这个类型的时候, 设置到 `tp_getattro` 字段上的具体的函数指针
 
-注意, 我不建议你提供你自定义的 `__getattribute__`, 这样做大概率会破坏 **descriptor protocol**, 通常情况下我们只用提供 `__getattr__` 就够了
+注意, 提供你自定义的 `__getattribute__` 可能会破坏 **descriptor protocol**, 通常情况下我们只用提供 `__getattr__` 就够了
 
     class A(object):
         def __getattribute__(self, item):

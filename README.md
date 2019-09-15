@@ -40,7 +40,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [class(bound method/classmethod/staticmethod)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
  - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
  - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
- - [x] [type(mro/metaclass)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md)
+ - [x] [type(mro/metaclass/creation of class/instance)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md)
 
 # Modules
 
@@ -63,7 +63,7 @@ The following contents are suitable for those who have python programming experi
  - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
  - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
  - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
- - [x] [slots/`__slots__`](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
+ - [x] [slots/`__slots__`(how does attributes initialized in the creation of class/instance)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
  - [x] [thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.md)
  - [x] [PyObject(overview)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md)
 
