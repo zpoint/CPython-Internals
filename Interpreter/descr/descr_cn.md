@@ -337,7 +337,7 @@
 
 ![str_attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/str_attribute_access.png)
 
-从上面的图片和代码段, 我们可以知道, 类 `str` 和实例 `"str"` 的 `__getattribute__` 函数是不同的, 但是在他们各自的函数路径中, 最后都会调用到同一个类型为 `method_descriptor` 的对象的 `tp_descr_get` 中的函数, 并把这个函数返回的东西返回给调用着
+从上面的图片和代码段, 我们可以知道, 类 `str` 和实例 `"str"` 的 `tp_getattro` 函数是不同的, 但是在他们各自的函数路径中, 最后都会调用到同一个类型为 `method_descriptor` 的对象的 `tp_descr_get` 中的函数, 并把这个函数返回的东西返回给调用着
 
 	/* 位置在 cpython/Objects/descrobject.c */
     /* 这个函数就是 method_descriptor 对象的  tp_descr_get 中存储的函数 */
@@ -367,7 +367,7 @@
 
 ### 自定义类型的实例属性访问
 
-通过以上的分析, 我们可以知道关键的部分就是 `type(instance)` 中字段 `tp_getattro` 所存储的值, 对于内建类型 `tp_getattro` 字段所存储的函数都是预先在 C 中定义好的, 然而用户创建的类型却是在解释器运行时在创建类的过程中给 `tp_getattro` 这个字段赋上的一个值, 在这个过程中, 肯定有哪一个函数的指针被存储到了新创建对象的 `tp_getattro` 字段中
+通过以上的分析, 我们可以知道关键的部分就是 `type(instance)` 中字段 `tp_getattro` 所存储的值, 对于内建类型 `tp_getattro` 字段所存储的函数都是预先在 C 中定义好的, 然而用户创建的类型却是在解释器运行时在创建类的过程中给 `tp_getattro` 这个字段赋上的一个值, 在这个过程中, 肯定有某个函数的指针被存储到了新创建对象的 `tp_getattro` 字段中
 
     class A(object):
         def __getattr__(self, item):
@@ -542,9 +542,15 @@
         return res;
     }
 
-如果不存在 `___getattr__` 方法, `slot_tp_getattr_hook` 会直接调用 `___getattribute__` 方法
+对于 `slot_tp_getattr_hook`
 
-如果有存在 `__getattr__` 方法, `slot_tp_getattr_hook` 会调用 `___getattribute__`, 如果调用没有结果返回并且抛出了 `PyExc_AttributeError` 异常, 那么再尝试调用 `__getattr__` 方法
+* 如果不存在 `___getattr__` 方法, `slot_tp_getattr_hook` 会直接调用 `___getattribute__` 方法
+
+* 如果有存在 `__getattr__` 方法, `slot_tp_getattr_hook` 会调用 `___getattribute__`, 如果调用没有结果返回并且抛出了 `PyExc_AttributeError` 异常, 那么再尝试调用 `__getattr__` 方法
+
+所以只要你的自定义类型覆写了 `__getattribute__` 或者 `__getattr__` 其中的一个或者两个函数, 那么创建类的时候 `tp_getattro` 存储的值将会是 `slot_tp_getattr_hook`
+
+当你的自定义类型没有覆写 `__getattribute__` 或者 `__getattr__` 的任意一个函数时, `tp_getattro` 中存储的值和内建类型存储的值相同, 都是 `PyObject_GenericGetAttr`
 
 ### 自定义类型的类属性访问
 

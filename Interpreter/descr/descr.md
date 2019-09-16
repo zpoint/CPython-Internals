@@ -550,9 +550,15 @@ For `class C`, when installing `__getattribute__`, `offset` is `144`, the `descr
         return res;
     }
 
-If there's no `___getattr__` method, `slot_tp_getattr_hook` will only call `___getattribute__` directly
+For `slot_tp_getattr_hook`
 
-If there defines `__getattr__`, `slot_tp_getattr_hook` will call `___getattribute__`, if there's no result and occurs `PyExc_AttributeError`, try to call `__getattr__`
+* If there's no `___getattr__` method, `slot_tp_getattr_hook` will only call `___getattribute__` directly
+
+* If there defines `__getattr__`, `slot_tp_getattr_hook` will call `___getattribute__`, if there's no result and occurs `PyExc_AttributeError`, try to call `__getattr__`
+
+If you override any of `__getattribute__` or `__getattr__` , `tp_getattro` of the newly created class will be `slot_tp_getattr_hook`
+
+If none of `__getattribute__` or `__getattr__` are override, `tp_getattro` of the newly created class will be `PyObject_GenericGetAttr`(same as built-in types)
 
 ### self defined types class attribute access
 
