@@ -560,6 +560,8 @@ If you override any of `__getattribute__` or `__getattr__` , `tp_getattro` of th
 
 If none of `__getattribute__` or `__getattr__` are override, `tp_getattro` of the newly created class will be `PyObject_GenericGetAttr`(same as built-in types)
 
+![user_defined_descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/user_defined_descr.png)
+
 ### self defined types class attribute access
 
 Because `type(newly_created_class)` will always return `<class 'type'>`, and the `tp_getattro` of `<class 'type'>` is pre defined in C and not able to be customized, the behaviour of attribute accessing is same as [class attribute access](#class-attribute-access)

@@ -552,6 +552,8 @@
 
 当你的自定义类型没有覆写 `__getattribute__` 或者 `__getattr__` 的任意一个函数时, `tp_getattro` 中存储的值和内建类型存储的值相同, 都是 `PyObject_GenericGetAttr`
 
+![user_defined_descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/user_defined_descr.png)
+
 ### 自定义类型的类属性访问
 
 因为 `type(newly_created_class)` 总是会返回 `<class 'type'>`, 并且 `<class 'type'>` 中 `tp_getattro` 字段的值是在 C 中预先定义好的, 无法进行定制化, 所以这里的属性访问行为和 [类属性访问](#类属性访问) 相同
