@@ -599,7 +599,7 @@ we know that when you try to access the attribute of an object, the python virtu
 3. raise an exception
 4. return what's returned
 
-the default `__getattribute__` will be installed in the creation process of the newly created type, different behaviour depends on what methods are override by user, generally, the default `__getattribute__` is `PyObject_GenericGetAttr` which implements the **descriptor protocol**(we learned above from the source code)
+the default `tp_getattro` will be installed in the creation process of the newly created type, different behaviour depends on what methods are override by user, generally, the default `tp_getattro` is `PyObject_GenericGetAttr` which implements the **descriptor protocol**(we learned above from the source code)
 
 when we define a python object, if we need to change the behavior of attribute access
 
