@@ -1,6 +1,7 @@
 # Cpython Internals
 
 * [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
+* [한국어](https://github.com/zpoint/CPython-Internals/blob/master/README_KR.md)
 *  **Watch** this repo if you need to be notified when there's update
 
 This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code

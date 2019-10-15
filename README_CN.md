@@ -1,6 +1,7 @@
 # Cpython Internals
 
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
+* [한국어](https://github.com/zpoint/CPython-Internals/blob/master/README_KR.md)
 * 如果你需要接收更新通知, 点击右上角的 **Watch**, 当有文章更新时会在 issue 发布相关标题和链接
 * 如果有任何链接无法打开请自行搭梯子O(∩_∩)O
 
