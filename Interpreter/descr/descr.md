@@ -373,7 +373,7 @@ Assume you've read the following two parts
 
 ### self defined types instance attribute access
 
-From the above analyzation, we can laern that the key point is `tp_getattro` defined in `type(instance)`, `tp_getattro` function of those built-in types is pre defined in C, while user defined type is created on the fly, some function will be attached to the newly created type in the `tp_getattro` field
+From the above analyzation, we can learn that the key point is `tp_getattro` defined in `type(instance)`, `tp_getattro` function of those built-in types is pre defined in C, while user defined type is created on the fly, some function will be attached to the newly created type in the `tp_getattro` field
 
     class A(object):
         def __getattr__(self, item):

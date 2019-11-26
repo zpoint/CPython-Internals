@@ -14,7 +14,7 @@ static PyObject* my_cpu_bound_task(PyObject *self, PyObject *args)
 
     if (meaningless_py_str == NULL)
     {
-        // it should be check if allocate successfully anf free if necessary, I don't do that here
+        // it should be check if allocate successfully and free if necessary, I don't do that here
         meaningless_py_str = PyString_FromString("meaningless_dict");
     }
 
