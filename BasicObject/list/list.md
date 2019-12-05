@@ -107,7 +107,7 @@ but the actual realloc will be called only if the newsize falls lower than half 
 
 ## timsort
 
-the algorithm CPyton used in sorting `list` is **timsort**, it's quiet complicated
+the algorithm CPython used in sorting `list` is **timsort**, it's quiet complicated
 
 	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
     >>> l.sort()
