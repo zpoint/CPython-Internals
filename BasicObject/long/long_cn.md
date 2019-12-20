@@ -1,5 +1,7 @@
 # int
 
+感谢 @MambaWong 指出之前本章节存在的问题 [#22](https://github.com/zpoint/CPython-Internals/issues/22) 已改正
+
 # 目录
 
 * [相关位置文件](#相关位置文件)
@@ -100,7 +102,7 @@
 
 ## 小端大端
 
-注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序是按照"最重要的在最左边" 的原则存储的(大端存储)
+注意, 因为 **digit** 作为 cpython 表示整型的最小存储单元, **digit** 里面的 byte 存储的顺序和你的机器的顺序一致
 
 而 **digit** 和 **digit** 之间则是按照 最重要的在最右边的 原则存储的(小端存储)
 

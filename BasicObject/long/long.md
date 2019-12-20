@@ -1,5 +1,7 @@
 # int
 
+Thanks @MambaWong  for pointing out the errors [#22](https://github.com/zpoint/CPython-Internals/issues/22) of this article
+
 # contents
 
 * [related file](#related-file)
@@ -99,9 +101,9 @@ CPython don't use all the 16 bits in **digit** field, the first bit of every **d
 
 ## little endian and big endian
 
-notice, because the **digit** is the smallest unit in the CPython abstract level, order between bytes inside a single ob_digit are represent in most-important-bit-in-the-left-most order(big-endian order)
+notice, because the **digit** is the smallest unit in the CPython abstract level, The order between bytes inside a single ob_digit is the same as your machine order(mine is little endian)
 
-order between **digit** in the **ob_digit** array are represent in most-important-digit-in-the-right-most order(little endian order)
+Order between **digit** in the **ob_digit** array are represent as most-important-digit-in-the-right-most order(little endian order)
 
 we can have a better understanding with the integer value -262143
 
