@@ -103,7 +103,7 @@ CPython don't use all the 16 bits in **digit** field, the first bit of every **d
 
 notice, because the **digit** is the smallest unit in the CPython abstract level, The order between bytes inside a single ob_digit is the same as your machine order(mine is little endian)
 
-Order between **digit** in the **ob_digit** array are represent as most-important-digit-in-the-right-most order(little endian order)
+Order between **digit** in the **ob_digit** array are represent as most-significant-digit-in-the-right-most order(little endian order)
 
 we can have a better understanding with the integer value -262143
 
