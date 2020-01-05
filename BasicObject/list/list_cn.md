@@ -105,7 +105,7 @@
 
 ## timsort
 
-CPyton 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一点复杂
+CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一点复杂
 
 	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
     >>> l.sort()
@@ -120,7 +120,7 @@ CPyton 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一
 
 ![sort_begin1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin1.png)
 
-假设 `minrun` 为 5, 我们后面会解释 `minrun` 是什么并且是怎么计算的, 现在我们先忽略一部分细节, 跑一边算法看看
+假设 `minrun` 为 5, 我们后面会解释 `minrun` 是什么并且是怎么计算的, 现在我们先忽略一部分细节, 跑一遍算法看看
 
 ![sort_begin2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin2.png)
 
@@ -136,7 +136,7 @@ CPyton 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一
 
 第二组内的元素被 [binary_sort](#binary_sort) 排好序了, 并且 `pending` 的下一个空闲的位置存储了第二组相关的信息
 
-我们从上图可以发现, `pending` 在这里的作用和调用栈的 stack 类似, 每次给下一组拍完序之后, 这组相关的信息就会被压入这个栈中, 每次压入后, 一个名为 `merge_collapse` 的函数都会被调用
+我们从上图可以发现, `pending` 在这里的作用和调用栈的 stack 类似, 每次给下一组排完序之后, 这组相关的信息就会被压入这个栈中, 每次压入后, 一个名为 `merge_collapse` 的函数都会被调用
 
     /* cpython/Objects/listobject.c */
     /* 检查 stack 中的每一个 run, 在必要的时候合并相邻的 run 直到以下的条件都满足为止
