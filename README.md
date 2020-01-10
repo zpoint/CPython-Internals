@@ -1,5 +1,7 @@
 # Cpython Internals
 
+![cpython logo](https://docs.google.com/drawings/d/e/2PACX-1vQKKPvv9xI22zZcRtElIMx_-G22qYcLUvl-gbngubjf76dr80ZjsYQZCCKVqEvJnmBnwZyDXqG9GPlu/pub?w=300&h=200) 
+
 * [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
 * [한국어](https://github.com/zpoint/CPython-Internals/blob/master/README_KR.md)
 *  **Watch** this repo if you need to be notified when there's update
