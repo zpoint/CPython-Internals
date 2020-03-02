@@ -6,12 +6,15 @@ import sys
 
 def replace_func(match):
     full_text = match.group(0)
-    if "cd " in full_text or "git " in full_text or "mkdir " in full_text:
+    if "redis-cli" in full_text or"cd " in full_text or "git " in full_text or "mkdir " in full_text:
         lang = "shell script"
     elif "def " in full_text or ">>>" in full_text or "print(" in full_text:
         lang = "python3"
     else:
-        lang = "c"
+        if "int " in full_text or "char " in full_text or "void " in full_text or "PyObject" in full_text:
+            lang = "c"
+        else:
+            lang = "python3"
     middle = full_text[1:-2]
     final_middle = ""
     for line in middle.split("\n"):
@@ -45,7 +48,6 @@ def replace_all():
                     with open(full_file, "w") as f:
                         f.write(replaced_text)
                     print("replaced: %s" % (full_file, ))
-                    return
 
 
 if __name__ == "__main__":
