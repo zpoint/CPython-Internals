@@ -9,9 +9,12 @@
 
 笔者将尝试尽可能的讲清楚 cpython 底层实现的细节
 
-    # 基于 3.8.0a0 版本
-    cd cpython
-    git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+```shell script
+# 基于 3.8.0a0 版本
+cd cpython
+git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+
+```
 
 这里的内容适用于有过 python 编程经验并且对解释器的实现感兴趣的同学, 如果你需要的的是入门到进阶之类的学习资料, 请参考 [awesome-python-books](https://github.com/Junnplus/awesome-python-books/blob/master/README-ZH_CN.md)
 

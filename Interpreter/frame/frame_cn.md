@@ -38,21 +38,24 @@
 
 **PyFrameObject** 对象的大小是不固定的, 你可以把它强制转换为类型 **PyVarObject**, **ob_size** 存储这个对象动态分配部分的大小, 这个大小是所关联的 **code** 对象决定的
 
-    Py_ssize_t extras, ncells, nfrees;
-    ncells = PyTuple_GET_SIZE(code->co_cellvars);
-    nfrees = PyTuple_GET_SIZE(code->co_freevars);
-    extras = code->co_stacksize + code->co_nlocals + ncells + nfrees;
-    /* 忽略 */
-    if (free_list == NULL) { /* 忽略 */
-        f = PyObject_GC_NewVar(PyFrameObject, &PyFrame_Type, extras);
-    }
-    else { /* 忽略 */
-    	PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
-    }
-    extras = code->co_nlocals + ncells + nfrees;
-    f->f_valuestack = f->f_localsplus + extras;
-    for (i=0; i<extras; i++)
-        f->f_localsplus[i] = NULL;
+```c
+Py_ssize_t extras, ncells, nfrees;
+ncells = PyTuple_GET_SIZE(code->co_cellvars);
+nfrees = PyTuple_GET_SIZE(code->co_freevars);
+extras = code->co_stacksize + code->co_nlocals + ncells + nfrees;
+/* 忽略 */
+if (free_list == NULL) { /* 忽略 */
+    f = PyObject_GC_NewVar(PyFrameObject, &PyFrame_Type, extras);
+}
+else { /* 忽略 */
+	PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
+}
+extras = code->co_nlocals + ncells + nfrees;
+f->f_valuestack = f->f_localsplus + extras;
+for (i=0; i<extras; i++)
+    f->f_localsplus[i] = NULL;
+
+```
 
 **ob_size** 是 code->co_stacksize, code->co_nlocals, code->co_cellvars 和 code->co_freevars 的和
 
@@ -68,56 +71,65 @@
 
 我们来看一个示例
 
-    def g2(a, b=1, c=2):
-        yield a
-        c = str(b + c)
-        yield c
-        new_g = range(3)
-        yield from new_g
+```python3
+def g2(a, b=1, c=2):
+    yield a
+    c = str(b + c)
+    yield c
+    new_g = range(3)
+    yield from new_g
+
+```
 
 **dis** 的结果如下
 
-	  # ./python.exe -m dis frame_dis.py
-      1           0 LOAD_CONST               5 ((1, 2))
-                  2 LOAD_CONST               2 (<code object g2 at 0x10c495030, file "frame_dis.py", line 1>)
-                  4 LOAD_CONST               3 ('g2')
-                  6 MAKE_FUNCTION            1 (defaults)
-                  8 STORE_NAME               0 (g2)
-                 10 LOAD_CONST               4 (None)
-                 12 RETURN_VALUE
+```python3
+  # ./python.exe -m dis frame_dis.py
+  1           0 LOAD_CONST               5 ((1, 2))
+              2 LOAD_CONST               2 (<code object g2 at 0x10c495030, file "frame_dis.py", line 1>)
+              4 LOAD_CONST               3 ('g2')
+              6 MAKE_FUNCTION            1 (defaults)
+              8 STORE_NAME               0 (g2)
+             10 LOAD_CONST               4 (None)
+             12 RETURN_VALUE
 
-    Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
-      2           0 LOAD_FAST                0 (a)
-                  2 YIELD_VALUE
-                  4 POP_TOP
+Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
+  2           0 LOAD_FAST                0 (a)
+              2 YIELD_VALUE
+              4 POP_TOP
 
-      3           6 LOAD_GLOBAL              0 (str)
-                  8 LOAD_FAST                1 (b)
-                 10 LOAD_FAST                2 (c)
-                 12 BINARY_ADD
-                 14 CALL_FUNCTION            1
-                 16 STORE_FAST               2 (c)
+  3           6 LOAD_GLOBAL              0 (str)
+              8 LOAD_FAST                1 (b)
+             10 LOAD_FAST                2 (c)
+             12 BINARY_ADD
+             14 CALL_FUNCTION            1
+             16 STORE_FAST               2 (c)
 
-      4          18 LOAD_FAST                2 (c)
-                 20 YIELD_VALUE
-                 22 POP_TOP
+  4          18 LOAD_FAST                2 (c)
+             20 YIELD_VALUE
+             22 POP_TOP
 
-      5          24 LOAD_GLOBAL              1 (range)
-                 26 LOAD_CONST               1 (3)
-                 28 CALL_FUNCTION            1
-                 30 STORE_FAST               3 (new_g)
+  5          24 LOAD_GLOBAL              1 (range)
+             26 LOAD_CONST               1 (3)
+             28 CALL_FUNCTION            1
+             30 STORE_FAST               3 (new_g)
 
-      6          32 LOAD_FAST                3 (new_g)
-                 34 GET_YIELD_FROM_ITER
-                 36 LOAD_CONST               0 (None)
-                 38 YIELD_FROM
-                 40 POP_TOP
-                 42 LOAD_CONST               0 (None)
-                 44 RETURN_VALUE
+  6          32 LOAD_FAST                3 (new_g)
+             34 GET_YIELD_FROM_ITER
+             36 LOAD_CONST               0 (None)
+             38 YIELD_FROM
+             40 POP_TOP
+             42 LOAD_CONST               0 (None)
+             44 RETURN_VALUE
+
+```
 
 我们来迭代一遍这个迭代器
 
-	>>> gg = g2("param a")
+```python3
+>>> gg = g2("param a")
+
+```
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example0.png)
 
@@ -129,14 +141,20 @@
 
 **f_valuestack** 中的值和前一幅图的值相同, 但是 **f_valuestack** 由于入栈和出栈(出栈并不清空当前的格子中的值)的原因, 里面存储的值已经不为空了
 
-    >>> next(gg)
-    'param a'
+```python3
+>>> next(gg)
+'param a'
+
+```
 
 ![example1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1.png)
 
-    >>> next(gg)
-    '3'
+```python3
+>>> next(gg)
+'3'
 
+
+```
 
 在第三行代码的 opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` 和 `10 LOAD_FAST                2 (c)` 分别把 **str**(str 存储在了 frame-f_code->co_names 这个字段中), **b**(int 1) 和 **c**(int 2) 推入 **f_valuestack**, opcode `12 BINARY_ADD` 弹出 **f_valuestack**(**b** and **c**) 顶部的两个元素, 相加之后存储回 **f_valuestack** 的顶部, 下图的 **f_valuestack** 为 `12 BINARY_ADD` 执行之后的样子
 
@@ -178,8 +196,11 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
 
 `36 LOAD_CONST               0 (None)` 把 `None` 推到了堆中
 
-    >>> next(gg)
-    0
+```python3
+>>> next(gg)
+0
+
+```
 
 字段 **f_lasti** 现在值是 36, 表明他在 `38 YIELD_FROM` 之前
 
@@ -187,16 +208,19 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
 
 栈帧对象在 **StopIteration** 抛出后就进入了释放阶段(opcode `44 RETURN_VALUE` 执行之后)
 
-    >>> next(gg)
-    1
-    >>> next(gg)
-    2
-    >>> next(gg)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
-    >>> repr(gg.gi_frame)
-    'None'
+```python3
+>>> next(gg)
+1
+>>> next(gg)
+2
+>>> next(gg)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+>>> repr(gg.gi_frame)
+'None'
+
+```
 
 ## f_blockstack
 
@@ -204,32 +228,38 @@ f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组
 
 这是 **PyTryBlock** 的定义
 
-    typedef struct {
-        int b_type;                 /* block 类型 */
-        int b_handler;              /* block 处理机制的位置 */
-        int b_level;                /* 堆位置 */
-    } PyTryBlock;
+```c
+typedef struct {
+    int b_type;                 /* block 类型 */
+    int b_handler;              /* block 处理机制的位置 */
+    int b_level;                /* 堆位置 */
+} PyTryBlock;
+
+```
 
 我们来定义一个有许多 block 的迭代器
 
-    def g3():
+```python3
+def g3():
+    try:
+        yield 1
+        1 / 0
+    except ZeroDivisionError:
+        yield 2
         try:
-            yield 1
-            1 / 0
-        except ZeroDivisionError:
-            yield 2
-            try:
-                yield 3
-                import no
-            except ModuleNotFoundError:
-                for i in range(3):
-                    yield i + 4
-                yield 4
-            finally:
-                yield 100
+            yield 3
+            import no
+        except ModuleNotFoundError:
+            for i in range(3):
+                yield i + 4
+            yield 4
+        finally:
+            yield 100
 
 
-	>>> gg = g3()
+>>> gg = g3()
+
+```
 
 ![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
 
@@ -239,40 +269,55 @@ f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组
 
 **b_type** 122 是 opcode `SETUP_FINALLY` 的值, **b_handler** 20 是 `except ZeroDivisionError` 这个opcode 的位置, **b_level** 0 是即将使用的堆的位置
 
-    >>> next(gg)
-    1
+```python3
+>>> next(gg)
+1
+
+```
 
 ![blockstack1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack1.png)
 
 **b_type** 257 是 opcode `EXCEPT_HANDLER` 的值, opcode `EXCEPT_HANDLER` 有特殊的含义
 
-    /* EXCEPT_HANDLER is a special, implicit block type which is created when
-       entering an except handler. It is not an opcode but we define it here
-       as we want it to be available to both frameobject.c and ceval.c, while
-       remaining private.*/
-    /* 翻译一下: EXCEPT_HANDLER 是一个特殊的 opcode,
-    表示一个 try block 已经进入对应的处理机制, 他实际上不是一个传统意义上的 opcode,
-    我们在这里定义这个值是为了 frameobject.c 和 ceval.c 能引用他 */
-    #define EXCEPT_HANDLER 257
+```c
+/* EXCEPT_HANDLER is a special, implicit block type which is created when
+   entering an except handler. It is not an opcode but we define it here
+   as we want it to be available to both frameobject.c and ceval.c, while
+   remaining private.*/
+/* 翻译一下: EXCEPT_HANDLER 是一个特殊的 opcode,
+表示一个 try block 已经进入对应的处理机制, 他实际上不是一个传统意义上的 opcode,
+我们在这里定义这个值是为了 frameobject.c 和 ceval.c 能引用他 */
+#define EXCEPT_HANDLER 257
+
+```
 
 **b_handler** 值为 -1, 表示当前的 try block 已经在处理中
 
 **b_level** 的值没有改变
 
-    >>> next(gg)
-    2
+```python3
+>>> next(gg)
+2
+
+```
 
 ![blockstack2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack2.png)
 
 **f_iblock** 值为 3, 第二个 try block 来自 `finally:`(opcode 位置 116), 第三个来自 `except ModuleNotFoundError:`(opcode 位置 62)
 
-    >>> next(gg)
-    3
+```python3
+>>> next(gg)
+3
+
+```
 
 ![blockstack3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack3.png)
 
-    >>> next(gg)
-    4
+```python3
+>>> next(gg)
+4
+
+```
 
 第三个 try block 的 **b_type**  变为了 257 并且 **b_handler** 变为 -1, 表明当前的 block 正在处理中
 
@@ -280,49 +325,61 @@ f_blockstack 是一个数组, 里面的元素的类型是 **PyTryBlock**, 数组
 
 另外两个 try block 也正确的处理完了
 
-    >>> next(gg)
-    5
-    >>> next(gg)
-    6
-    >>> next(gg)
-    4
-    >>> next(gg)
-    100
+```python3
+>>> next(gg)
+5
+>>> next(gg)
+6
+>>> next(gg)
+4
+>>> next(gg)
+100
+
+```
 
 ![blockstack5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack5.png)
 
 frame 对象进入释放阶段
 
-    >>> next(gg)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
+```python3
+>>> next(gg)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+
+```
 
 ## f_back
 
 **f_back** 是一个指向前一个 frame 的指针, 他把相关联的 frame 对象串联成一个单链表
 
-	import inspect
+```python3
+import inspect
 
-    def g4(depth):
-        print("depth", depth)
-        print(repr(inspect.currentframe()), inspect.currentframe().f_back)
-        if depth > 0:
-            g4(depth-1)
+def g4(depth):
+    print("depth", depth)
+    print(repr(inspect.currentframe()), inspect.currentframe().f_back)
+    if depth > 0:
+        g4(depth-1)
 
 
-    g4(3)
+g4(3)
+
+```
 
 输出
 
-    depth 3
-    <frame at 0x7fedc2f2e9a8, file '<input>', line 3, code g4> <frame at 0x7fedc2cab468, file '<input>', line 1, code <module>>
-    depth 2
-    <frame at 0x7fedc2de54a8, file '<input>', line 3, code g4> <frame at 0x7fedc2f2e9a8, file '<input>', line 5, code g4>
-    depth 1
-    <frame at 0x7fedc2ca6348, file '<input>', line 3, code g4> <frame at 0x7fedc2de54a8, file '<input>', line 5, code g4>
-    depth 0
-    <frame at 0x10c2c9930, file '<input>', line 3, code g4> <frame at 0x7fedc2ca6348, file '<input>', line 5, code g4>
+```python3
+depth 3
+<frame at 0x7fedc2f2e9a8, file '<input>', line 3, code g4> <frame at 0x7fedc2cab468, file '<input>', line 1, code <module>>
+depth 2
+<frame at 0x7fedc2de54a8, file '<input>', line 3, code g4> <frame at 0x7fedc2f2e9a8, file '<input>', line 5, code g4>
+depth 1
+<frame at 0x7fedc2ca6348, file '<input>', line 3, code g4> <frame at 0x7fedc2de54a8, file '<input>', line 5, code g4>
+depth 0
+<frame at 0x10c2c9930, file '<input>', line 3, code g4> <frame at 0x7fedc2ca6348, file '<input>', line 5, code g4>
+
+```
 
 ![f_back](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/f_back.png)
 
@@ -334,54 +391,69 @@ frame 对象进入释放阶段
 
 这个策略可以节省 malloc/realloc 的开销, 也可以避免某些字段/值的重复的初始化
 
-    def g5():
-        yield 1
+```python3
+def g5():
+    yield 1
 
-    >>> gg = g5()
-    >>> gg.gi_frame
-    <frame at 0x10224c970, file '<stdin>', line 1, code g5>
-    >>> next(gg)
-    1
-    >>> next(gg)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
+>>> gg = g5()
+>>> gg.gi_frame
+<frame at 0x10224c970, file '<stdin>', line 1, code g5>
+>>> next(gg)
+1
+>>> next(gg)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
 
-    >>> gg3 = g5()
-    >>> gg3.gi_frame # id s和之前的对象相同, 同样的 frame 对象在同一个 code block 中复用了
-    <frame at 0x10224c970, file '<stdin>', line 1, code g5>
+>>> gg3 = g5()
+>>> gg3.gi_frame # id s和之前的对象相同, 同样的 frame 对象在同一个 code block 中复用了
+<frame at 0x10224c970, file '<stdin>', line 1, code g5>
+
+```
 
 ## free_list sub
 
 有一个单链表存储了部分即将进入回收状态的 frame 对象, 这个机制也可以节省 malloc/free 开销
 
-    static PyFrameObject *free_list = NULL;
-    static int numfree = 0;         /* number of frames currently in free_list */
-    /* max value for numfree */
-    #define PyFrame_MAXFREELIST 200
+```c
+static PyFrameObject *free_list = NULL;
+static int numfree = 0;         /* number of frames currently in free_list */
+/* max value for numfree */
+#define PyFrame_MAXFREELIST 200
+
+```
 
 当一个 **PyFrameObject** 对象在 free_list 上时, 只有下面几个字段的值是有意义的
 
-    ob_type             == &Frametype
-    f_back              next item on free list, or NULL
-    f_stacksize         size of value stack
-    ob_size             size of localsplus
+```python3
+ob_type             == &Frametype
+f_back              next item on free list, or NULL
+f_stacksize         size of value stack
+ob_size             size of localsplus
+
+```
 
 如果是从 free_list 中获取到的 frame 对象, 创建的函数会检测这个取出的 frame 是否有足够的堆空间
 
-    if (Py_SIZE(f) < extras) {
-        PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
+```c
+if (Py_SIZE(f) < extras) {
+    PyFrameObject *new_f = PyObject_GC_Resize(PyFrameObject, f, extras);
+
+```
 
 我们来看一个示例
 
-    import inspect
+```python3
+import inspect
 
-    def g6():
-        yield repr(inspect.currentframe()), inspect.currentframe().f_back
+def g6():
+    yield repr(inspect.currentframe()), inspect.currentframe().f_back
 
-    >>> gg = g6()
-    >>> gg1 = g6()
-    >>> gg2 = g6()
+>>> gg = g6()
+>>> gg1 = g6()
+>>> gg2 = g6()
+
+```
 
 ![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list0.png)
 
@@ -389,29 +461,38 @@ frame 对象进入释放阶段
 
 这个 frame 不会进入到 free_list 或者 gc 阶段(**code** 还持有着这个 frame 对象的引用计数 "zombie" frame)
 
-    >>> next(gg)
-    ("<frame at 0x1052d83a0, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
-    >>> next(gg)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
+```python3
+>>> next(gg)
+("<frame at 0x1052d83a0, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
+>>> next(gg)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+
+```
 
 ![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list1.png)
 
-    >>> next(gg1)
-    ("<frame at 0x105620040, file '<stdin>', line 2, code g6>", <frame at 0x105474cc0, file '<stdin>', line 1, code <module>>)
-    >>> next(gg1)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
+```python3
+>>> next(gg1)
+("<frame at 0x105620040, file '<stdin>', line 2, code g6>", <frame at 0x105474cc0, file '<stdin>', line 1, code <module>>)
+>>> next(gg1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+
+```
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list2.png)
 
-    >>> next(gg2)
-	("<frame at 0x105482d00, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
-    >>> next(gg2)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    StopIteration
+```python3
+>>> next(gg2)
+("<frame at 0x105482d00, file '<stdin>', line 2, code g6>", <frame at 0x105225e50, file '<stdin>', line 1, code <module>>)
+>>> next(gg2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+
+```
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list3.png)

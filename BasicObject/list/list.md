@@ -31,7 +31,10 @@ the basic object's name is `list`, but the actual implementation is more like a 
 
 let's initialize an empty `list`
 
-	l = list()
+```python3
+l = list()
+
+```
 
 field `ob_size` stores the actual size, it's type is `Py_ssize_t` which is usually 64 bit, `1 << 64` can represent a very large size, usually you will run out of RAM before overflow the `ob_size` field
 
@@ -39,15 +42,21 @@ field `ob_size` stores the actual size, it's type is `Py_ssize_t` which is usual
 
 and append some elements into the `list`
 
-	l.append("a")
+```python3
+l.append("a")
+
+```
 
 `ob_size` becomes 1, and `ob_item` will point to a newly malloced block with size 4
 
 ![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_a.png)
 
-	l.append("b")
-    l.append("c")
-    l.append("d")
+```python3
+l.append("b")
+l.append("c")
+l.append("d")
+
+```
 
 now the `list` is full
 
@@ -55,14 +64,20 @@ now the `list` is full
 
 if we append one more element
 
-	l.append("e")
+```python3
+l.append("e")
+
+```
 
 this is the resize pattern
 
-	/* cpython/Objects/listobject.c */
-    /* The growth pattern is:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ... */
-    /* currently: new_allocated = 5 + (5 >> 3) + 3 = 8 */
-	new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+```python3
+/* cpython/Objects/listobject.c */
+/* The growth pattern is:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ... */
+/* currently: new_allocated = 5 + (5 >> 3) + 3 = 8 */
+new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+
+```
 
 ![append_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_e.png)
 
@@ -74,32 +89,41 @@ the append operation will only trigger the `list`'s resize when the `list` is fu
 
 what about pop ?
 
-    >>> l.pop()
-    'e'
+```python3
+>>> l.pop()
+'e'
+
+```
 
 ![pop_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_e.png)
 
-    >>> l.pop()
-    'd'
+```python3
+>>> l.pop()
+'d'
+
+```
 
 the realloc is called and the malloced size is shrinked, actually the resize function will be called each time you call `pop`
 
 but the actual realloc will be called only if the newsize falls lower than half the allocated size
 
-    /* cpython/Objects/listobject.c */
-    /* allocated: 8, newsize: 3, 8 >= 3 && (3 >= 4?), no */
-    if (allocated >= newsize && newsize >= (allocated >> 1)) {
-        /* Do not realloc if the newsize deos not fall
-           lower than half the allocated size */
-        assert(self->ob_item != NULL || newsize == 0);
-        /* only change the ob_size field */
-        Py_SIZE(self) = newsize;
-        return 0;
-    }
-    /* ... */
-    /* 3 + (3 >> 3) + 3 = 6 */
-    new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+```python3
+/* cpython/Objects/listobject.c */
+/* allocated: 8, newsize: 3, 8 >= 3 && (3 >= 4?), no */
+if (allocated >= newsize && newsize >= (allocated >> 1)) {
+    /* Do not realloc if the newsize deos not fall
+       lower than half the allocated size */
+    assert(self->ob_item != NULL || newsize == 0);
+    /* only change the ob_size field */
+    Py_SIZE(self) = newsize;
+    return 0;
+}
+/* ... */
+/* 3 + (3 >> 3) + 3 = 6 */
+new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
 
+
+```
 
 ![pop_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_d.png)
 
@@ -109,8 +133,11 @@ but the actual realloc will be called only if the newsize falls lower than half 
 
 the algorithm CPython used in sorting `list` is **timsort**, it's quiet complicated
 
-	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
-    >>> l.sort()
+```python3
+>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
+>>> l.sort()
+
+```
 
 I've modified some parameter in source code for illustration, I will explain later
 
@@ -140,61 +167,64 @@ the second group is sorted by [binary_sort](#binary_sort), and the next index of
 
 we can learn from the above graph that `pending` act as a stack, every time a group is sorted, the group info will be pushed onto this stack, a function named `merge_collapse` will be called after the psuh operation
 
-    /* cpython/Objects/listobject.c */
-    /* Examine the stack of runs waiting to be merged, merging adjacent runs
-     * until the stack invariants are re-established:
-     *
-     * 1. len[-3] > len[-2] + len[-1]
-     * 2. len[-2] > len[-1]
-     */
-    static int
-    merge_collapse(MergeState *ms)
-    {
-        struct s_slice *p = ms->pending;
+```python3
+/* cpython/Objects/listobject.c */
+/* Examine the stack of runs waiting to be merged, merging adjacent runs
+ * until the stack invariants are re-established:
+ *
+ * 1. len[-3] > len[-2] + len[-1]
+ * 2. len[-2] > len[-1]
+ */
+static int
+merge_collapse(MergeState *ms)
+{
+    struct s_slice *p = ms->pending;
 
-        assert(ms);
-        while (ms->n > 1) {
-            Py_ssize_t n = ms->n - 2;
-            if ((n > 0 && p[n-1].len <= p[n].len + p[n+1].len) ||
-                /* case 1:
-                   pending[0]: [---------------------------]
-                   pending[1]: [-----------------------] (n)
-                   pending[2]: [-----------------------]
-                   ...                                   (ms->n)
-                   len(pending[0]) <= len(pending[1])  + len(pending[2])
-                */
-                (n > 1 && p[n-2].len <= p[n-1].len + p[n].len)) {
-                /* case 2:
-                   ...
-                   pending[3]: [-----------------------------------------------------------------]
-                   pending[4]: [-----------------------------------------------------------------]
-                   pending[5]: [-----------------------] (n)
-                   pending[6]: [-----------------------]
-                   pending[7]: [-----------------------] (ms->n)
-                   len(pending[3]) <= len(pending[4])  + len(pending[5])
-                */
-                if (p[n-1].len < p[n+1].len)
-                   /* pending[0]: [-----------------] (new_n)
-                      pending[1]: [-----------------------] (n)
-                      pending[2]: [-----------------------]
-                   */
-                    --n;
-                if (merge_at(ms, n) < 0)
-                    return -1;
-            }
-            else if (p[n].len <= p[n+1].len) {
-                   /* case 3:
-                   pending[0]: [--------------] (n)
-                   pending[1]: [--------------]
-                   */
-                if (merge_at(ms, n) < 0)
-                    return -1;
-            }
-            else
-                break;
+    assert(ms);
+    while (ms->n > 1) {
+        Py_ssize_t n = ms->n - 2;
+        if ((n > 0 && p[n-1].len <= p[n].len + p[n+1].len) ||
+            /* case 1:
+               pending[0]: [---------------------------]
+               pending[1]: [-----------------------] (n)
+               pending[2]: [-----------------------]
+               ...                                   (ms->n)
+               len(pending[0]) <= len(pending[1])  + len(pending[2])
+            */
+            (n > 1 && p[n-2].len <= p[n-1].len + p[n].len)) {
+            /* case 2:
+               ...
+               pending[3]: [-----------------------------------------------------------------]
+               pending[4]: [-----------------------------------------------------------------]
+               pending[5]: [-----------------------] (n)
+               pending[6]: [-----------------------]
+               pending[7]: [-----------------------] (ms->n)
+               len(pending[3]) <= len(pending[4])  + len(pending[5])
+            */
+            if (p[n-1].len < p[n+1].len)
+               /* pending[0]: [-----------------] (new_n)
+                  pending[1]: [-----------------------] (n)
+                  pending[2]: [-----------------------]
+               */
+                --n;
+            if (merge_at(ms, n) < 0)
+                return -1;
         }
-        return 0;
+        else if (p[n].len <= p[n+1].len) {
+               /* case 3:
+               pending[0]: [--------------] (n)
+               pending[1]: [--------------]
+               */
+            if (merge_at(ms, n) < 0)
+                return -1;
+        }
+        else
+            break;
     }
+    return 0;
+}
+
+```
 
 the current state is case 3, `merge_at` will merge the two runs at stack indices `i` and `i+1`
 
@@ -256,13 +286,16 @@ the subarray before `start` is sorted, and we need to sort all the rest elements
 
 first we set a variable `pivot`'s value to `start`'s value, perform binary search in the left subarray to find the first element that is greater than `pivot`
 
-        do {
-            p = l + ((r - l) >> 1);
-            IFLT(pivot, *p)
-                r = p;
-            else
-                l = p+1;
-        } while (l < r);
+```python3
+    do {
+        p = l + ((r - l) >> 1);
+        IFLT(pivot, *p)
+            r = p;
+        else
+            l = p+1;
+    } while (l < r);
+
+```
 
 then we move every element from `l` to `start` forawrd, and set element in `start` to `pivot`
 
@@ -294,19 +327,22 @@ actually `minrun` will be computed in the following function, if the current `ru
 
 I've changed this constant to a smaller value so that the example above can fit into my graph
 
+```python3
 
-    static Py_ssize_t
-    merge_compute_minrun(Py_ssize_t n)
-    {
-        Py_ssize_t r = 0;           /* becomes 1 if any 1 bits are shifted off */
+static Py_ssize_t
+merge_compute_minrun(Py_ssize_t n)
+{
+    Py_ssize_t r = 0;           /* becomes 1 if any 1 bits are shifted off */
 
-        assert(n >= 0);
-        while (n >= 64) {
-            r |= n & 1;
-            n >>= 1;
-        }
-        return n + r;
+    assert(n >= 0);
+    while (n >= 64) {
+        r |= n & 1;
+        n >>= 1;
     }
+    return n + r;
+}
+
+```
 
 ## time complexity
 
@@ -316,11 +352,14 @@ time complexity of [timsort](#timsort)
 
 # free_list
 
-    #ifndef PyList_MAXFREELIST
-    #define PyList_MAXFREELIST 80
-    #endif
-    static PyListObject *free_list[PyList_MAXFREELIST];
-    static int numfree = 0;
+```c
+#ifndef PyList_MAXFREELIST
+#define PyList_MAXFREELIST 80
+#endif
+static PyListObject *free_list[PyList_MAXFREELIST];
+static int numfree = 0;
+
+```
 
 there exists per process global variable named **free_list**
 
@@ -328,11 +367,17 @@ there exists per process global variable named **free_list**
 
 if we create a new `list` object, the memory request is delegate to CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
 
-	a = list()
+```python3
+a = list()
+
+```
 
 ![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list1.png)
 
-	del a
+```python3
+del a
+
+```
 
 the destructor of the `list` type will stores the current `list` to **free_list** (if **free_list** is not full)
 
@@ -340,7 +385,10 @@ the destructor of the `list` type will stores the current `list` to **free_list*
 
 next time you create a new `list` object, **free_list** will be checked if there is available objects you can use directly, if so, allocate from **free_list**, if not, allocate from CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
 
-	b = list()
+```python3
+b = list()
+
+```
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list3.png)
 

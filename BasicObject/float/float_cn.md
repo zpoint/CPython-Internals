@@ -31,19 +31,28 @@
 
 0.0 使用 **IEEE 754** 标准的表示方式为 64 个为 0 的 bit
 
-	f = 0.0
+```python3
+f = 0.0
+
+```
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.png)
 
 ## 1.0
 
-	f = 1.0
+```python3
+f = 1.0
+
+```
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.png)
 
 ## 0.1
 
-	f = 0.1
+```python3
+f = 0.1
+
+```
 
 ![0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.1.png)
 
@@ -61,11 +70,14 @@
 
 # free_list
 
-    #ifndef PyFloat_MAXFREELIST
-    #define PyFloat_MAXFREELIST    100
-    #endif
-    static int numfree = 0;
-    static PyFloatObject *free_list = NULL;
+```c
+#ifndef PyFloat_MAXFREELIST
+#define PyFloat_MAXFREELIST    100
+#endif
+static int numfree = 0;
+static PyFloatObject *free_list = NULL;
+
+```
 
 free_list 是一个单链表, 最多存储 **PyFloat_MAXFREELIST** 个 **PyFloatObject**
 
@@ -73,21 +85,27 @@ free_list 是一个单链表, 最多存储 **PyFloat_MAXFREELIST** 个 **PyFloat
 
 单链表通过 **ob_type** 字段串联起来
 
-	>>> f = 0.0
-	>>> id(f)
-	4551393664
-    >>> f2 = 1.0
-    >>> id(f2)
-    4551393616
-    del f
-    del f2
+```python3
+>>> f = 0.0
+>>> id(f)
+4551393664
+>>> f2 = 1.0
+>>> id(f2)
+4551393616
+del f
+del f2
+
+```
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/free_list2.png)
 
 **f3** 取自 **free_list** 的表头
 
-	>>> f3 = 3.0
-	>>> id(f3)
-	4551393616
+```python3
+>>> f3 = 3.0
+>>> id(f3)
+4551393616
+
+```
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/free_list3.png)

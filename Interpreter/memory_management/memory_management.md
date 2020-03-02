@@ -64,11 +64,14 @@ step4, return
 
 the maximum size of memory you are able to allocated is limited in **_PyObject_GC_Alloc**
 
-	typedef ssize_t         Py_ssize_t;
-	#define PY_SSIZE_T_MAX ((Py_ssize_t)(((size_t)-1)>>1))
-    # PY_SSIZE_T_MAX is 8388608 TB in my machine, usually you don't need to worry about the limit
-    if (basicsize > PY_SSIZE_T_MAX - sizeof(PyGC_Head))
-        return PyErr_NoMemory();
+```c
+typedef ssize_t         Py_ssize_t;
+#define PY_SSIZE_T_MAX ((Py_ssize_t)(((size_t)-1)>>1))
+# PY_SSIZE_T_MAX is 8388608 TB in my machine, usually you don't need to worry about the limit
+if (basicsize > PY_SSIZE_T_MAX - sizeof(PyGC_Head))
+    return PyErr_NoMemory();
+
+```
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/malloc.png)
 
@@ -76,7 +79,10 @@ the maximum size of memory you are able to allocated is limited in **_PyObject_G
 
 follow the call stack, we can find that the **raw memory allocator** is mostly defined in `cpython/Objects/obmalloc.c`
 
-	#define SMALL_REQUEST_THRESHOLD 512
+```c
+#define SMALL_REQUEST_THRESHOLD 512
+
+```
 
 the procedure is described below
 
@@ -89,7 +95,10 @@ we need to know some concept before we look into how python's memory allocator w
 
 **block** is the smallest unit in python's memory management system, the size of a block is the same size as a single **byte**
 
-	typedef uint8_t block
+```c
+typedef uint8_t block
+
+```
 
 there're lots of memory **block** in differenct size, word **block** in memory **block** has a different meaning from type **block**, we will see later
 
@@ -129,27 +138,30 @@ element in **usedpools** is of type `pool_header *`, size of **usedpools** is 12
 
 if you get **pool 1** from **idx0**, you can get one memory block(8 bytes) from **pool 1** each time, if you get **pool 4** from **idx2**, you can get one memory block(24 bytes) from **pool 4** each time, and so on
 
-	 cpython/Objects/obmalloc.c
-     * For small requests we have the following table:
-     *
-     * Request in bytes     Size of allocated block      Size class idx
-     * ----------------------------------------------------------------
-     *        1-8                     8                       0
-     *        9-16                   16                       1
-     *       17-24                   24                       2
-     *       25-32                   32                       3
-     *       33-40                   40                       4
-     *       41-48                   48                       5
-     *       49-56                   56                       6
-     *       57-64                   64                       7
-     *       65-72                   72                       8
-     *        ...                   ...                     ...
-     *      497-504                 504                      62
-     *      505-512                 512                      63
-     *
-     *      0, SMALL_REQUEST_THRESHOLD + 1 and up: routed to the underlying
-     *      allocator.
-     */
+```python3
+ cpython/Objects/obmalloc.c
+ * For small requests we have the following table:
+ *
+ * Request in bytes     Size of allocated block      Size class idx
+ * ----------------------------------------------------------------
+ *        1-8                     8                       0
+ *        9-16                   16                       1
+ *       17-24                   24                       2
+ *       25-32                   32                       3
+ *       33-40                   40                       4
+ *       41-48                   48                       5
+ *       49-56                   56                       6
+ *       57-64                   64                       7
+ *       65-72                   72                       8
+ *        ...                   ...                     ...
+ *      497-504                 504                      62
+ *      505-512                 512                      63
+ *
+ *      0, SMALL_REQUEST_THRESHOLD + 1 and up: routed to the underlying
+ *      allocator.
+ */
+
+```
 
 **idx0** is the head of a double linked list, each element in the double linked list is a pointer to a **pool**, all pools in **idx0** will handle those memory request <= 8 bytes, no matter how many bytes caller request, **pool** in **idx0** will only return a memory block of size 8 bytes each time
 
@@ -161,10 +173,13 @@ and so on
 
 every memory request will be routed to the **idxn** in **usedpools**, there must be a very fast way to access **idxn** for the underlying memory request with size **nbytes**
 
-    #define ALIGNMENT_SHIFT         3
-    size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT
-    # idxn = size + size
-    pool = usedpools[size + size]
+```c
+#define ALIGNMENT_SHIFT         3
+size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT
+# idxn = size + size
+pool = usedpools[size + size]
+
+```
 
 if the request size **nbytes** is 7, (7 - 1) >> 3 is 0, idxn = 0 + 0, usedpools[0 + 0] will be the target list, so the head of **idx0** is the target pool
 
@@ -178,8 +193,11 @@ the `usedpools`‘s size is two times larger than the size it actually used, so 
 
 assume we are going to reqest 5 bytes from python's memory allocator, because the request size is less than **SMALL_REQUEST_THRESHOLD**(512 bytes), it's routed to python's raw memory allocator instead of the system's allocator(**malloc** system call)
 
-	size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
-    pool = usedpools[0 + 0]
+```c
+size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
+pool = usedpools[0 + 0]
+
+```
 
 so **pool** header will be the first element in **idx0**, follow the linked list, we can find that the first **pool** which can offer memory blocks is **pool1**
 

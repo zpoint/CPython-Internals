@@ -20,13 +20,16 @@
 
 **PyMethodObject** 在 c 层级表示了一个 python 层级的 **method** 对象
 
-    class C(object):
-        def f1(self, val):
-            return val
+```python3
+class C(object):
+    def f1(self, val):
+        return val
 
-    >>> c = C()
-    >>> type(c.f1)
-    <class 'method'>
+>>> c = C()
+>>> type(c.f1)
+<class 'method'>
+
+```
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/layout.png)
 
@@ -40,46 +43,61 @@
 
 你可以从上图看到, **im_func** 存储的是一个类型为 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func_cn.md) 的对象
 
-    >>> C.f1
-    <function C.f1 at 0x10b80f040>
+```python3
+>>> C.f1
+<function C.f1 at 0x10b80f040>
+
+```
 
 ## im_self
 
 **im_self** 存储了该 method 绑定的实例对象
 
-    >>> c
-    <__main__.C object at 0x10b7cbcd0>
+```python3
+>>> c
+<__main__.C object at 0x10b7cbcd0>
+
+```
 
 当你调用下面的 method 的时候
 
-	>>> c.f1(123)
-	123
+```python3
+>>> c.f1(123)
+123
+
+```
 
 **PyMethodObject** 把实际的调用指派给了自己所存储的 **im_func** 对象, 在指派的过程中把 **im_self** 作为第一个参数传入
 
-    static PyObject *
-    method_call(PyObject *method, PyObject *args, PyObject *kwargs)
-    {
-        PyObject *self, *func;
-		/* 获取 im_self 中存储的对象*/
-        self = PyMethod_GET_SELF(method);
-        if (self == NULL) {
-            PyErr_BadInternalCall();
-            return NULL;
-        }
-		/* 获取 im_func 中存储的对象*/
-        func = PyMethod_GET_FUNCTION(method);
-		/* 调用 im_func, 调用过程中把 im_self 作为第一个参数传入 */
-        return _PyObject_Call_Prepend(func, self, args, kwargs);
+```c
+static PyObject *
+method_call(PyObject *method, PyObject *args, PyObject *kwargs)
+{
+    PyObject *self, *func;
+	/* 获取 im_self 中存储的对象*/
+    self = PyMethod_GET_SELF(method);
+    if (self == NULL) {
+        PyErr_BadInternalCall();
+        return NULL;
     }
+	/* 获取 im_func 中存储的对象*/
+    func = PyMethod_GET_FUNCTION(method);
+	/* 调用 im_func, 调用过程中把 im_self 作为第一个参数传入 */
+    return _PyObject_Call_Prepend(func, self, args, kwargs);
+}
+
+```
 
 # free_list
 
-    static PyMethodObject *free_list;
-    static int numfree = 0;
-    #ifndef PyMethod_MAXFREELIST
-    #define PyMethod_MAXFREELIST 256
-    #endif
+```c
+static PyMethodObject *free_list;
+static int numfree = 0;
+#ifndef PyMethod_MAXFREELIST
+#define PyMethod_MAXFREELIST 256
+#endif
+
+```
 
 free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** 这个对象的 malloc/free 的开销
 
@@ -87,40 +105,52 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 **PyMethodObject** 只会在你想要获取一个 bound-method 的时候创建, 而不是这个类实例化的时候创建
 
-    >>> c1 = C()
-    >>> id(c1)
-    4514815184
-    >>> c2 = C()
-    >>> id(c2)
-    4514815472
-    >>> id(c1.f1) # c1.f1 是在这一行创建的, 在这一行之后, c1.f1 的引用计数器变为 0, 将会被回收
-    4513259240
-    >>> id(c1.f1) # c1.f1 的 id 被循环利用了
-    4513259240
-    >>> id(c2.f1)
-    4513259240
+```python3
+>>> c1 = C()
+>>> id(c1)
+4514815184
+>>> c2 = C()
+>>> id(c2)
+4514815472
+>>> id(c1.f1) # c1.f1 是在这一行创建的, 在这一行之后, c1.f1 的引用计数器变为 0, 将会被回收
+4513259240
+>>> id(c1.f1) # c1.f1 的 id 被循环利用了
+4513259240
+>>> id(c2.f1)
+4513259240
+
+```
 
 现在我们来看一个 free_list 的例子
 
-	>>> c1_f1_1 = c1.f1
-	>>> c1_f1_2 = c1.f1
-    >>> id(c1_f1_1)
-    4529762024
-    >>> id(c1_f1_2)
-    4529849392
+```python3
+>>> c1_f1_1 = c1.f1
+>>> c1_f1_2 = c1.f1
+>>> id(c1_f1_1)
+4529762024
+>>> id(c1_f1_2)
+4529849392
+
+```
 
 假设 free_list 在当前状态下是空的
 
 ![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list0.png)
 
-    >>> del c1_f1_1
-    >>> del c1_f1_2
+```python3
+>>> del c1_f1_1
+>>> del c1_f1_2
+
+```
 
 ![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list1.png)
 
-    >>> c1_f1_3 = c1.f1
-    >>> id(c1_f1_3)
-    4529849392
+```python3
+>>> c1_f1_3 = c1.f1
+>>> id(c1_f1_3)
+4529849392
+
+```
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/free_list2.png)
 
@@ -128,23 +158,26 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 我们来定义一个有 **classmethod** 和 **staticmethod** 的对象看看
 
-    class C(object):
-        def f1(self, val):
-            return val
+```python3
+class C(object):
+    def f1(self, val):
+        return val
 
-        @staticmethod
-        def fs():
-            pass
+    @staticmethod
+    def fs():
+        pass
 
-        @classmethod
-        def fc(cls):
-            return cls
+    @classmethod
+    def fc(cls):
+        return cls
 
-    >>> c1 = C()
-    >>> type(c1.fs)
-    <class 'function'>
-    >>> type(c1.fc)
-    <class 'method'>
+>>> c1 = C()
+>>> type(c1.fs)
+<class 'function'>
+>>> type(c1.fc)
+<class 'method'>
+
+```
 
 ## classmethod
 
@@ -152,8 +185,11 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 **c1.fc** 是另一个  **PyMethodObject** 的实例, 其中的 **im_func** 指向即将调用的函数对象, 而 **im_self** 指向了 `<class '__main__.C'>`
 
-    >>> C
-    <class '__main__.C'>
+```python3
+>>> C
+<class '__main__.C'>
+
+```
 
 ![classmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod.png)
 
@@ -161,30 +197,36 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 **classmethod** 在 python3 中是一个类型
 
-    typedef struct {
-        PyObject_HEAD
-        PyObject *cm_callable;
-        PyObject *cm_dict;
-    } classmethod;
+```c
+typedef struct {
+    PyObject_HEAD
+    PyObject *cm_callable;
+    PyObject *cm_dict;
+} classmethod;
+
+```
 
 ![classmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod1.png)
 
 我们来尝试理解一下
 
-    fc = classmethod(lambda self : self)
+```python3
+fc = classmethod(lambda self : self)
 
-    class C(object):
-        fc1 = fc
+class C(object):
+    fc1 = fc
 
-    >>> cc = C()
-    >>> type(fc)
-    >>> <class 'classmethod'>
-    >>> type(cc.fc1)
-    >>> <class 'method'>
+>>> cc = C()
+>>> type(fc)
+>>> <class 'classmethod'>
+>>> type(cc.fc1)
+>>> <class 'method'>
 
-    >>> fc.__dict__["b"] = "c"
-    >>> cc.fc1
-    <bound method <lambda> of <class '__main__.C'>>
+>>> fc.__dict__["b"] = "c"
+>>> cc.fc1
+<bound method <lambda> of <class '__main__.C'>>
+
+```
 
 同样的变量, 通过不用的方式获取得到的结果不同, 这是怎么一回事呢 ?
 
@@ -206,20 +248,23 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 我们可以看看 **classmethod** 类型的 `__get__` 函数的实现
 
-    static PyObject *
-    cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
-    {
-        classmethod *cm = (classmethod *)self;
+```c
+static PyObject *
+cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+{
+    classmethod *cm = (classmethod *)self;
 
-        if (cm->cm_callable == NULL) {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "uninitialized classmethod object");
-            return NULL;
-        }
-        if (type == NULL)
-            type = (PyObject *)(Py_TYPE(obj));
-        return PyMethod_New(cm->cm_callable, type);
+    if (cm->cm_callable == NULL) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "uninitialized classmethod object");
+        return NULL;
     }
+    if (type == NULL)
+        type = (PyObject *)(Py_TYPE(obj));
+    return PyMethod_New(cm->cm_callable, type);
+}
+
+```
 
 ![classmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod_get.png)
 
@@ -229,35 +274,44 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 **@staticmethod** 装饰器把 **c1.fs** 的类型更改为了 [function](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
 
-    >>> type(c1.fs)
-    <class 'function'>
+```python3
+>>> type(c1.fs)
+<class 'function'>
+
+```
 
 ![staticmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod.png)
 
-    typedef struct {
-        PyObject_HEAD
-        PyObject *sm_callable;
-        PyObject *sm_dict;
-    } staticmethod;
+```c
+typedef struct {
+    PyObject_HEAD
+    PyObject *sm_callable;
+    PyObject *sm_dict;
+} staticmethod;
+
+```
 
 这是 **staticmethod** 对象的构造
 
 ![staticmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod1.png)
 
-    fs = staticmethod(lambda : None)
+```python3
+fs = staticmethod(lambda : None)
 
-    class C(object):
-        fs1 = fs
+class C(object):
+    fs1 = fs
 
-    >>> fs.__dict__["a"] = "b"
-    >>> cc = C()
-    >>> type(fs)
-    >>> <class 'staticmethod'>
-    >>> type(cc.fs1)
-    >>> <class 'function'>
+>>> fs.__dict__["a"] = "b"
+>>> cc = C()
+>>> type(fs)
+>>> <class 'staticmethod'>
+>>> type(cc.fs1)
+>>> <class 'function'>
 
-    >>> cc.fs1
-    <function <lambda> at 0x1047d9f40>
+>>> cc.fs1
+<function <lambda> at 0x1047d9f40>
+
+```
 
 ![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
 
@@ -265,19 +319,22 @@ free_list 是一个单链表, 作缓冲池用, 用来减小 **PyMethodObject** �
 
 我们可以看看 **staticmethod** 类型的 `__get__` 函数的实现
 
-    static PyObject *
-    sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
-    {
-        staticmethod *sm = (staticmethod *)self;
+```c
+static PyObject *
+sm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+{
+    staticmethod *sm = (staticmethod *)self;
 
-        if (sm->sm_callable == NULL) {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "uninitialized staticmethod object");
-            return NULL;
-        }
-        Py_INCREF(sm->sm_callable);
-        return sm->sm_callable;
+    if (sm->sm_callable == NULL) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "uninitialized staticmethod object");
+        return NULL;
     }
+    Py_INCREF(sm->sm_callable);
+    return sm->sm_callable;
+}
+
+```
 
 ![staticmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod_get.png)
 

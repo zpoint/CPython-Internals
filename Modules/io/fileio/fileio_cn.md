@@ -23,10 +23,13 @@
 
 如 [python官方文档](https://docs.python.org/3/library/io.html#raw-file-i-o) 所说 **FileIO** 对象表示了一个在操作系统级别上对字节对象进行操作的文件对象
 
-	>>> import io
-    >>> f = io.FileIO("./1.txt", "a+")
-    >>> f.write(b"hello")
-    5
+```python3
+>>> import io
+>>> f = io.FileIO("./1.txt", "a+")
+>>> f.write(b"hello")
+5
+
+```
 
 **fd** 这个字段表示文件描述符号, **created** 这个字段是 0, **readable**, **writable**, **appending**, **seekable**, **closefd** 都是 1
 
@@ -42,7 +45,10 @@
 
 调用 **close** 方法后, **fd** 字段变成了 -1, 并且 键 **__IOBase_closed** 被插入了当前的 **dict** 里面
 
-	>>> f.close()
+```python3
+>>> f.close()
+
+```
 
 ![1_txt_close](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/1_txt_close.png)
 
@@ -52,7 +58,10 @@
 
 **fd** 和 **dict** 都没有发生改变, 说明他们被循环利用了, 并且 **writable**, **appending**, **seekable** 的值现在变成了 0/-1
 
-	>>> f = io.FileIO("../../Desktop/2.txt", "rb")
+```python3
+>>> f = io.FileIO("../../Desktop/2.txt", "rb")
+
+```
 
 ![2_txt_rb](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/2_txt_rb.png)
 
@@ -60,11 +69,14 @@
 
 我们传入一个文件描述符号试一试
 
-	>>> f = open("../../Desktop/2.txt", "rb")
-    >>> f.fileno()
-    3
-    >>> f2 = io.FileIO(3, "r")
-	"<_io.FileIO name=3 mode='rb' closefd=True>"
+```python3
+>>> f = open("../../Desktop/2.txt", "rb")
+>>> f.fileno()
+3
+>>> f2 = io.FileIO(3, "r")
+"<_io.FileIO name=3 mode='rb' closefd=True>"
+
+```
 
 ![fd_3](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fd_3.png)
 

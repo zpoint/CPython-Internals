@@ -47,11 +47,14 @@ prerequisites
 
 # example
 
-    class A(object):
-        __slots__ = ["wing", "leg"]
+```python3
+class A(object):
+    __slots__ = ["wing", "leg"]
 
-        x = 3
+    x = 3
 
+
+```
 
 what's the difference of accessing attribute `wing` and `x` of instance `a` ?
 
@@ -63,11 +66,14 @@ what's the difference of accessing attribute `wing` and `x` of type `A` ?
 
 ### before set a value
 
-	>>> a = A()
-    >>> a.wing
-    Traceback (most recent call last):
-      File "<input>", line 1, in <module>
-    AttributeError: wing
+```python3
+>>> a = A()
+>>> a.wing
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+AttributeError: wing
+
+```
 
 according to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
 
@@ -77,8 +83,11 @@ we can draw the procedure of accessing `a.wing` in a brief view
 
 the **descriptor protocol** help us find an object named `descr`, type is `member_descriptor`, if you call
 
-	repr(descr)
-    descr: <member 'wing' of 'A' objects>
+```python3
+repr(descr)
+descr: <member 'wing' of 'A' objects>
+
+```
 
 the `descr` has a member named `d_member`, which stores information about the attribute name, type and offset
 
@@ -86,41 +95,50 @@ with the informations stored in `d_member`, you are able to access the address o
 
 in the current example, if the begin address of the instance `a` is `0x00`, address after adding the offset is `0x18`, you can cast the address in `0x18` to a proper object according to `type` stored in `d_member`
 
-	/* Include/structmember.h */
-    #define T_OBJECT_EX 16  /* Like T_OBJECT, but raises AttributeError
-                               when the value is NULL, instead of
-                               converting to None. */
+```c
+/* Include/structmember.h */
+#define T_OBJECT_EX 16  /* Like T_OBJECT, but raises AttributeError
+                           when the value is NULL, instead of
+                           converting to None. */
 
-	/* Python/structmember.c */
-    addr += l->offset;
-    switch (l->type) {
-    	/* ... */
-        case T_OBJECT_EX:
-            v = *(PyObject **)addr;
-            /* because wing attribute of instance a is never set,
-            it raise an attribute error */
-            if (v == NULL)
-                PyErr_SetString(PyExc_AttributeError, l->name);
-            Py_XINCREF(v);
-            break;
-        /* ... */
-    }
+/* Python/structmember.c */
+addr += l->offset;
+switch (l->type) {
+	/* ... */
+    case T_OBJECT_EX:
+        v = *(PyObject **)addr;
+        /* because wing attribute of instance a is never set,
+        it raise an attribute error */
+        if (v == NULL)
+            PyErr_SetString(PyExc_AttributeError, l->name);
+        Py_XINCREF(v);
+        break;
+    /* ... */
+}
+
+```
 
 ![offset](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/offset.png)
 
 ### after set a value
 
-	>>> a = A()
-    >>> a.wing = "wingA"
-    >>> a.wing
-    'wingA'
+```python3
+>>> a = A()
+>>> a.wing = "wingA"
+>>> a.wing
+'wingA'
+
+```
 
 because wing attribute of instance `a` is set before, `AttributeError` won't be raised
 
 ## instance access x
 
-	>>> a.x
-	>>> 3
+```python3
+>>> a.x
+>>> 3
+
+```
 
 type of `descr` is `int`, it's not a data descriptor(does not have `__get__` or `__set__` attribute), so the `descr` will be returned directly
 
@@ -128,19 +146,25 @@ type of `descr` is `int`, it's not a data descriptor(does not have `__get__` or 
 
 you are not able to create any other attribute in instance `a` if `A` defined `__slots__`, we will figure out why later
 
-	>>> a.not_exist = 100
-	Traceback (most recent call last):
-	File "<input>", line 1, in <module>
-	AttributeError: 'A' object has no attribute 'not_exist'
+```python3
+>>> a.not_exist = 100
+Traceback (most recent call last):
+File "<input>", line 1, in <module>
+AttributeError: 'A' object has no attribute 'not_exist'
+
+```
 
 # access type
 
 ## type access wing
 
-	>>> A.wing
-	<member 'wing' of 'A' objects>
-    >>> type(A.wing)
-    <class 'member_descriptor'>
+```python3
+>>> A.wing
+<member 'wing' of 'A' objects>
+>>> type(A.wing)
+<class 'member_descriptor'>
+
+```
 
 the procedure of accessing `A.wing` is nearly the same as `a.wing`
 
@@ -148,8 +172,11 @@ the procedure of accessing `A.wing` is nearly the same as `a.wing`
 
 ## type access x
 
-	>>> A.x
-	3
+```python3
+>>> A.x
+3
+
+```
 
 the procedure of accessing `A.x` is nearly the same as `a.x`
 
@@ -185,51 +212,60 @@ the memory location of the attributes in `__slots__` are preallocated
 
 it just iter through every type object in MRO, and if the name in `tp_dict` field, retuen `tp_dict[name]`
 
-	/* cpython/Objects/typeobject.c */
-    /* for the instance a, if we access a.wing
-       type: <class '__main__.A'>
-       mro: (<class '__main__.A'>, <class 'object'>)
-       name: 'wing'
-    */
-	mro = type->tp_mro;
-    n = PyTuple_GET_SIZE(mro);
-    for (i = 0; i < n; i++) {
-        base = PyTuple_GET_ITEM(mro, i);
-        dict = ((PyTypeObject *)base)->tp_dict;
-        // in python representation: res = dict[name]
-        res = _PyDict_GetItem_KnownHash(dict, name, hash);
-        if (res != NULL)
-            break;
-        if (PyErr_Occurred()) {
-            *error = -1;
-            goto done;
-        }
+```c
+/* cpython/Objects/typeobject.c */
+/* for the instance a, if we access a.wing
+   type: <class '__main__.A'>
+   mro: (<class '__main__.A'>, <class 'object'>)
+   name: 'wing'
+*/
+mro = type->tp_mro;
+n = PyTuple_GET_SIZE(mro);
+for (i = 0; i < n; i++) {
+    base = PyTuple_GET_ITEM(mro, i);
+    dict = ((PyTypeObject *)base)->tp_dict;
+    // in python representation: res = dict[name]
+    res = _PyDict_GetItem_KnownHash(dict, name, hash);
+    if (res != NULL)
+        break;
+    if (PyErr_Occurred()) {
+        *error = -1;
+        goto done;
     }
+}
+
+```
 
 if we try to access attribute `wing`
 
-	>>> type(A.wing)
-	<class 'member_descriptor'>
-	>>> type(a).__mro__
-	(<class '__main__.A'>, <class 'object'>)
-    >>> print(a.wing)
-    wingA
+```python3
+>>> type(A.wing)
+<class 'member_descriptor'>
+>>> type(a).__mro__
+(<class '__main__.A'>, <class 'object'>)
+>>> print(a.wing)
+wingA
+
+```
 
 the following pseudo shows what's going on
 
-	res = None
-    for each_type in type(a).__mro__:
-    	if "wing" in each_type.__dict__:
-        	res = each_type.__dict__["wing"]
-            break
-    # do the attribute accessing procedure described in the other article
-    ...
-    if res is a data_descriptor:
-        # res is A.wing, it's type is member_descriptor
-        # it stores the offset and some other information of the real object stored in instance
-        # member_descriptor.__get__ will find the address in a + offset, and cast it to a PyObject and return that object
-        return res.__get__(a, type(a))
-    ...
+```c
+res = None
+for each_type in type(a).__mro__:
+	if "wing" in each_type.__dict__:
+    	res = each_type.__dict__["wing"]
+        break
+# do the attribute accessing procedure described in the other article
+...
+if res is a data_descriptor:
+    # res is A.wing, it's type is member_descriptor
+    # it stores the offset and some other information of the real object stored in instance
+    # member_descriptor.__get__ will find the address in a + offset, and cast it to a PyObject and return that object
+    return res.__get__(a, type(a))
+...
+
+```
 
 ![access_slot_attribute](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/access_slot_attribute.png)
 
@@ -237,24 +273,30 @@ the following pseudo shows what's going on
 
 if we try to access or set a not exist attribute
 
-	>>> a.not_exist = 33
-    Traceback (most recent call last):
-    File "<input>", line 1, in <module>
-    AttributeError: 'A' object has no attribute 'not_exist'
+```python3
+>>> a.not_exist = 33
+Traceback (most recent call last):
+File "<input>", line 1, in <module>
+AttributeError: 'A' object has no attribute 'not_exist'
+
+```
 
 follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we found
 
-	res = None
-	for each_type in type(a).__mro__:
-   		if "not_exist" in each_type.__dict__:
-        	res = each_type.__dict__["not_exist"]
-        	break
-    if res is None:
-        # try to find "not_exist" in a.__dict__
-        if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
-        	# go to here
-        	raise AttributeError
-        return a.__dict__["not_exist"]
+```python3
+res = None
+for each_type in type(a).__mro__:
+	if "not_exist" in each_type.__dict__:
+    	res = each_type.__dict__["not_exist"]
+    	break
+if res is None:
+    # try to find "not_exist" in a.__dict__
+    if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
+    	# go to here
+    	raise AttributeError
+    return a.__dict__["not_exist"]
+
+```
 
 when the `__slots__` attribute set, `tp_dictoffset` of `type(a)` will be 0, it means instance `a` does not have `__dict__` attribute to stores any other attribute name
 
@@ -265,11 +307,14 @@ so `AttributeError` will be raised
 
 ## without slots
 
-    class A(object):
+```python3
+class A(object):
 
-        x = 3
-        wing = "wingA"
-        leg = "legA"
+    x = 3
+    wing = "wingA"
+    leg = "legA"
+
+```
 
 ### how does attributes initialize in the creation of `class A` ?
 
@@ -289,22 +334,28 @@ the lookup procedure is the same as the procedure in [with slots](#with-slots)
 
 if we try to access or set a not exist attribute
 
-	>>> a.not_exist = 33
-	>>> print(a.not_exist)
+```python3
+>>> a.not_exist = 33
+>>> print(a.not_exist)
+
+```
 
 follow the descriptor protocol mentioned in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we found
 
-	res = None
-	for each_type in type(a).__mro__:
-   		if "not_exist" in each_type.__dict__:
-        	res = each_type.__dict__["not_exist"]
-        	break
-    if res is None:
-        # try to find "not_exist" in a.__dict__
-        if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
-        	raise AttributeError
-        # go to here
-        return a.__dict__["not_exist"]
+```python3
+res = None
+for each_type in type(a).__mro__:
+	if "not_exist" in each_type.__dict__:
+    	res = each_type.__dict__["not_exist"]
+    	break
+if res is None:
+    # try to find "not_exist" in a.__dict__
+    if not hasattr(a, "__dict__") or "not_exist" not in a.__dict__:
+    	raise AttributeError
+    # go to here
+    return a.__dict__["not_exist"]
+
+```
 
 the `__slots__` attribute is not set, `tp_dictoffset` of `type(a)` is 16, it means instance `a` does have `__dict__` attribute to stores other attribute name, the location is in `(char *)a + 16`
 
@@ -318,35 +369,41 @@ so attribute name can be stored in `a.__dict__`
 
 with `__slots__`
 
-	./ipython
-	>>> import ipython_memory_usage.ipython_memory_usage as imu
-    >>> imu.start_watching_memory()
-    In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
-    class MyClass(object):
-        __slots__ = ['name', 'identifier']
-        def __init__(self, name, identifier):
-                self.name = name
-                self.identifier = identifier
-    num = 1024*256
-    x = [MyClass(1,1) for i in range(num)]
+```python3
+./ipython
+>>> import ipython_memory_usage.ipython_memory_usage as imu
+>>> imu.start_watching_memory()
+In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
+class MyClass(object):
+    __slots__ = ['name', 'identifier']
+    def __init__(self, name, identifier):
+            self.name = name
+            self.identifier = identifier
+num = 1024*256
+x = [MyClass(1,1) for i in range(num)]
 
-    used 27.5508 MiB RAM in 0.28s, peaked 0.00 MiB above current, total RAM usage 69.18 MiB
+used 27.5508 MiB RAM in 0.28s, peaked 0.00 MiB above current, total RAM usage 69.18 MiB
+
+```
 
 without `__slots__`
 
-    ./ipython
-	>>> import ipython_memory_usage.ipython_memory_usage as imu
-    >>> imu.start_watching_memory()
-    In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
+```python3
+./ipython
+>>> import ipython_memory_usage.ipython_memory_usage as imu
+>>> imu.start_watching_memory()
+In [2] used 0.1367 MiB RAM in 3.59s, peaked 0.00 MiB above current, total RAM usage 41.16 MiB
 
-    class MyClass(object):
-            def __init__(self, name, identifier):
-                    self.name = name
-                    self.identifier = identifier
-    num = 1024*256
-    x = [MyClass(1,1) for i in range(num)]
+class MyClass(object):
+        def __init__(self, name, identifier):
+                self.name = name
+                self.identifier = identifier
+num = 1024*256
+x = [MyClass(1,1) for i in range(num)]
 
-    used 56.0234 MiB RAM in 0.34s, peaked 0.00 MiB above current, total RAM usage 97.63 MiB
+used 56.0234 MiB RAM in 0.34s, peaked 0.00 MiB above current, total RAM usage 97.63 MiB
+
+```
 
 the class without `__slots__` consumes nearly twice memory than the class with `__slots__`, it mainly because attributes in the class with `__slots__` is preallocated, which occupies 8 bytes per python object pointer, and the class without `__slots__` has the overhead of the [dict object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md), which occupies more than a dozen 8 bytes pointers even without storing any elements
 

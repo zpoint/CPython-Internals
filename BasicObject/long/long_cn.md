@@ -40,7 +40,10 @@
 
 注意, 当要表示的整数的值为 0 时, **ob_digit** 这个数组为空, 不存储任何东西, **ob_size** 中的 0 就直接表示这个整数的值为 0, 这是一种特殊情况
 
-	i = 0
+```python3
+i = 0
+
+```
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
@@ -48,28 +51,34 @@
 
 **ob_digit** 可以有两种不同的定义, 具体是 uint32_t 还是 unsigned short 取决于操作系统
 
-    #if PYLONG_BITS_IN_DIGIT == 30
-    typedef uint32_t digit;
-    typedef int32_t sdigit;
-    typedef uint64_t twodigits;
-    typedef int64_t stwodigits; /* signed variant of twodigits */
-    #define PyLong_SHIFT    30
-    #define _PyLong_DECIMAL_SHIFT   9 /* max(e such that 10**e fits in a digit) */
-    #define _PyLong_DECIMAL_BASE    ((digit)1000000000) /* 10 ** DECIMAL_SHIFT */
-    #elif PYLONG_BITS_IN_DIGIT == 15
-    typedef unsigned short digit;
-    typedef short sdigit; /* signed variant of digit */
-    typedef unsigned long twodigits;
-    typedef long stwodigits; /* signed variant of twodigits */
-    #define PyLong_SHIFT    15
-    #define _PyLong_DECIMAL_SHIFT   4 /* max(e such that 10**e fits in a digit) */
-    #define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
+```c
+#if PYLONG_BITS_IN_DIGIT == 30
+typedef uint32_t digit;
+typedef int32_t sdigit;
+typedef uint64_t twodigits;
+typedef int64_t stwodigits; /* signed variant of twodigits */
+#define PyLong_SHIFT    30
+#define _PyLong_DECIMAL_SHIFT   9 /* max(e such that 10**e fits in a digit) */
+#define _PyLong_DECIMAL_BASE    ((digit)1000000000) /* 10 ** DECIMAL_SHIFT */
+#elif PYLONG_BITS_IN_DIGIT == 15
+typedef unsigned short digit;
+typedef short sdigit; /* signed variant of digit */
+typedef unsigned long twodigits;
+typedef long stwodigits; /* signed variant of twodigits */
+#define PyLong_SHIFT    15
+#define _PyLong_DECIMAL_SHIFT   4 /* max(e such that 10**e fits in a digit) */
+#define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
+
+```
 
 我把源代码里的 **PYLONG_BITS_IN_DIGIT** 的值写死成了 15, 这样我下面所有的示例都是以 **unsigned short** 定义的 **digit**
 
 当我们需要表示整数 1 的时候, **ob_size** 的值变成了1, 这个时候 **ob_size** 表示 **ob_digit** 的长度, 并且 **ob_digit** 里以 **unsigned short** 的表示方式存储了整数1
 
-	i = 1
+```python3
+i = 1
+
+```
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
@@ -77,7 +86,10 @@
 
 当 i 变成 -1 时候, 唯一的和整数 1 的区别就是储存在 **ob_size** 里的值变成了 -1, 这里的负号表示这个整数的正负性, 不影响到 **ob_digit** 里面的值
 
-	i = -1
+```python3
+i = -1
+
+```
 
 ![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
@@ -120,12 +132,18 @@
 
 我们尝试跑一个简单的加法来理解一下
 
-	i = 1073741824 - 1 # 1 << 30 == 1073741824
-    j = 1
+```python3
+i = 1073741824 - 1 # 1 << 30 == 1073741824
+j = 1
+
+```
 
 ![before_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/before_add.png)
 
-	k = i + j
+```python3
+k = i + j
+
+```
 
 首先, 相加之前会初始化一个中间变量我这里叫做 temp, 他的类型也是 **PyLongObject**, 并且大小为 max(size(i), size(j)) + 1
 
@@ -170,22 +188,28 @@ temp 这个变量此时按照 **PyLongObject** 的方式存储了前面两个数
 
 cpython 同时也使用了一个全局变量叫做 small_ints 来单例化一部分常见范围的整数, 这么做可以减少频繁的向操作系统申请和释放的次数, 并提高性能
 
+```c
 
-	#define NSMALLPOSINTS           257
-	#define NSMALLNEGINTS           5
-    static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
+#define NSMALLPOSINTS           257
+#define NSMALLNEGINTS           5
+static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
+
+```
 
 我们来看看
 
-	c = 0
-    d = 0
-    e = 0
-    print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400
-    a = -5
-    b = -5
-    print(id(a), id(b)) # 4480940240 4480940240
-    f = 1313131313131313
-    g = 1313131313131313
-    print(id(f), id(g)) # 4484604176 4484604016
+```python3
+c = 0
+d = 0
+e = 0
+print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400
+a = -5
+b = -5
+print(id(a), id(b)) # 4480940240 4480940240
+f = 1313131313131313
+g = 1313131313131313
+print(id(f), id(g)) # 4484604176 4484604016
+
+```
 
 ![small_ints](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/small_ints.png)

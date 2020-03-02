@@ -47,16 +47,19 @@ according to [pep-3147](https://www.python.org/dev/peps/pep-3147/), after python
 
 the main loop of the interpreter is defined in `cpython/Python/ceval.c`
 
-    main_loop:
-        for (;;) {
-        	// jump to fast_next_opcode if necessary
-        	// check for signal hndler/async io handler
-            // drop gil if needed
-			fast_next_opcode:
-                switch (opcode) {
-                    /* ... */
-                }
-        }
+```c
+main_loop:
+    for (;;) {
+    	// jump to fast_next_opcode if necessary
+    	// check for signal hndler/async io handler
+        // drop gil if needed
+		fast_next_opcode:
+            switch (opcode) {
+                /* ... */
+            }
+    }
+
+```
 
 we can draw the procedure
 

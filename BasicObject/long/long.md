@@ -38,7 +38,10 @@ But how does CPython represent the variable size **int** in byte level? Let's se
 
 notice, when the value is 0, the **ob_digit** field doesn't store anything, the value 0 in **ob_size** indicate that **long object** represent integer 0
 
-    i = 0
+```python3
+i = 0
+
+```
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/0.png)
 
@@ -46,28 +49,34 @@ notice, when the value is 0, the **ob_digit** field doesn't store anything, the 
 
 there are two different types of **ob_digit** depends on your system.
 
-    #if PYLONG_BITS_IN_DIGIT == 30
-    typedef uint32_t digit;
-    typedef int32_t sdigit;
-    typedef uint64_t twodigits;
-    typedef int64_t stwodigits; /* signed variant of twodigits */
-    #define PyLong_SHIFT    30
-    #define _PyLong_DECIMAL_SHIFT   9 /* max(e such that 10**e fits in a digit) */
-    #define _PyLong_DECIMAL_BASE    ((digit)1000000000) /* 10 ** DECIMAL_SHIFT */
-    #elif PYLONG_BITS_IN_DIGIT == 15
-    typedef unsigned short digit;
-    typedef short sdigit; /* signed variant of digit */
-    typedef unsigned long twodigits;
-    typedef long stwodigits; /* signed variant of twodigits */
-    #define PyLong_SHIFT    15
-    #define _PyLong_DECIMAL_SHIFT   4 /* max(e such that 10**e fits in a digit) */
-    #define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
+```c
+#if PYLONG_BITS_IN_DIGIT == 30
+typedef uint32_t digit;
+typedef int32_t sdigit;
+typedef uint64_t twodigits;
+typedef int64_t stwodigits; /* signed variant of twodigits */
+#define PyLong_SHIFT    30
+#define _PyLong_DECIMAL_SHIFT   9 /* max(e such that 10**e fits in a digit) */
+#define _PyLong_DECIMAL_BASE    ((digit)1000000000) /* 10 ** DECIMAL_SHIFT */
+#elif PYLONG_BITS_IN_DIGIT == 15
+typedef unsigned short digit;
+typedef short sdigit; /* signed variant of digit */
+typedef unsigned long twodigits;
+typedef long stwodigits; /* signed variant of twodigits */
+#define PyLong_SHIFT    15
+#define _PyLong_DECIMAL_SHIFT   4 /* max(e such that 10**e fits in a digit) */
+#define _PyLong_DECIMAL_BASE    ((digit)10000) /* 10 ** DECIMAL_SHIFT */
+
+```
 
 I've modified the source code to change the value of **PYLONG_BITS_IN_DIGIT** to 15
 
 but when it's going to represent integer 1, **ob_size** becomes 1 and field in **ob_digit** represent the value 1 with type **unsigned short**
 
-    i = 1
+```python3
+i = 1
+
+```
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/1.png)
 
@@ -75,7 +84,10 @@ but when it's going to represent integer 1, **ob_size** becomes 1 and field in *
 
 when i becomes -1, the only difference from the integer 1 is the value in **ob_size** field, CPython interpret **ob_size** as a signed type to differ the positive and negative sign
 
-    i = -1
+```python3
+i = -1
+
+```
 
 ![-1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/-1.png)
 
@@ -119,12 +131,18 @@ why the left-most bit in **digit** is reserved? Why order between **digit** in t
 
 let's try to add two integer value
 
-    i = 1073741824 - 1 # 1 << 30 == 1073741824
-    j = 1
+```python3
+i = 1073741824 - 1 # 1 << 30 == 1073741824
+j = 1
+
+```
 
 ![before_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/before_add.png)
 
-    k = i + j
+```python3
+k = i + j
+
+```
 
 first, initialize a temporary **PyLongObject** with size = max(size(i), size(j)) + 1
 
@@ -169,22 +187,28 @@ the sub operation is similar to the add operation, so you can read the source co
 
 CPython also use a buffer pool to store the frequently used integer
 
+```c
 
-    #define NSMALLPOSINTS           257
-    #define NSMALLNEGINTS           5
-    static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
+#define NSMALLPOSINTS           257
+#define NSMALLNEGINTS           5
+static PyLongObject small_ints[NSMALLNEGINTS + NSMALLPOSINTS];
+
+```
 
 let's see
 
-    c = 0
-    d = 0
-    e = 0
-    print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400
-    a = -5
-    b = -5
-    print(id(a), id(b)) # 4480940240 4480940240
-    f = 1313131313131313
-    g = 1313131313131313
-    print(id(f), id(g)) # 4484604176 4484604016
+```python3
+c = 0
+d = 0
+e = 0
+print(id(c), id(d), id(e)) # 4480940400 4480940400 4480940400
+a = -5
+b = -5
+print(id(a), id(b)) # 4480940240 4480940240
+f = 1313131313131313
+g = 1313131313131313
+print(id(f), id(g)) # 4484604176 4484604016
+
+```
 
 ![small_ints](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/small_ints.png)

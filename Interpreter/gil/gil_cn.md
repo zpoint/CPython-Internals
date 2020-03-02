@@ -82,15 +82,21 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 你可以在 `cpython/Modules/main.c` 找到和 `main` 函数相关的部分, 通过这部分函数你可以发现, 在执行 `main loop` 之前, 解释器做了很多相关变量的初始化, 其中就包括创建 `_gil_runtime_state` 和初始化里面的值
 
-	./python.exe
+```python3
+./python.exe
+
+```
 
 ![init](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/init.png)
 
 ## interval
 
-    >>> import sys
-    >>> sys.getswitchinterval()
-    0.005
+```python3
+>>> import sys
+>>> sys.getswitchinterval()
+0.005
+
+```
 
 **interval** 是线程在设置 `gil_drop_request` 这个变量之前需要等待的时长(单位微秒), 5000 微秒 等价于 0.005 秒
 
@@ -104,35 +110,38 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 **locked** 的类型为 **_Py_atomic_int**, 值 -1 表示还未初始化, 0 表示当前的 **gil** 处于释放状态, 1 表示某个线程已经占用了 **gil**, 这个值的类型设置为原子类型之后在 `ceval.c` 就可以不加锁的对这个值进行读取
 
-	/* cpython/Python/ceval_gil.h */
-    static void take_gil(PyThreadState *tstate)
+```c
+/* cpython/Python/ceval_gil.h */
+static void take_gil(PyThreadState *tstate)
+{
+    /* 忽略 */
+    /* 这个位置已经获得了 GIL */
+    _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 1);
+    _Py_ANNOTATE_RWLOCK_ACQUIRED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+    if (tstate != (PyThreadState*)_Py_atomic_load_relaxed(
+                    &_PyRuntime.ceval.gil.last_holder))
     {
-        /* 忽略 */
-        /* 这个位置已经获得了 GIL */
-        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 1);
-        _Py_ANNOTATE_RWLOCK_ACQUIRED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
-        if (tstate != (PyThreadState*)_Py_atomic_load_relaxed(
-                        &_PyRuntime.ceval.gil.last_holder))
-        {
-            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
-                                     (uintptr_t)tstate);
-            ++_PyRuntime.ceval.gil.switch_number;
-        }
-        /* 忽略 */
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                 (uintptr_t)tstate);
+        ++_PyRuntime.ceval.gil.switch_number;
     }
+    /* 忽略 */
+}
 
-    static void drop_gil(PyThreadState *tstate)
-    {
-        /* 忽略 */
-        if (tstate != NULL) {
-            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
-                                     (uintptr_t)tstate);
-        }
-        MUTEX_LOCK(_PyRuntime.ceval.gil.mutex);
-        _Py_ANNOTATE_RWLOCK_RELEASED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
-        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 0);
-        /* 忽略 */
+static void drop_gil(PyThreadState *tstate)
+{
+    /* 忽略 */
+    if (tstate != NULL) {
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                 (uintptr_t)tstate);
     }
+    MUTEX_LOCK(_PyRuntime.ceval.gil.mutex);
+    _Py_ANNOTATE_RWLOCK_RELEASED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+    _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 0);
+    /* 忽略 */
+}
+
+```
 
 ## switch_number
 
@@ -140,30 +149,33 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 在函数 `take_gil` 中使用到
 
-    static void take_gil(PyThreadState *tstate)
-    {
-        /* 忽略 */
-        while (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked)) {
-        	/* 只要 gil 是锁住的状态, 进入这个循环 */
-            int timed_out = 0;
-            unsigned long saved_switchnum;
+```c
+static void take_gil(PyThreadState *tstate)
+{
+    /* 忽略 */
+    while (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked)) {
+    	/* 只要 gil 是锁住的状态, 进入这个循环 */
+        int timed_out = 0;
+        unsigned long saved_switchnum;
 
-            saved_switchnum = _PyRuntime.ceval.gil.switch_number;
-            /* 释放 gil.mutex, 并待 INTERVAL 微秒(默认 5000) 或者等待过程中收到 gil.cond 的信号 */
-            COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
-                            INTERVAL, timed_out);
-            /* 当前持有 gil.mutex 这把互斥锁 */
-            if (timed_out &&
-                _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
-                _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
-                /* 如果超过了等待时间, 并且这段等待时间里没有进行 gil 的换手, 则让当前持有 gil 的线程进行释放
-                把 gil_drop_request 值设为 1 */
-                SET_GIL_DROP_REQUEST();
-            }
-            /* 继续回到 while 循环, 检查 gil 是否为锁住状态 */
+        saved_switchnum = _PyRuntime.ceval.gil.switch_number;
+        /* 释放 gil.mutex, 并待 INTERVAL 微秒(默认 5000) 或者等待过程中收到 gil.cond 的信号 */
+        COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
+                        INTERVAL, timed_out);
+        /* 当前持有 gil.mutex 这把互斥锁 */
+        if (timed_out &&
+            _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
+            _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
+            /* 如果超过了等待时间, 并且这段等待时间里没有进行 gil 的换手, 则让当前持有 gil 的线程进行释放
+            把 gil_drop_request 值设为 1 */
+            SET_GIL_DROP_REQUEST();
         }
-        /* 忽略 */
+        /* 继续回到 while 循环, 检查 gil 是否为锁住状态 */
     }
+    /* 忽略 */
+}
+
+```
 
 ## mutex
 
@@ -179,32 +191,35 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 这个功能如果编译时未定义 `FORCE_SWITCHING` 则不开启
 
-    static void drop_gil(PyThreadState *tstate)
+```c
+static void drop_gil(PyThreadState *tstate)
+{
+/* 忽略 */
+#ifdef FORCE_SWITCHING
+    if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil_drop_request) &&
+        tstate != NULL)
     {
-    /* 忽略 */
-    #ifdef FORCE_SWITCHING
-        if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil_drop_request) &&
-            tstate != NULL)
+    	/* 如果 gil_drop_request 已经设置了并且 tstate 不为空 */
+        /* 锁住 switch_mutex 这把互斥锁 */
+        MUTEX_LOCK(_PyRuntime.ceval.gil.switch_mutex);
+        if (((PyThreadState*)_Py_atomic_load_relaxed(
+                    &_PyRuntime.ceval.gil.last_holder)
+            ) == tstate)
         {
-        	/* 如果 gil_drop_request 已经设置了并且 tstate 不为空 */
-            /* 锁住 switch_mutex 这把互斥锁 */
-            MUTEX_LOCK(_PyRuntime.ceval.gil.switch_mutex);
-            if (((PyThreadState*)_Py_atomic_load_relaxed(
-                        &_PyRuntime.ceval.gil.last_holder)
-                ) == tstate)
-            {
-            /* 如果 last_holder 是当前线程, 释放 switch_mutex 这把互斥锁, 等待 switch_cond 这个条件变量的信号 */
-            RESET_GIL_DROP_REQUEST();
-                /* 注意, 如果 COND_WAIT 不在互斥锁释放后原子的启动,
-                另一个线程有可能会在这中间拿到 gil 并释放,
-                '并且重置这个条件变量, 这个过程发生在了 COND_WAIT 之前 */
-                COND_WAIT(_PyRuntime.ceval.gil.switch_cond,
-                          _PyRuntime.ceval.gil.switch_mutex);
-        }
-            MUTEX_UNLOCK(_PyRuntime.ceval.gil.switch_mutex);
-        }
-    #endif
+        /* 如果 last_holder 是当前线程, 释放 switch_mutex 这把互斥锁, 等待 switch_cond 这个条件变量的信号 */
+        RESET_GIL_DROP_REQUEST();
+            /* 注意, 如果 COND_WAIT 不在互斥锁释放后原子的启动,
+            另一个线程有可能会在这中间拿到 gil 并释放,
+            '并且重置这个条件变量, 这个过程发生在了 COND_WAIT 之前 */
+            COND_WAIT(_PyRuntime.ceval.gil.switch_cond,
+                      _PyRuntime.ceval.gil.switch_mutex);
     }
+        MUTEX_UNLOCK(_PyRuntime.ceval.gil.switch_mutex);
+    }
+#endif
+}
+
+```
 
 # gil何时会被释放
 
@@ -218,67 +233,70 @@ python 解释器本质上是一个 C 程序, 所有的可执行的 C 程序都�
 
 而另一些 `DISPATCH()` 结尾的作用和 `continue` 类似, 会跳转到 `for loop` 顶端, 重新检测 `gil_drop_request`, 必要时释放 `gil`
 
-	/* cpython/Python/ceval.c */
-    main_loop:
-        for (;;) {
+```c
+/* cpython/Python/ceval.c */
+main_loop:
+    for (;;) {
+        /* 忽略 */
+        if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
+            opcode = _Py_OPCODE(*next_instr);
+            if (opcode == SETUP_FINALLY ||
+                opcode == SETUP_WITH ||
+                opcode == BEFORE_ASYNC_WITH ||
+                opcode == YIELD_FROM) {
+                /* 跳过 gil 部分, 直接跳转到 switch 部分 */
+                goto fast_next_opcode;
+            }
             /* 忽略 */
-            if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
-                opcode = _Py_OPCODE(*next_instr);
-                if (opcode == SETUP_FINALLY ||
-                    opcode == SETUP_WITH ||
-                    opcode == BEFORE_ASYNC_WITH ||
-                    opcode == YIELD_FROM) {
-                    /* 跳过 gil 部分, 直接跳转到 switch 部分 */
-                    goto fast_next_opcode;
-                }
-                /* 忽略 */
-                if (_Py_atomic_load_relaxed(
-                            &_PyRuntime.ceval.gil_drop_request))
+            if (_Py_atomic_load_relaxed(
+                        &_PyRuntime.ceval.gil_drop_request))
+            {
+            	/* 如果 gil_drop_request 被其他线程设置为 1 */
+                /* 给其他线程一个获得 gil 的机会 */
+                if (PyThreadState_Swap(NULL) != tstate)
+                    Py_FatalError("ceval: tstate mix-up");
+                drop_gil(tstate);
+
+                /* 其他线程现在在运行中 */
+
+                take_gil(tstate);
+
+                /* 检查是否需要退出 */
+                if (_Py_IsFinalizing() &&
+                    !_Py_CURRENTLY_FINALIZING(tstate))
                 {
-                	/* 如果 gil_drop_request 被其他线程设置为 1 */
-                    /* 给其他线程一个获得 gil 的机会 */
-                    if (PyThreadState_Swap(NULL) != tstate)
-                        Py_FatalError("ceval: tstate mix-up");
                     drop_gil(tstate);
-
-                    /* 其他线程现在在运行中 */
-
-                    take_gil(tstate);
-
-                    /* 检查是否需要退出 */
-                    if (_Py_IsFinalizing() &&
-                        !_Py_CURRENTLY_FINALIZING(tstate))
-                    {
-                        drop_gil(tstate);
-                        PyThread_exit_thread();
-                    }
-
-                    if (PyThreadState_Swap(tstate) != NULL)
-                        Py_FatalError("ceval: orphan tstate");
+                    PyThread_exit_thread();
                 }
-                /* 忽略 */
-            }
 
-        fast_next_opcode:
-			/* 忽略 */
-        switch (opcode) {
-            case TARGET(NOP): {
-                FAST_DISPATCH();
+                if (PyThreadState_Swap(tstate) != NULL)
+                    Py_FatalError("ceval: orphan tstate");
             }
             /* 忽略 */
-            case TARGET(UNARY_POSITIVE): {
-                PyObject *value = TOP();
-                PyObject *res = PyNumber_Positive(value);
-                Py_DECREF(value);
-                SET_TOP(res);
-                if (res == NULL)
-                    goto error;
-                DISPATCH();
-            }
-        	/* 忽略 */
+        }
+
+    fast_next_opcode:
+		/* 忽略 */
+    switch (opcode) {
+        case TARGET(NOP): {
+            FAST_DISPATCH();
         }
         /* 忽略 */
+        case TARGET(UNARY_POSITIVE): {
+            PyObject *value = TOP();
+            PyObject *res = PyNumber_Positive(value);
+            Py_DECREF(value);
+            SET_TOP(res);
+            if (res == NULL)
+                goto error;
+            DISPATCH();
+        }
+    	/* 忽略 */
     }
+    /* 忽略 */
+}
+
+```
 
 ![ceval](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/ceval.png)
 
