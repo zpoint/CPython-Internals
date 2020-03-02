@@ -47,16 +47,19 @@ python 解释器不仅仅是一个解释器, 它包括很多个部分
 
 main loop 循环主要定义在如下位置 `cpython/Python/ceval.c`
 
-    main_loop:
-        for (;;) {
-        	// 必要情况下跳转到 fast_next_opcode
-        	// 检查是否有 signal hndler/async io handler 需要处理
-            // 检查是否需要释放 gil
-			fast_next_opcode:
-                switch (opcode) {
-                    /* ... */
-                }
-        }
+```c
+main_loop:
+    for (;;) {
+    	// 必要情况下跳转到 fast_next_opcode
+    	// 检查是否有 signal hndler/async io handler 需要处理
+        // 检查是否需要释放 gil
+		fast_next_opcode:
+            switch (opcode) {
+                /* ... */
+            }
+    }
+
+```
 
 我们可以画出流程
 

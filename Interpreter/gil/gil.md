@@ -81,15 +81,21 @@ the python intepreter is a program written in C, every executable program writte
 
 those `main` related functions are defined in `cpython/Modules/main.c`, you will find that the `main` related function does some inilialization for the intepreter status before execute the `main loop`, the `_gil_runtime_state` will be created and initialized in the inilialization
 
-	./python.exe
+```python3
+./python.exe
+
+```
 
 ![init](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/init.png)
 
 ## interval
 
-    >>> import sys
-    >>> sys.getswitchinterval()
-    0.005
+```python3
+>>> import sys
+>>> sys.getswitchinterval()
+0.005
+
+```
 
 **interval** is the suspend timeout before set the `gil_drop_request` in microseconds, 5000 microseconds is 0.005 seconds
 
@@ -103,35 +109,38 @@ it's stored as microseconds in C and represent as seconds in python
 
 **locked** is a field of type **_Py_atomic_int**, -1 indicate uninitialized, 0 means no one is currently holding the **gil**, 1 means someone is holding it. This is atomic because it can be read without any lock taken in ceval.c
 
-	/* cpython/Python/ceval_gil.h */
-    static void take_gil(PyThreadState *tstate)
+```c
+/* cpython/Python/ceval_gil.h */
+static void take_gil(PyThreadState *tstate)
+{
+    /* omit */
+    /* We now hold the GIL */
+    _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 1);
+    _Py_ANNOTATE_RWLOCK_ACQUIRED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+    if (tstate != (PyThreadState*)_Py_atomic_load_relaxed(
+                    &_PyRuntime.ceval.gil.last_holder))
     {
-        /* omit */
-        /* We now hold the GIL */
-        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 1);
-        _Py_ANNOTATE_RWLOCK_ACQUIRED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
-        if (tstate != (PyThreadState*)_Py_atomic_load_relaxed(
-                        &_PyRuntime.ceval.gil.last_holder))
-        {
-            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
-                                     (uintptr_t)tstate);
-            ++_PyRuntime.ceval.gil.switch_number;
-        }
-        /* omit */
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                 (uintptr_t)tstate);
+        ++_PyRuntime.ceval.gil.switch_number;
     }
+    /* omit */
+}
 
-    static void drop_gil(PyThreadState *tstate)
-    {
-        /* omit */
-        if (tstate != NULL) {
-            _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
-                                     (uintptr_t)tstate);
-        }
-        MUTEX_LOCK(_PyRuntime.ceval.gil.mutex);
-        _Py_ANNOTATE_RWLOCK_RELEASED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
-        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 0);
-        /* omit */
+static void drop_gil(PyThreadState *tstate)
+{
+    /* omit */
+    if (tstate != NULL) {
+        _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.last_holder,
+                                 (uintptr_t)tstate);
     }
+    MUTEX_LOCK(_PyRuntime.ceval.gil.mutex);
+    _Py_ANNOTATE_RWLOCK_RELEASED(&_PyRuntime.ceval.gil.locked, /*is_write=*/1);
+    _Py_atomic_store_relaxed(&_PyRuntime.ceval.gil.locked, 0);
+    /* omit */
+}
+
+```
 
 ## switch_number
 
@@ -139,33 +148,36 @@ it's stored as microseconds in C and represent as seconds in python
 
 it's used in function `take_gil`
 
-    static void take_gil(PyThreadState *tstate)
-    {
-        /* omit */
-        while (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked)) {
-        	/* as long as the gil is locked */
-            int timed_out = 0;
-            unsigned long saved_switchnum;
+```c
+static void take_gil(PyThreadState *tstate)
+{
+    /* omit */
+    while (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked)) {
+    	/* as long as the gil is locked */
+        int timed_out = 0;
+        unsigned long saved_switchnum;
 
-            saved_switchnum = _PyRuntime.ceval.gil.switch_number;
-            /* release gil.mutex, wait for INTERVAL microseconds(default 5000)
-            or gil.cond is signaled during the INTERVAL
-            */
-            COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
-                            INTERVAL, timed_out);
-            /* currently holding gil.mutex */
-            if (timed_out &&
-                _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
-                _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
-                /* If we timed out and no switch occurred in the meantime, it is time
-               	to ask the GIL-holding thread to drop it.
-                set gil_drop_request to 1 */
-                SET_GIL_DROP_REQUEST();
-            }
-            /* go on to the while loop to check if the gil is locked */
+        saved_switchnum = _PyRuntime.ceval.gil.switch_number;
+        /* release gil.mutex, wait for INTERVAL microseconds(default 5000)
+        or gil.cond is signaled during the INTERVAL
+        */
+        COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
+                        INTERVAL, timed_out);
+        /* currently holding gil.mutex */
+        if (timed_out &&
+            _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
+            _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
+            /* If we timed out and no switch occurred in the meantime, it is time
+           	to ask the GIL-holding thread to drop it.
+            set gil_drop_request to 1 */
+            SET_GIL_DROP_REQUEST();
         }
-        /* omit */
+        /* go on to the while loop to check if the gil is locked */
     }
+    /* omit */
+}
+
+```
 
 ## mutex
 
@@ -181,34 +193,37 @@ it's used in function `take_gil`
 
 it can be turned off without the defination of `FORCE_SWITCHING`
 
-    static void drop_gil(PyThreadState *tstate)
+```c
+static void drop_gil(PyThreadState *tstate)
+{
+/* omit */
+#ifdef FORCE_SWITCHING
+    if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil_drop_request) &&
+        tstate != NULL)
     {
-    /* omit */
-    #ifdef FORCE_SWITCHING
-        if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.gil_drop_request) &&
-            tstate != NULL)
+    	/* if the gil_drop_request is set and tstate is not null */
+        /* lock the mutex switch_mutex */
+        MUTEX_LOCK(_PyRuntime.ceval.gil.switch_mutex);
+        if (((PyThreadState*)_Py_atomic_load_relaxed(
+                    &_PyRuntime.ceval.gil.last_holder)
+            ) == tstate)
         {
-        	/* if the gil_drop_request is set and tstate is not null */
-            /* lock the mutex switch_mutex */
-            MUTEX_LOCK(_PyRuntime.ceval.gil.switch_mutex);
-            if (((PyThreadState*)_Py_atomic_load_relaxed(
-                        &_PyRuntime.ceval.gil.last_holder)
-                ) == tstate)
-            {
-            /* if the last_holder is the current thread, release the switch_mutex,
-            wait until there's a signal for switch_cond */
-            RESET_GIL_DROP_REQUEST();
-                /* NOTE: if COND_WAIT does not atomically start waiting when
-                   releasing the mutex, another thread can run through, take
-                   the GIL and drop it again, and reset the condition
-                   before we even had a chance to wait for it. */
-                COND_WAIT(_PyRuntime.ceval.gil.switch_cond,
-                          _PyRuntime.ceval.gil.switch_mutex);
-        }
-            MUTEX_UNLOCK(_PyRuntime.ceval.gil.switch_mutex);
-        }
-    #endif
+        /* if the last_holder is the current thread, release the switch_mutex,
+        wait until there's a signal for switch_cond */
+        RESET_GIL_DROP_REQUEST();
+            /* NOTE: if COND_WAIT does not atomically start waiting when
+               releasing the mutex, another thread can run through, take
+               the GIL and drop it again, and reset the condition
+               before we even had a chance to wait for it. */
+            COND_WAIT(_PyRuntime.ceval.gil.switch_cond,
+                      _PyRuntime.ceval.gil.switch_mutex);
     }
+        MUTEX_UNLOCK(_PyRuntime.ceval.gil.switch_mutex);
+    }
+#endif
+}
+
+```
 
 # when will the gil be released
 
@@ -220,66 +235,69 @@ the `for loop` will check the variable `gil_drop_request` and release the `gil` 
 
 not every opcode will check the `gil_drop_request`, some opcode ends with `FAST_DISPATCH()` will go to the next statement directly, while some opcode ends with `DISPATCH()` act as `continue statement` and will go to the beginning of the for loop
 
-	/* cpython/Python/ceval.c */
-    main_loop:
-        for (;;) {
+```c
+/* cpython/Python/ceval.c */
+main_loop:
+    for (;;) {
+        /* omit */
+        if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
+            opcode = _Py_OPCODE(*next_instr);
+            if (opcode == SETUP_FINALLY ||
+                opcode == SETUP_WITH ||
+                opcode == BEFORE_ASYNC_WITH ||
+                opcode == YIELD_FROM) {
+                /* go to switch statement without check for the gil */
+                goto fast_next_opcode;
+            }
             /* omit */
-            if (_Py_atomic_load_relaxed(&_PyRuntime.ceval.eval_breaker)) {
-                opcode = _Py_OPCODE(*next_instr);
-                if (opcode == SETUP_FINALLY ||
-                    opcode == SETUP_WITH ||
-                    opcode == BEFORE_ASYNC_WITH ||
-                    opcode == YIELD_FROM) {
-                    /* go to switch statement without check for the gil */
-                    goto fast_next_opcode;
-                }
-                /* omit */
-                if (_Py_atomic_load_relaxed(
-                            &_PyRuntime.ceval.gil_drop_request))
+            if (_Py_atomic_load_relaxed(
+                        &_PyRuntime.ceval.gil_drop_request))
+            {
+            	/* if the gil_drop_request is set by other thread */
+                /* Give another thread a chance */
+                if (PyThreadState_Swap(NULL) != tstate)
+                    Py_FatalError("ceval: tstate mix-up");
+                drop_gil(tstate);
+
+                /* Other threads may run now */
+
+                take_gil(tstate);
+
+                /* Check if we should make a quick exit. */
+                if (_Py_IsFinalizing() &&
+                    !_Py_CURRENTLY_FINALIZING(tstate))
                 {
-                	/* if the gil_drop_request is set by other thread */
-                    /* Give another thread a chance */
-                    if (PyThreadState_Swap(NULL) != tstate)
-                        Py_FatalError("ceval: tstate mix-up");
                     drop_gil(tstate);
-
-                    /* Other threads may run now */
-
-                    take_gil(tstate);
-
-                    /* Check if we should make a quick exit. */
-                    if (_Py_IsFinalizing() &&
-                        !_Py_CURRENTLY_FINALIZING(tstate))
-                    {
-                        drop_gil(tstate);
-                        PyThread_exit_thread();
-                    }
-
-                    if (PyThreadState_Swap(tstate) != NULL)
-                        Py_FatalError("ceval: orphan tstate");
+                    PyThread_exit_thread();
                 }
-                /* omit */
-            }
 
-        fast_next_opcode:
-			/* omit */
-        switch (opcode) {
-            case TARGET(NOP): {
-                FAST_DISPATCH();
+                if (PyThreadState_Swap(tstate) != NULL)
+                    Py_FatalError("ceval: orphan tstate");
             }
             /* omit */
-            case TARGET(UNARY_POSITIVE): {
-                PyObject *value = TOP();
-                PyObject *res = PyNumber_Positive(value);
-                Py_DECREF(value);
-                SET_TOP(res);
-                if (res == NULL)
-                    goto error;
-                DISPATCH();
-            }
-        	/* omit */
+        }
+
+    fast_next_opcode:
+		/* omit */
+    switch (opcode) {
+        case TARGET(NOP): {
+            FAST_DISPATCH();
         }
         /* omit */
+        case TARGET(UNARY_POSITIVE): {
+            PyObject *value = TOP();
+            PyObject *res = PyNumber_Positive(value);
+            Py_DECREF(value);
+            SET_TOP(res);
+            if (res == NULL)
+                goto error;
+            DISPATCH();
+        }
+    	/* omit */
     }
+    /* omit */
+}
+
+```
 
 ![ceval](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/ceval.png)

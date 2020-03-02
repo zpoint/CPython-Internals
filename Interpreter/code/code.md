@@ -15,7 +15,10 @@
 * cpython/Objects/codeobject.c
 * cpython/Include/codeobject.h
 
+```python3
 
+
+```
 
 # memory layout
 
@@ -31,58 +34,64 @@ for more detail, please refer to [What is a code object in Python?](https://www.
 
 let's run an example written in python
 
-    def a(x, y, *args,  z=3, **kwargs):
-        def b():
-            bbb = 4
-            print(x, k, bbb)
-        k = 4
-        print(x, y, args, kwargs)
+```python3
+def a(x, y, *args,  z=3, **kwargs):
+    def b():
+        bbb = 4
+        print(x, k, bbb)
+    k = 4
+    print(x, y, args, kwargs)
 
-    print("co_argcount", a.__code__.co_argcount)
-    print("co_kwonlyargcount", a.__code__.co_kwonlyargcount)
-    print("co_nlocals", a.__code__.co_nlocals)
-    print("co_stacksize", a.__code__.co_stacksize)
-    print("co_flags", a.__code__.co_flags)
-    print("co_firstlineno", a.__code__.co_firstlineno)
-    print("co_code", a.__code__.co_code)
-    print("co_consts", a.__code__.co_consts)
-    print("co_names", a.__code__.co_names)
-    print("co_varnames", a.__code__.co_varnames)
-    print("co_freevars", a.__code__.co_freevars)
-    print("co_cellvars", a.__code__.co_cellvars)
+print("co_argcount", a.__code__.co_argcount)
+print("co_kwonlyargcount", a.__code__.co_kwonlyargcount)
+print("co_nlocals", a.__code__.co_nlocals)
+print("co_stacksize", a.__code__.co_stacksize)
+print("co_flags", a.__code__.co_flags)
+print("co_firstlineno", a.__code__.co_firstlineno)
+print("co_code", a.__code__.co_code)
+print("co_consts", a.__code__.co_consts)
+print("co_names", a.__code__.co_names)
+print("co_varnames", a.__code__.co_varnames)
+print("co_freevars", a.__code__.co_freevars)
+print("co_cellvars", a.__code__.co_cellvars)
 
-    print("co_cell2arg", a.__code__.co_filename)
-    print("co_name", a.__code__.co_name)
-    print("co_lnotab", a.__code__.co_lnotab)
+print("co_cell2arg", a.__code__.co_filename)
+print("co_name", a.__code__.co_name)
+print("co_lnotab", a.__code__.co_lnotab)
 
-    print("\n\n", a.__code__.co_consts[1])
-    print("co_freevars", a.__code__.co_consts[1].co_freevars)
-    print("co_cellvars", a.__code__.co_consts[1].co_cellvars)
+print("\n\n", a.__code__.co_consts[1])
+print("co_freevars", a.__code__.co_consts[1].co_freevars)
+print("co_cellvars", a.__code__.co_consts[1].co_cellvars)
 
 
+
+```
 
 output
 
-    co_argcount 2
-    co_kwonlyargcount 1
-    co_nlocals 6
-    co_stacksize 5
-    co_flags 15
-    co_firstlineno 1
-    co_code b'\x87\x00\x87\x01f\x02d\x01d\x02\x84\x08}\x05d\x03\x89\x00t\x00\x88\x01|\x01|\x03|\x04\x83\x04\x01\x00d\x00S\x00'
-    co_consts (None, <code object b at 0x10228e810, file "/Users/zpoint/Desktop/cpython/bad.py", line 2>, 'a.<locals>.b', 4)
-    co_names ('print',)
-    co_varnames ('x', 'y', 'z', 'args', 'kwargs', 'b')
-    co_freevars ()
-    co_cellvars ('k', 'x')
-    co_cell2arg /Users/zpoint/Desktop/cpython/bad.py
-    co_name a
-    co_lnotab b'\x00\x01\x0e\x03\x04\x01'
+```python3
+co_argcount 2
+co_kwonlyargcount 1
+co_nlocals 6
+co_stacksize 5
+co_flags 15
+co_firstlineno 1
+co_code b'\x87\x00\x87\x01f\x02d\x01d\x02\x84\x08}\x05d\x03\x89\x00t\x00\x88\x01|\x01|\x03|\x04\x83\x04\x01\x00d\x00S\x00'
+co_consts (None, <code object b at 0x10228e810, file "/Users/zpoint/Desktop/cpython/bad.py", line 2>, 'a.<locals>.b', 4)
+co_names ('print',)
+co_varnames ('x', 'y', 'z', 'args', 'kwargs', 'b')
+co_freevars ()
+co_cellvars ('k', 'x')
+co_cell2arg /Users/zpoint/Desktop/cpython/bad.py
+co_name a
+co_lnotab b'\x00\x01\x0e\x03\x04\x01'
 
-    <code object b at 0x10228e810, file "/Users/zpoint/Desktop/cpython/bad.py", line 2>
-    co_freevars ('k', 'x')
-    co_cellvars ()
+<code object b at 0x10228e810, file "/Users/zpoint/Desktop/cpython/bad.py", line 2>
+co_freevars ('k', 'x')
+co_cellvars ()
 
+
+```
 
 from the output and the answers in [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) we can know the meaning of some fields
 
@@ -134,38 +143,47 @@ the **_unpack_opargs** in `Lib/dis.py` will do the translation
 
 if you check the file in `Include/opcode.h`, you will find `#define HAVE_ARGUMENT            90` and `#define HAS_ARG(op) ((op) >= HAVE_ARGUMENT)`, which means opcode with a value greater than **90** has arguments, while opcode with a value less than **90** doesn't
 
-    def _unpack_opargs(code):
-        # code example: b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
-        extended_arg = 0
-        for i in range(0, len(code), 2):
-            op = code[i]
-            if op >= HAVE_ARGUMENT:
-                arg = code[i+1] | extended_arg
-                extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
-            else:
-                arg = None
-            # yield example: 0 100 1
-            yield (i, op, arg)
+```python3
+def _unpack_opargs(code):
+    # code example: b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
+    extended_arg = 0
+    for i in range(0, len(code), 2):
+        op = code[i]
+        if op >= HAVE_ARGUMENT:
+            arg = code[i+1] | extended_arg
+            extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+        else:
+            arg = None
+        # yield example: 0 100 1
+        yield (i, op, arg)
+
+```
 
 so, **co_code** is the opcode and argument stores in binary format
 
-    >>> c = b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
-    >>> c = list(bytearray(c))
-    >>> c
-    [100, 1, 125, 0, 116, 0, 136, 1, 136, 0, 124, 0, 131, 3, 1, 0, 100, 0, 83, 0]
+```python3
+>>> c = b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
+>>> c = list(bytearray(c))
+>>> c
+[100, 1, 125, 0, 116, 0, 136, 1, 136, 0, 124, 0, 131, 3, 1, 0, 100, 0, 83, 0]
+
+```
 
 the binary format can be translated to
 
-    0 100 1  (LOAD_CONST)
-    2 125 0  (STORE_FAST)
-    4 116 0  (LOAD_GLOBAL)
-    6 136 1  (LOAD_DEREF)
-    8 136 0  (LOAD_DEREF)
-    10 124 0 (LOAD_FAST)
-    12 131 3 (CALL_FUNCTION)
-    14 1 None(POP_TOP)
-    16 100 0 (LOAD_CONST)
-    18 83 None(RETURN_VALUE)
+```python3
+0 100 1  (LOAD_CONST)
+2 125 0  (STORE_FAST)
+4 116 0  (LOAD_GLOBAL)
+6 136 1  (LOAD_DEREF)
+8 136 0  (LOAD_DEREF)
+10 124 0 (LOAD_FAST)
+12 131 3 (CALL_FUNCTION)
+14 1 None(POP_TOP)
+16 100 0 (LOAD_CONST)
+18 83 None(RETURN_VALUE)
+
+```
 
 ## co_lnotab and co_firstlineno
 
@@ -183,26 +201,29 @@ the first pair (0, 1) in **co_lnotab** means byteoffset 0, line offset: 1 + co_f
 
 the second pair (4, 1) in **co_lnotab** means byteoffset 4, line offset 1 + 8(previous offset) == 9
 
-    import dis
+```python3
+import dis
 
-    def f1(x):
-        x = 3
-        y = 4
+def f1(x):
+    x = 3
+    y = 4
 
-    def f2(x):
-        x = 3
-        y = 4
+def f2(x):
+    x = 3
+    y = 4
 
-    print(f2.__code__.co_firstlineno) # 7
-    print(repr(list(bytearray(f2.__code__.co_lnotab)))) # [0, 1, 4, 1]
-    print(dis.dis(f2))
-    """
-    0 LOAD_CONST               1 (3)
-    2 STORE_FAST               0 (x)
-    4 LOAD_CONST               2 (4)
-    6 STORE_FAST               1 (y)
-    8 LOAD_CONST               0 (None)
-    """
+print(f2.__code__.co_firstlineno) # 7
+print(repr(list(bytearray(f2.__code__.co_lnotab)))) # [0, 1, 4, 1]
+print(dis.dis(f2))
+"""
+0 LOAD_CONST               1 (3)
+2 STORE_FAST               0 (x)
+4 LOAD_CONST               2 (4)
+6 STORE_FAST               1 (y)
+8 LOAD_CONST               0 (None)
+"""
+
+```
 
 ## co_zombieframe
 
@@ -216,10 +237,13 @@ for more detail, please refer to [frame object(zombie frame)](https://github.com
 
 this field stores a pointer to a **_PyCodeObjectExtra** object
 
-    typedef struct {
-        Py_ssize_t ce_size;
-        void *ce_extras[1];
-    } _PyCodeObjectExtra;
+```c
+typedef struct {
+    Py_ssize_t ce_size;
+    void *ce_extras[1];
+} _PyCodeObjectExtra;
+
+```
 
 since it has a size field and an array of (void *) pointer, it can store almost everything
 

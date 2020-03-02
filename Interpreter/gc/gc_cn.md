@@ -48,43 +48,55 @@ CPython 中的垃圾回收机制包含了两个部分
 
 在 python 中
 
-	s = "hello world"
+```python3
+s = "hello world"
 
-    >>> id(s)
-    4346803024
-    >>> sys.getrefcount(s)
-    2 # 一个来自变量 s, 一个来自 sys.getrefcount 的参数
+>>> id(s)
+4346803024
+>>> sys.getrefcount(s)
+2 # 一个来自变量 s, 一个来自 sys.getrefcount 的参数
+
+```
 
 ![refcount1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount1.png)
 
-	>>> s2 = s
-	>>> id(s2)
-	4321629008 # 和 id(s) 的值一样
-    >>> sys.getrefcount(s)
-    3 # 多出来的一个来自 s2
+```python3
+>>> s2 = s
+>>> id(s2)
+4321629008 # 和 id(s) 的值一样
+>>> sys.getrefcount(s)
+3 # 多出来的一个来自 s2
+
+```
 
 ![refcount2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount2.png)
 
 
 我们来 dis 一个脚本
 
-	$ cat test.py
-    s = []
-    s2 = s
-    del s
-    $ ./python.exe -m dis test.py
+```python3
+$ cat test.py
+s = []
+s2 = s
+del s
+$ ./python.exe -m dis test.py
+
+```
 
 输出如下
 
-    1         0 BUILD_LIST               0
-              2 STORE_NAME               0 (s)
+```python3
+1         0 BUILD_LIST               0
+          2 STORE_NAME               0 (s)
 
-    2         4 LOAD_NAME                0 (s)
-              6 STORE_NAME               1 (s2)
+2         4 LOAD_NAME                0 (s)
+          6 STORE_NAME               1 (s2)
 
-    3         8 DELETE_NAME              0 (s)
-             10 LOAD_CONST               0 (None)
-             12 RETURN_VALUE
+3         8 DELETE_NAME              0 (s)
+         10 LOAD_CONST               0 (None)
+         12 RETURN_VALUE
+
+```
 
 代码第一行 `s = []`
 
@@ -92,36 +104,39 @@ CPython 中的垃圾回收机制包含了两个部分
 
 `2 STORE_NAME               0`
 
-    case TARGET(STORE_NAME): {
-        /* name 是一个 str 对象, 值为 's'
-           ns 是 local namespace
-           v 是前一个字节码创建的 list 对象
-        */
-        PyObject *name = GETITEM(names, oparg);
-        PyObject *v = POP();
-        PyObject *ns = f->f_locals;
-        int err;
-        if (ns == NULL) {
-            PyErr_Format(PyExc_SystemError,
-                         "no locals found when storing %R", name);
-            Py_DECREF(v);
-            goto error;
-        }
-        if (PyDict_CheckExact(ns))
-        	/* 在这个位置, v 的引用计数 为 1
-               PyDict_SetItem 会把 's' 作为键加到 local namespace 中, 值为对象 v
-               ns 类型为 字典对象, 这一操作会同时把 's' 和 v 的引用计数都增加 1
-           */
-            err = PyDict_SetItem(ns, name, v);
-            /* 做完上面的操作, v 的引用计数变为了 2 */
-        else
-            err = PyObject_SetItem(ns, name, v);
+```c
+case TARGET(STORE_NAME): {
+    /* name 是一个 str 对象, 值为 's'
+       ns 是 local namespace
+       v 是前一个字节码创建的 list 对象
+    */
+    PyObject *name = GETITEM(names, oparg);
+    PyObject *v = POP();
+    PyObject *ns = f->f_locals;
+    int err;
+    if (ns == NULL) {
+        PyErr_Format(PyExc_SystemError,
+                     "no locals found when storing %R", name);
         Py_DECREF(v);
-        /* Py_DECREF 之后, v 的引用计数变为了 1 */
-        if (err != 0)
-            goto error;
-        DISPATCH();
+        goto error;
     }
+    if (PyDict_CheckExact(ns))
+    	/* 在这个位置, v 的引用计数 为 1
+           PyDict_SetItem 会把 's' 作为键加到 local namespace 中, 值为对象 v
+           ns 类型为 字典对象, 这一操作会同时把 's' 和 v 的引用计数都增加 1
+       */
+        err = PyDict_SetItem(ns, name, v);
+        /* 做完上面的操作, v 的引用计数变为了 2 */
+    else
+        err = PyObject_SetItem(ns, name, v);
+    Py_DECREF(v);
+    /* Py_DECREF 之后, v 的引用计数变为了 1 */
+    if (err != 0)
+        goto error;
+    DISPATCH();
+}
+
+```
 
 在执行第二行 `s2 = s` 之前, 新创建的 list 对象的引用计数为 1
 
@@ -133,57 +148,63 @@ CPython 中的垃圾回收机制包含了两个部分
 
 `8 DELETE_NAME              0 (s)`
 
-    case TARGET(DELETE_NAME): {
-    	/* name 这里为 's'
-           ns 为 the local namespace
-        */
-        PyObject *name = GETITEM(names, oparg);
-        PyObject *ns = f->f_locals;
-        int err;
-        if (ns == NULL) {
-            PyErr_Format(PyExc_SystemError,
-                         "no locals when deleting %R", name);
-            goto error;
-        }
-        /* 到这里, list 对象的引用计数为 2
-           下面的操作会找到键 's' 对应的位置, 把 indices 设置为 DKIX_DUMMY,
-           entries 中的 key 和 value 位置都置为空指针, 并把 key 和 value 本身对象引用计数减1
-        */
-        err = PyObject_DelItem(ns, name);
-        /* 到了这里, list 对象的引用计数变为了 1 */
-        if (err != 0) {
-            format_exc_check_arg(PyExc_NameError,
-                                 NAME_ERROR_MSG,
-                                 name);
-            goto error;
-        }
-        DISPATCH();
+```c
+case TARGET(DELETE_NAME): {
+	/* name 这里为 's'
+       ns 为 the local namespace
+    */
+    PyObject *name = GETITEM(names, oparg);
+    PyObject *ns = f->f_locals;
+    int err;
+    if (ns == NULL) {
+        PyErr_Format(PyExc_SystemError,
+                     "no locals when deleting %R", name);
+        goto error;
     }
+    /* 到这里, list 对象的引用计数为 2
+       下面的操作会找到键 's' 对应的位置, 把 indices 设置为 DKIX_DUMMY,
+       entries 中的 key 和 value 位置都置为空指针, 并把 key 和 value 本身对象引用计数减1
+    */
+    err = PyObject_DelItem(ns, name);
+    /* 到了这里, list 对象的引用计数变为了 1 */
+    if (err != 0) {
+        format_exc_check_arg(PyExc_NameError,
+                             NAME_ERROR_MSG,
+                             name);
+        goto error;
+    }
+    DISPATCH();
+}
+
+```
 
 ### 什么时候会触发该机制
 
 如果一个对象的引用计数变为了 0, 会直接进入释放空间的流程
 
-	/* cpython/Include/object.h */
-    static inline void _Py_DECREF(const char *filename, int lineno,
-                                  PyObject *op)
-    {
-        _Py_DEC_REFTOTAL;
-        if (--op->ob_refcnt != 0) {
-    #ifdef Py_REF_DEBUG
-            if (op->ob_refcnt < 0) {
-                _Py_NegativeRefcount(filename, lineno, op);
-            }
-    #endif
+```c
+/* cpython/Include/object.h */
+static inline void _Py_DECREF(const char *filename, int lineno,
+                              PyObject *op)
+{
+    _Py_DEC_REFTOTAL;
+    if (--op->ob_refcnt != 0) {
+#ifdef Py_REF_DEBUG
+        if (op->ob_refcnt < 0) {
+            _Py_NegativeRefcount(filename, lineno, op);
         }
-        else {
-        	/* // _Py_Dealloc 会找到对应类型的 descructor, 并且调用这个 descructor
-            destructor dealloc = Py_TYPE(op)->tp_dealloc;
-            (*dealloc)(op);
-            */
-            _Py_Dealloc(op);
-        }
+#endif
     }
+    else {
+    	/* // _Py_Dealloc 会找到对应类型的 descructor, 并且调用这个 descructor
+        destructor dealloc = Py_TYPE(op)->tp_dealloc;
+        (*dealloc)(op);
+        */
+        _Py_Dealloc(op);
+    }
+}
+
+```
 
 ### 引用循环的问题
 
@@ -191,20 +212,26 @@ CPython 中的垃圾回收机制包含了两个部分
 
 ### example1
 
-    class A:
-        pass
+```python3
+class A:
+    pass
 
-    >>> a1 = A()
-    >>> a2 = A()
-    >>> a1.other = a2
-    >>> a2.other = a1
+>>> a1 = A()
+>>> a2 = A()
+>>> a1.other = a2
+>>> a2.other = a1
+
+```
 
 **a1** 和 **a2** 的引用计数都为 2
 
 ![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each1.png)
 
-    >>> del a1
-    >>> del a2
+```python3
+>>> del a1
+>>> del a2
+
+```
 
 现在, 来自 local namespace 的引用被清除了, 但是他们自身都有一个来自对方的引用, 按照上面的过程 **a1**/**a2** 的引用计数是没办法变为 0 的
 
@@ -212,14 +239,20 @@ CPython 中的垃圾回收机制包含了两个部分
 
 ### example2
 
-	>>> a = list()
-	>>> a.append(a)
-	>>> a
-	[[...]]
+```python3
+>>> a = list()
+>>> a.append(a)
+>>> a
+[[...]]
+
+```
 
 ![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle1.png)
 
-	>>> del a
+```python3
+>>> del a
+
+```
 
 来自 local namespace 的引用被清除了, **a** 的引用计数会变为 1, 也没有办法变为 0 进入释放流程
 
@@ -234,16 +267,19 @@ CPython 中的垃圾回收机制包含了两个部分
 
 实际上 **分代回收机制** 是 **分代回收** 和 **标记清除** 等一系列操作的结合, 这里我为了命名方便就叫做 **分代回收机制**
 
-    class A:
-        pass
+```python3
+class A:
+    pass
 
-    >>> a1 = A()
-    >>> a2 = A()
-    >>> a1.other = a2
-    >>> a2.other = a1
+>>> a1 = A()
+>>> a2 = A()
+>>> a1.other = a2
+>>> a2.other = a1
 
-    >>> b = list()
-    >>> b.append(b)
+>>> b = list()
+>>> b.append(b)
+
+```
 
 ### track
 
@@ -281,18 +317,21 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 我们来跑一个垃圾回收的示例看看
 
-	# 假设 a1, a2, b 都在 generation0 中存活了一次, 并移动到了 generation1
-    >>> c = list()
-    >>> d1 = A()
-    >>> d2 = A()
-    >>> d1.other2 = d2
-    >>> d2.other2 = d1
+```python3
+# 假设 a1, a2, b 都在 generation0 中存活了一次, 并移动到了 generation1
+>>> c = list()
+>>> d1 = A()
+>>> d2 = A()
+>>> d1.other2 = d2
+>>> d2.other2 = d1
 
-    >>> del a1
-    >>> del a2
-    >>> del b
-    >>> del d1
-	>>> gc.collect(1) # 假设回收的是 generation1
+>>> del a1
+>>> del a2
+>>> del b
+>>> del d1
+>>> gc.collect(1) # 假设回收的是 generation1
+
+```
 
 ![update_ref1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref1.png)
 
@@ -377,29 +416,32 @@ CPython 总共使用了 3 代, 新创建的对象都会被存储到第一代中(
 
 我们来看个示例
 
-    class A:
-        pass
+```python3
+class A:
+    pass
 
 
-    class B(list):
-        def __del__(self):
-            a3.append(self)
-            print("del of B")
+class B(list):
+    def __del__(self):
+        a3.append(self)
+        print("del of B")
 
 
-    a1 = A()
-    a2 = A()
-    a1.other = a2
-    a2.other = a1
+a1 = A()
+a2 = A()
+a1.other = a2
+a2.other = a1
 
 
-    a3 = list()
-    b = B()
-    b.append(b)
-    del a1
-    del a2
-    del b
-    gc.collect()
+a3 = list()
+b = B()
+b.append(b)
+del a1
+del a2
+del b
+gc.collect()
+
+```
 
 上面的代码在 **move_unreachable** 之后如下所示
 
@@ -443,20 +485,29 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 在进行回收之前, CPython 会从最老年的代到最年轻的代进行检测, 如果当前代中对象数量超过了 **threshold**, 垃圾回收就从这一代开始
 
-    >>> gc.get_threshold()
-    (700, 10, 10) # 默认值
+```python3
+>>> gc.get_threshold()
+(700, 10, 10) # 默认值
+
+```
 
 也可以手动进行设置
 
-    >>> gc.set_threshold(500)
-    >>> gc.set_threshold(100, 20)
+```python3
+>>> gc.set_threshold(500)
+>>> gc.set_threshold(100, 20)
+
+```
 
 ### 什么时候会触发分代回收
 
 一个方式是直接调用 `gc.collect()`, 不传参数的情况下直接从最老年代开始回收
 
-	>>> imporr gc
-	>>> gc.collect()
+```python3
+>>> imporr gc
+>>> gc.collect()
+
+```
 
 另一个方式是让解释器自己进行触发, 当你从 heap 申请空间创建一个新对象时, **generation0** 的数量是否超过 **threashold**, 如果超过, 进行垃圾回收, 如果没超过则创建成功, 返回
 

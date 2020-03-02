@@ -21,10 +21,13 @@
 
 python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型名称所描述的一般, 所有在c语言层级定义的的内建函数或者方法都属于类型 **builtin_function_or_method**
 
-	>>> print
-    <built-in function print>
-    >>> type(print)
-    <class 'builtin_function_or_method'>
+```python3
+>>> print
+<built-in function print>
+>>> type(print)
+<class 'builtin_function_or_method'>
+
+```
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/layout.png)
 
@@ -34,29 +37,35 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 我们来看一小段代码段先
 
-    #define PyCFunction_Check(op) (Py_TYPE(op) == &PyCFunction_Type)
+```c
+#define PyCFunction_Check(op) (Py_TYPE(op) == &PyCFunction_Type)
 
-    typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
-    typedef PyObject *(*_PyCFunctionFast) (PyObject *, PyObject *const *, Py_ssize_t);
-    typedef PyObject *(*PyCFunctionWithKeywords)(PyObject *, PyObject *,
-                                                 PyObject *);
-    typedef PyObject *(*_PyCFunctionFastWithKeywords) (PyObject *,
-                                                       PyObject *const *, Py_ssize_t,
-                                                       PyObject *);
-    typedef PyObject *(*PyNoArgsFunction)(PyObject *);
+typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
+typedef PyObject *(*_PyCFunctionFast) (PyObject *, PyObject *const *, Py_ssize_t);
+typedef PyObject *(*PyCFunctionWithKeywords)(PyObject *, PyObject *,
+                                             PyObject *);
+typedef PyObject *(*_PyCFunctionFastWithKeywords) (PyObject *,
+                                                   PyObject *const *, Py_ssize_t,
+                                                   PyObject *);
+typedef PyObject *(*PyNoArgsFunction)(PyObject *);
+
+```
 
 **PyCFunction** 在 c 语言中是一个类型, 这个类型可以表示任何接受两个 PyObject * 作为参数, 并返回一个 PyObject * 作为返回对象的函数
 
-    // 一个 c 函数, 函数名为 builtin_print
-    static PyObject *
-    builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames);
+```c
+// 一个 c 函数, 函数名为 builtin_print
+static PyObject *
+builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames);
 
-    // "print" 这个名称被定义在了一个叫做 builtin_methods 的 c 数组中
-    static PyMethodDef builtin_methods[] = {
-    ...
-    {"print",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
-    ...
-    }
+// "print" 这个名称被定义在了一个叫做 builtin_methods 的 c 数组中
+static PyMethodDef builtin_methods[] = {
+...
+{"print",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
+...
+}
+
+```
 
 ![print](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print.png)
 
@@ -102,11 +111,14 @@ python 中有一个类型叫做 **builtin_function_or_method**, 正如如类型�
 
 # free_list
 
-    static PyCFunctionObject *free_list = NULL;
-    static int numfree = 0;
-    #ifndef PyCFunction_MAXFREELIST
-    #define PyCFunction_MAXFREELIST 256
-    #endif
+```c
+static PyCFunctionObject *free_list = NULL;
+static int numfree = 0;
+#ifndef PyCFunction_MAXFREELIST
+#define PyCFunction_MAXFREELIST 256
+#endif
+
+```
 
 cpython 使用了一个长度为 256 的缓冲池来存储释放掉的对象以供再度循环使用, free_list 是一个单链表, 利用 PyCFunctionObject 上面的 **m_self** 字段一直往下串在一起
 

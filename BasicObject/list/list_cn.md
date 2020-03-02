@@ -32,7 +32,10 @@
 
 我们来初始化一个空的 `list` 看看
 
-	l = list()
+```python3
+l = list()
+
+```
 
 `ob_size` 存储了当前 `list` 的存储有意义的元素个数(`len` 操作就是从这个字段读取的), 它的类型是 `Py_ssize_t`, 这个类型通常情况下是 64 bit 大小的, `1 << 64` 可以表示一个非常大的数字了, 通常情况下你会在碰到 `ob_size` 字段溢出这个问题之前先碰到 RAM 内存不足的问题
 
@@ -40,15 +43,21 @@
 
 我们用 `append` 方法往 `list` 插入一些元素看看
 
-	l.append("a")
+```python3
+l.append("a")
+
+```
 
 `ob_size` 变成了 1, 并且 `ob_item` 会指向一个新申请的内存块大小, 它的长度是 4
 
 ![append_a](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_a.png)
 
-	l.append("b")
-    l.append("c")
-    l.append("d")
+```python3
+l.append("b")
+l.append("c")
+l.append("d")
+
+```
 
 现在 `list` 已经装满了
 
@@ -56,14 +65,20 @@
 
 如果我们此时再插入一个新的元素
 
-	l.append("e")
+```python3
+l.append("e")
+
+```
 
 这是重新分配空间的核心代码
 
-	/* cpython/Objects/listobject.c */
-    /* 空间增长的规律是:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ... */
-    /* 当前的: new_allocated = 5 + (5 >> 3) + 3 = 8 */
-	new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+```python3
+/* cpython/Objects/listobject.c */
+/* 空间增长的规律是:  0, 4, 8, 16, 25, 35, 46, 58, 72, 88, ... */
+/* 当前的: new_allocated = 5 + (5 >> 3) + 3 = 8 */
+new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+
+```
 
 ![append_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/append_e.png)
 
@@ -73,31 +88,40 @@
 
 插入操作会在 `list` 对象装满时触发内存的重新分配, 那删除操作呢?
 
-    >>> l.pop()
-    'e'
+```python3
+>>> l.pop()
+'e'
+
+```
 
 ![pop_e](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_e.png)
 
-    >>> l.pop()
-    'd'
+```python3
+>>> l.pop()
+'d'
+
+```
 
 通过调用 `realloc` 对已有的空间进行缩小, 实际上 resize 函数会在每次调用 `pop` 时都会进行调用
 
 但是 `realloc` 则只会在新申请的空间比当前已有的空间的一半还小的时候被调用
 
-    /* cpython/Objects/listobject.c */
-    /* allocated: 8, newsize: 3, 8 >= 3 && (3 >= 4?), 已经比一半还小了 */
-    if (allocated >= newsize && newsize >= (allocated >> 1)) {
-        /* 如果当前空间没有比原空间一半还小 */
-        assert(self->ob_item != NULL || newsize == 0);
-        /* 只更改 ob_size 这个字段里的值即可 */
-        Py_SIZE(self) = newsize;
-        return 0;
-    }
-    /* ... */
-    /* 3 + (3 >> 3) + 3 = 6 */
-    new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
+```python3
+/* cpython/Objects/listobject.c */
+/* allocated: 8, newsize: 3, 8 >= 3 && (3 >= 4?), 已经比一半还小了 */
+if (allocated >= newsize && newsize >= (allocated >> 1)) {
+    /* 如果当前空间没有比原空间一半还小 */
+    assert(self->ob_item != NULL || newsize == 0);
+    /* 只更改 ob_size 这个字段里的值即可 */
+    Py_SIZE(self) = newsize;
+    return 0;
+}
+/* ... */
+/* 3 + (3 >> 3) + 3 = 6 */
+new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
 
+
+```
 
 ![pop_d](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/pop_d.png)
 
@@ -107,8 +131,11 @@
 
 CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有一点复杂
 
-	>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
-    >>> l.sort()
+```python3
+>>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
+>>> l.sort()
+
+```
 
 我更改了一些源代码中的参数, 这样下面演示算法的时候会更方便一些, 后面会说明做了什么改动
 
@@ -138,60 +165,63 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 我们从上图可以发现, `pending` 在这里的作用和调用栈的 stack 类似, 每次给下一组排完序之后, 这组相关的信息就会被压入这个栈中, 每次压入后, 一个名为 `merge_collapse` 的函数都会被调用
 
-    /* cpython/Objects/listobject.c */
-    /* 检查 stack 中的每一个 run, 在必要的时候合并相邻的 run 直到以下的条件都满足为止
-     *
-     * 1. len[-3] > len[-2] + len[-1]
-     * 2. len[-2] > len[-1]
-     */
-    static int
-    merge_collapse(MergeState *ms)
-    {
-        struct s_slice *p = ms->pending;
+```python3
+/* cpython/Objects/listobject.c */
+/* 检查 stack 中的每一个 run, 在必要的时候合并相邻的 run 直到以下的条件都满足为止
+ *
+ * 1. len[-3] > len[-2] + len[-1]
+ * 2. len[-2] > len[-1]
+ */
+static int
+merge_collapse(MergeState *ms)
+{
+    struct s_slice *p = ms->pending;
 
-        assert(ms);
-        while (ms->n > 1) {
-            Py_ssize_t n = ms->n - 2;
-            if ((n > 0 && p[n-1].len <= p[n].len + p[n+1].len) ||
-                /* case 1:
-                   pending[0]: [---------------------------]
-                   pending[1]: [-----------------------] (n)
-                   pending[2]: [-----------------------]
-                   ...                                   (ms->n)
-                   len(pending[0]) <= len(pending[1])  + len(pending[2])
-                */
-                (n > 1 && p[n-2].len <= p[n-1].len + p[n].len)) {
-                /* case 2:
-                   ...
-                   pending[3]: [-----------------------------------------------------------------]
-                   pending[4]: [-----------------------------------------------------------------]
-                   pending[5]: [-----------------------] (n)
-                   pending[6]: [-----------------------]
-                   pending[7]: [-----------------------] (ms->n)
-                   len(pending[3]) <= len(pending[4])  + len(pending[5])
-                */
-                if (p[n-1].len < p[n+1].len)
-                   /* pending[0]: [-----------------] (new_n)
-                      pending[1]: [-----------------------] (n)
-                      pending[2]: [-----------------------]
-                   */
-                    --n;
-                if (merge_at(ms, n) < 0)
-                    return -1;
-            }
-            else if (p[n].len <= p[n+1].len) {
-                   /* case 3:
-                   pending[0]: [--------------] (n)
-                   pending[1]: [--------------]
-                   */
-                if (merge_at(ms, n) < 0)
-                    return -1;
-            }
-            else
-                break;
+    assert(ms);
+    while (ms->n > 1) {
+        Py_ssize_t n = ms->n - 2;
+        if ((n > 0 && p[n-1].len <= p[n].len + p[n+1].len) ||
+            /* case 1:
+               pending[0]: [---------------------------]
+               pending[1]: [-----------------------] (n)
+               pending[2]: [-----------------------]
+               ...                                   (ms->n)
+               len(pending[0]) <= len(pending[1])  + len(pending[2])
+            */
+            (n > 1 && p[n-2].len <= p[n-1].len + p[n].len)) {
+            /* case 2:
+               ...
+               pending[3]: [-----------------------------------------------------------------]
+               pending[4]: [-----------------------------------------------------------------]
+               pending[5]: [-----------------------] (n)
+               pending[6]: [-----------------------]
+               pending[7]: [-----------------------] (ms->n)
+               len(pending[3]) <= len(pending[4])  + len(pending[5])
+            */
+            if (p[n-1].len < p[n+1].len)
+               /* pending[0]: [-----------------] (new_n)
+                  pending[1]: [-----------------------] (n)
+                  pending[2]: [-----------------------]
+               */
+                --n;
+            if (merge_at(ms, n) < 0)
+                return -1;
         }
-        return 0;
+        else if (p[n].len <= p[n+1].len) {
+               /* case 3:
+               pending[0]: [--------------] (n)
+               pending[1]: [--------------]
+               */
+            if (merge_at(ms, n) < 0)
+                return -1;
+        }
+        else
+            break;
     }
+    return 0;
+}
+
+```
 
 当前检查的时间会进到 case 3, `merge_at` 会合并 stack 中第  `i` 和 `i+1` 个数组
 
@@ -253,13 +283,16 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 首先我们用一个名为 `pivot` 的变量存储 `start` 当前的值, 之后在前面排好序的子数组中进行二叉搜索, 找到第一个大于 `pivot` 的元素
 
-        do {
-            p = l + ((r - l) >> 1);
-            IFLT(pivot, *p)
-                r = p;
-            else
-                l = p+1;
-        } while (l < r);
+```python3
+    do {
+        p = l + ((r - l) >> 1);
+        IFLT(pivot, *p)
+            r = p;
+        else
+            l = p+1;
+    } while (l < r);
+
+```
 
 之后我们把 `l` 到 `start` 的每一个元素都往前移一格, 移完后把 `start` 这个位置的元素值设置为 `pivot` 的值
 
@@ -291,19 +324,22 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 上面的演示中我更改了这个阈值, 调小这个值使得图片能展示出完整的数组
 
+```python3
 
-    static Py_ssize_t
-    merge_compute_minrun(Py_ssize_t n)
-    {
-        Py_ssize_t r = 0;           /* becomes 1 if any 1 bits are shifted off */
+static Py_ssize_t
+merge_compute_minrun(Py_ssize_t n)
+{
+    Py_ssize_t r = 0;           /* becomes 1 if any 1 bits are shifted off */
 
-        assert(n >= 0);
-        while (n >= 64) {
-            r |= n & 1;
-            n >>= 1;
-        }
-        return n + r;
+    assert(n >= 0);
+    while (n >= 64) {
+        r |= n & 1;
+        n >>= 1;
     }
+    return n + r;
+}
+
+```
 
 ## 时间复杂度
 
@@ -313,11 +349,14 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 # free_list
 
-    #ifndef PyList_MAXFREELIST
-    #define PyList_MAXFREELIST 80
-    #endif
-    static PyListObject *free_list[PyList_MAXFREELIST];
-    static int numfree = 0;
+```c
+#ifndef PyList_MAXFREELIST
+#define PyList_MAXFREELIST 80
+#endif
+static PyListObject *free_list[PyList_MAXFREELIST];
+static int numfree = 0;
+
+```
 
 一个解释器进程会有一个叫做 **free_list** 的全局变量
 
@@ -325,11 +364,17 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 如果我们创建一个新的 `list` 对象, 创建新对象的内存分配过程会用到 CPython 的 [内存管理机制](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management_cn.md)
 
-	a = list()
+```python3
+a = list()
+
+```
 
 ![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list1.png)
 
-	del a
+```python3
+del a
+
+```
 
 `list` 类型的析构函数会把这个对象存储到 **free_list** 中(如果 **free_list** 有位置的话)
 
@@ -337,7 +382,10 @@ CPython 用来对 `list` 对象排序的算法名称叫做 **timsort**, 它有�
 
 下一次你创建一个新的 `list` 对象时, 会优先检查 **free_list** 中是否有可用的对象, 如果有的话则从 **free_list** 取, 如果没有的话, 再从 CPython 的 [内存管理机制](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management_cn.md) 申请
 
-	b = list()
+```python3
+b = list()
+
+```
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list3.png)
 

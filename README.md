@@ -10,9 +10,12 @@ This repository is my notes/blog for [cpython](https://github.com/python/cpython
 
 Trying to illustrate every detail of cpython implementation
 
-    # based on version 3.8.0a0
-    cd cpython
-    git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+```shell script
+# based on version 3.8.0a0
+cd cpython
+git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+
+```
 
 The following contents are suitable for those who have python programming experience and interested in internal of python interpreter, for those who needs beginner or advanced material please refer to [awesome-python-books](https://github.com/Junnplus/awesome-python-books)
 

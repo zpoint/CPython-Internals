@@ -8,9 +8,12 @@
 
 cpython 구현의 모든 상세한 부분들을 설명하도록 할 것 입니다.
 
-    # 3.8.0a0 버전을 기반으로 합니다.
-    cd cpython
-    git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+```shell script
+# 3.8.0a0 버전을 기반으로 합니다.
+cd cpython
+git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
+
+```
 
 다음의 내용들은 파이쎤 프로그래밍 경험이 있거나 파이썬 인터프리터 내부 구현에 관심이 있는 사람들을 위한 것이며, 초보자나 고급 자료가 필요하다면 [awesome-python-books](https://github.com/Junnplus/awesome-python-books) 을 참고하세요.
 

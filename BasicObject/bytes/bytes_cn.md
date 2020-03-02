@@ -30,7 +30,10 @@
 
 **bytes** 对象在 python 中是不可变的对象, 每当你需要更改 **bytes** 对象里的字符的时候, 你需要创建一个新的 **bytes** 对象, 无法在原来的基础上修改, 这样简化了 **bytes** 对象的实现
 
-	s = b""
+```python3
+s = b""
+
+```
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
@@ -38,13 +41,19 @@
 
 我们来初始化一个只包含 ascii 字符的 bytes 对象
 
-	s = b"abcdefg123"
+```python3
+s = b"abcdefg123"
+
+```
 
 ![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
 ## nonascii characters
 
-	s = "我是帅哥".encode("utf8")
+```python3
+s = "我是帅哥".encode("utf8")
+
+```
 
 ![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
@@ -69,8 +78,12 @@
 
 他的实现方式和 redis 里面的 **embstr** 实现方式类似
 
-	redis-cli
-    127.0.0.1:6379> set a "hello"
-    OK
-    127.0.0.1:6379> object encoding a
-    "embstr"
+```shell script
+redis-cli
+127.0.0.1:6379> set a "hello"
+OK
+127.0.0.1:6379> object encoding a
+"embstr"
+
+```
+

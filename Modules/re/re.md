@@ -27,8 +27,11 @@
 
 what happened when you execute the following code ?
 
-    import re
-    re.search("abc\d+abc", "xxabc123abcd") # re.DEBUG)
+```python3
+import re
+re.search("abc\d+abc", "xxabc123abcd") # re.DEBUG)
+
+```
 
 the call stack
 
@@ -46,82 +49,100 @@ the core code in **parse** phase is in **cpython/Lib/sre_parse.py**
 
 there is a class named **Tokenizer** to split your regex text into tokens, and **_parse** function is in charge of binding the token with the **sre_constants** code
 
-    # pseudo code
-    tokenizer = Tokenizer(pattern, flags)
-    while True:
-        next_token = tokenizer.get_next_token()
-        if not next_token:
-            break
-        parse(next_token)
+```python3
+# pseudo code
+tokenizer = Tokenizer(pattern, flags)
+while True:
+    next_token = tokenizer.get_next_token()
+    if not next_token:
+        break
+    parse(next_token)
+
+```
 
 let's run the parse phase with regex pattern `abc\d+abc`
 
-    next_token: a
-    rest part of token: bc\d+abc
-    parse result: [(LITERAL, 97)]
+```python3
+next_token: a
+rest part of token: bc\d+abc
+parse result: [(LITERAL, 97)]
 
-    next_token: b
-    rest part of token: c\d+abc
-    parse result: [(LITERAL, 97), (LITERAL, 98)]
+next_token: b
+rest part of token: c\d+abc
+parse result: [(LITERAL, 97), (LITERAL, 98)]
 
-    next_token: c
-    rest part of token: \d+abc
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+next_token: c
+rest part of token: \d+abc
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
 
-    next_token: \d
-    rest part of token: +abc
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (IN, [(CATEGORY, CATEGORY_DIGIT)])]
+next_token: \d
+rest part of token: +abc
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (IN, [(CATEGORY, CATEGORY_DIGIT)])]
+
+```
 
 now, the **next_token** is `'+'`, the `parse` function will pop whatever in the last parse result, and insert in back with the repeat symbol
 
-    item = parse_result[-1:]
-    min, max = 1, MAXREPEAT
-    parse_result[-1] = (MAX_REPEAT, (min, max, item))
+```python3
+item = parse_result[-1:]
+min, max = 1, MAXREPEAT
+parse_result[-1] = (MAX_REPEAT, (min, max, item))
 
-    next_token: +
-    rest part of token: abc
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])]))]
+next_token: +
+rest part of token: abc
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])]))]
 
-    next_token: a
-    rest part of token: bc
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97)]
+next_token: a
+rest part of token: bc
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97)]
 
-    next_token: b
-    rest part of token: c
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98)]
+next_token: b
+rest part of token: c
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98)]
 
-    next_token: c
-    rest part of token: None
-    parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+next_token: c
+rest part of token: None
+parse result: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+
+```
 
 ## compile
 
 this is the input of the **compile** phase
 
-    [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+```python3
+[(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+
+```
 
 the compile function in **sre_compile.py**
 
-    def _code(p, flags):
+```python3
+def _code(p, flags):
 
-        flags = p.state.flags | flags
-        code = []
+    flags = p.state.flags | flags
+    code = []
 
-        # compile info block
-        _compile_info(code, p, flags)
+    # compile info block
+    _compile_info(code, p, flags)
 
-        # compile the pattern
-        _compile(code, p.data, flags)
+    # compile the pattern
+    _compile(code, p.data, flags)
 
-        code.append(SUCCESS)
+    code.append(SUCCESS)
 
-        return code
+    return code
+
+```
 
 the **info block** has the following structure `[INFO, length_of_prefix_code, mask_indicate_whether_has_prefix, min_length_for_the_pattern, max_length_for_the_pattern, prefix1, prefix2..., prefixn, overlap_table_for_prefix]`
 
 after the **_compile_info** function, code becomes
 
-    code == [INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0]
+```python3
+code == [INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0]
+
+```
 
 12 means the length of the prefix part excluding the first **INFO** element is 12
 
@@ -141,58 +162,73 @@ and the following 0, 0, 0 here is generated by the **_generate_overlap_table**
 
 after compile the **info block**, the **pattern** will be compiled in `_compile(code, p.data, flags)`
 
-    for op, av in pattern:
-        compile_and_fill_code_according_to_op_and_av()
+```python3
+for op, av in pattern:
+    compile_and_fill_code_according_to_op_and_av()
 
-    # pattern here is: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
+# pattern here is: [(LITERAL, 97), (LITERAL, 98), (LITERAL, 99), (MAX_REPEAT, (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])), (LITERAL, 97), (LITERAL, 98), (LITERAL, 99)]
 
-    op: LITERAL av: 97
-    code: [LITERAL, 97]
+op: LITERAL av: 97
+code: [LITERAL, 97]
 
-    op: LITERAL av: 98
-    code: [LITERAL, 97, LITERAL, 98]
+op: LITERAL av: 98
+code: [LITERAL, 97, LITERAL, 98]
 
-    op: LITERAL av: 99
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99]
+op: LITERAL av: 99
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99]
 
-    op: MAX_REPEAT av: (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])
+op: MAX_REPEAT av: (1, MAXREPEAT, [(IN, [(CATEGORY, CATEGORY_DIGIT)])])
+
+```
 
 the handling process of MAX_REPEAT is a little bit different from others, the code snippet handling this situation is shown
 
-    if op is MAX_REPEAT:
-        emit(REPEAT_ONE)
-    else:
-        emit(MIN_REPEAT_ONE)
-    skip = _len(code); emit(0)
-    emit(av[0])
-    emit(av[1])
-    # position 1
-    _compile(code, av[2], flags) # recursive call
-    emit(SUCCESS)
-    code[skip] = _len(code) - skip # change the length
-    # position 2
+```python3
+if op is MAX_REPEAT:
+    emit(REPEAT_ONE)
+else:
+    emit(MIN_REPEAT_ONE)
+skip = _len(code); emit(0)
+emit(av[0])
+emit(av[1])
+# position 1
+_compile(code, av[2], flags) # recursive call
+emit(SUCCESS)
+code[skip] = _len(code) - skip # change the length
+# position 2
+
+```
 
 the **code** object in position 1
 
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 0, 1, MAXREPEAT]
+```python3
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 0, 1, MAXREPEAT]
+
+```
 
 after the recursive call, **code** object in position 2, the length now becomes 9
 
-    op: IN av: [(CATEGORY, CATEGORY_DIGIT)]
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS]
+```python3
+op: IN av: [(CATEGORY, CATEGORY_DIGIT)]
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS]
 
-    op: LITERAL av: 97
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97]
+op: LITERAL av: 97
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97]
 
-    op: LITERAL av: 98
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98]
+op: LITERAL av: 98
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98]
 
-    op: LITERAL av: 99
-    code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
+op: LITERAL av: 99
+code: [LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
+
+```
 
 combine the **_compile_info** and **_compile** together, the code to the next phase is
 
-    [INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0, LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
+```python3
+[INFO, 12, 1, 7, MAXREPEAT, 3, 3, 97, 98, 99, 0, 0, 0, LITERAL, 97, LITERAL, 98, LITERAL, 99, REPEAT_ONE, 9, 1, MAXREPEAT, IN, 4, CATEGORY, CATEGORY_UNI_DIGIT, FAILURE, SUCCESS, LITERAL, 97, LITERAL, 98, LITERAL, 99, SUCCESS]
+
+```
 
 ## match
 
@@ -202,14 +238,17 @@ it's a big for loop, act as a state machine, every complied opcode pass down her
 
 if success, go on, there will be another article talking about the match phase(if I have time)
 
-    for (;;) {
-        switch (pattern[i]) {
-            case SRE_OP_MARK:xxx
-            case SRE_OP_LITERAL:xxx
-            case SRE_OP_REPEAT_ONE:xxx
-            ...
-        }
+```c
+for (;;) {
+    switch (pattern[i]) {
+        case SRE_OP_MARK:xxx
+        case SRE_OP_LITERAL:xxx
+        case SRE_OP_REPEAT_ONE:xxx
+        ...
     }
+}
+
+```
 
 # code detail
 
@@ -217,62 +256,80 @@ if success, go on, there will be another article talking about the match phase(i
 
 follow the call stack to here
 
-    status = sre_search(&state, PatternObject_GetCode(self));
+```python3
+status = sre_search(&state, PatternObject_GetCode(self));
+
+```
 
 the defination of **sre_search** is
 
 the search will delegate to different function according to the real size of the **unicode** object, for detail of memory usage of **unicode** object, please refer to [how unicode implemented](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
 
-    LOCAL(Py_ssize_t)
-    sre_search(SRE_STATE* state, SRE_CODE* pattern)
-    {
-        if (state->charsize == 1)
-            return sre_ucs1_search(state, pattern);
-        if (state->charsize == 2)
-            return sre_ucs2_search(state, pattern);
-        assert(state->charsize == 4);
-        return sre_ucs4_search(state, pattern);
-    }
+```python3
+LOCAL(Py_ssize_t)
+sre_search(SRE_STATE* state, SRE_CODE* pattern)
+{
+    if (state->charsize == 1)
+        return sre_ucs1_search(state, pattern);
+    if (state->charsize == 2)
+        return sre_ucs2_search(state, pattern);
+    assert(state->charsize == 4);
+    return sre_ucs4_search(state, pattern);
+}
+
+```
 
 if we search for **sre_ucs1_search** in the folder, we can't find anything
 
-    find . -name '*' -exec grep -nHr "sre_ucs1_search" {} \;
-    Binary file ./libpython3.8m.a matches
-    ./Modules/_sre.c:572:        return sre_ucs1_search(state, pattern);
+```python3
+find . -name '*' -exec grep -nHr "sre_ucs1_search" {} \;
+Binary file ./libpython3.8m.a matches
+./Modules/_sre.c:572:        return sre_ucs1_search(state, pattern);
+
+```
 
 the trick here is for reusing the common part in **sre_lib.h** with different definitions
 
-    /* generate 8-bit version */
+```c
+/* generate 8-bit version */
 
-    #define SRE_CHAR Py_UCS1
-    #define SIZEOF_SRE_CHAR 1
-    #define SRE(F) sre_ucs1_##F
-    #include "sre_lib.h"
+#define SRE_CHAR Py_UCS1
+#define SIZEOF_SRE_CHAR 1
+#define SRE(F) sre_ucs1_##F
+#include "sre_lib.h"
 
-    /* generate 16-bit unicode version */
+/* generate 16-bit unicode version */
 
-    #define SRE_CHAR Py_UCS2
-    #define SIZEOF_SRE_CHAR 2
-    #define SRE(F) sre_ucs2_##F
-    #include "sre_lib.h"
+#define SRE_CHAR Py_UCS2
+#define SIZEOF_SRE_CHAR 2
+#define SRE(F) sre_ucs2_##F
+#include "sre_lib.h"
 
-    /* generate 32-bit unicode version */
+/* generate 32-bit unicode version */
 
-    #define SRE_CHAR Py_UCS4
-    #define SIZEOF_SRE_CHAR 4
-    #define SRE(F) sre_ucs4_##F
-    #include "sre_lib.h"
+#define SRE_CHAR Py_UCS4
+#define SIZEOF_SRE_CHAR 4
+#define SRE(F) sre_ucs4_##F
+#include "sre_lib.h"
+
+```
 
 we can find the defination of **search** in **sre_lib.h**
 
-    LOCAL(Py_ssize_t)
-    SRE(search)(SRE_STATE* state, SRE_CODE* pattern)
+```python3
+LOCAL(Py_ssize_t)
+SRE(search)(SRE_STATE* state, SRE_CODE* pattern)
+
+```
 
 which will be expanded to three different form
 
-    inline Py_ssize_t sre_ucs1_search(SRE_STATE* state, SRE_CODE* pattern)
-    inline Py_ssize_t sre_ucs2_search(SRE_STATE* state, SRE_CODE* pattern)
-    inline Py_ssize_t sre_ucs4_search(SRE_STATE* state, SRE_CODE* pattern)
+```python3
+inline Py_ssize_t sre_ucs1_search(SRE_STATE* state, SRE_CODE* pattern)
+inline Py_ssize_t sre_ucs2_search(SRE_STATE* state, SRE_CODE* pattern)
+inline Py_ssize_t sre_ucs4_search(SRE_STATE* state, SRE_CODE* pattern)
+
+```
 
 when I go inside the expanded **sre_ucs1_search**, I found the [match](#match) phase
 
@@ -282,41 +339,47 @@ when you called the **re.compile**, there will be a FIFO cache in the python lev
 
 **_cache** is of type dictionary, and because type dict is now ordered([dict implementation](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md#delete-in-entries)), it act as a fifo queue
 
-    >>> r1 = re.compile("a\d+b")
-    >>> id(r1)
-    4409698992
-    >>> r2 = re.compile("b\d+b")
-    >>> id(r2)
-    4409699184
-    >>> r3 = re.compile("a\d+b")
-    >>> id(r3)
-    4409698992 # same as r1
-    >>> r4 = re.compile("b\d+b")
-    >>> id(r4)
-    4409699184 # same as r2
+```python3
+>>> r1 = re.compile("a\d+b")
+>>> id(r1)
+4409698992
+>>> r2 = re.compile("b\d+b")
+>>> id(r2)
+4409699184
+>>> r3 = re.compile("a\d+b")
+>>> id(r3)
+4409698992 # same as r1
+>>> r4 = re.compile("b\d+b")
+>>> id(r4)
+4409699184 # same as r2
+
+```
 
 the cache mechanism is written in python
 
-    _cache = {}  # ordered!
+```python3
+_cache = {}  # ordered!
 
-    _MAXCACHE = 512
-    def _compile(pattern, flags):
-        # omit
-        try:
-            return _cache[type(pattern), pattern, flags]
-        except KeyError:
-            pass
-        # omit
-        p = sre_compile.compile(pattern, flags)
-        if not (flags & DEBUG):
-            if len(_cache) >= _MAXCACHE:
-                # Drop the oldest item
-                try:
-                    del _cache[next(iter(_cache))]
-                except (StopIteration, RuntimeError, KeyError):
-                    pass
-            _cache[type(pattern), pattern, flags] = p
-        return p
+_MAXCACHE = 512
+def _compile(pattern, flags):
+    # omit
+    try:
+        return _cache[type(pattern), pattern, flags]
+    except KeyError:
+        pass
+    # omit
+    p = sre_compile.compile(pattern, flags)
+    if not (flags & DEBUG):
+        if len(_cache) >= _MAXCACHE:
+            # Drop the oldest item
+            try:
+                del _cache[next(iter(_cache))]
+            except (StopIteration, RuntimeError, KeyError):
+                pass
+        _cache[type(pattern), pattern, flags] = p
+    return p
+
+```
 
 # read more
 * [ccs.neu.edu->sre](http://www.ccs.neu.edu/home/shivers/papers/sre.txt)

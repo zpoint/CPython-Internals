@@ -31,19 +31,28 @@ you can refer to [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985)/[IEEE-7
 
 the binary representation of 0.0 in **IEEE 754** format is 64 zero bits
 
-    f = 0.0
+```python3
+f = 0.0
+
+```
 
 ![0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.png)
 
 ## 1.0
 
-    f = 1.0
+```python3
+f = 1.0
+
+```
 
 ![1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/1.png)
 
 ## 0.1
 
-    f = 0.1
+```python3
+f = 0.1
+
+```
 
 ![0.1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/0.1.png)
 
@@ -61,11 +70,14 @@ the difference between -0.1 and 0.1 is the first sign bit
 
 # free_list
 
-    #ifndef PyFloat_MAXFREELIST
-    #define PyFloat_MAXFREELIST    100
-    #endif
-    static int numfree = 0;
-    static PyFloatObject *free_list = NULL;
+```c
+#ifndef PyFloat_MAXFREELIST
+#define PyFloat_MAXFREELIST    100
+#endif
+static int numfree = 0;
+static PyFloatObject *free_list = NULL;
+
+```
 
 free_list is a single linked list, store at most PyFloat_MAXFREELIST **PyFloatObject**
 
@@ -73,21 +85,27 @@ free_list is a single linked list, store at most PyFloat_MAXFREELIST **PyFloatOb
 
 The linked list is linked via the field **ob_type**
 
-    >>> f = 0.0
-    >>> id(f)
-    4551393664
-    >>> f2 = 1.0
-    >>> id(f2)
-    4551393616
-    del f
-    del f2
+```python3
+>>> f = 0.0
+>>> id(f)
+4551393664
+>>> f2 = 1.0
+>>> id(f2)
+4551393616
+del f
+del f2
+
+```
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/free_list2.png)
 
 **f3** comes from the head of the **free_list**
 
-    >>> f3 = 3.0
-    >>> id(f3)
-    4551393616
+```python3
+>>> f3 = 3.0
+>>> id(f3)
+4551393616
+
+```
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/free_list3.png)

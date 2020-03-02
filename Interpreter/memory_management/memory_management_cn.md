@@ -64,11 +64,14 @@ step4, 返回给调用者
 
 你理论上能申请的最大的空间在 **_PyObject_GC_Alloc** 中做了限制
 
-	typedef ssize_t         Py_ssize_t;
-	#define PY_SSIZE_T_MAX ((Py_ssize_t)(((size_t)-1)>>1))
-    # PY_SSIZE_T_MAX 在我的机器上是一个 8 字节的有符号类型,  能最大表示 8388608 TB 的大小, 所以通常我们不需要担心在这一步超过了限制
-    if (basicsize > PY_SSIZE_T_MAX - sizeof(PyGC_Head))
-        return PyErr_NoMemory();
+```c
+typedef ssize_t         Py_ssize_t;
+#define PY_SSIZE_T_MAX ((Py_ssize_t)(((size_t)-1)>>1))
+# PY_SSIZE_T_MAX 在我的机器上是一个 8 字节的有符号类型,  能最大表示 8388608 TB 的大小, 所以通常我们不需要担心在这一步超过了限制
+if (basicsize > PY_SSIZE_T_MAX - sizeof(PyGC_Head))
+    return PyErr_NoMemory();
+
+```
 
 ![tuple_new](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/malloc.png)
 
@@ -76,7 +79,10 @@ step4, 返回给调用者
 
 通过搜索调用栈, 我们可以发现 **raw memory allocator** 大部分都是在 `cpython/Objects/obmalloc.c` 中定义的
 
-	#define SMALL_REQUEST_THRESHOLD 512
+```c
+#define SMALL_REQUEST_THRESHOLD 512
+
+```
 
 整个过程大致如下
 
@@ -89,7 +95,10 @@ step4, 返回给调用者
 
 **block** 在 python 的内存管理系统中作为一个最小的单元, 一个 **block** 的大小和一个 **byte** 的大小是相同的
 
-	typedef uint8_t block
+```c
+typedef uint8_t block
+
+```
 
 在我这里, 内存块表示一段连续的空间(比如 24 bytes 大小的连续空间), 而 **block**(块) 表示上面定义的最基本单位, 后面会有更多示例
 
@@ -129,28 +138,31 @@ step4, 返回给调用者
 
 如果你从 **idx0** 中获取到了 **pool 1**, 那么从 **pool 1** 中你每次能获得一个内存块(8 bytes)大小的空余空间, 如果你从 **idx2** 中获取到了 **pool 4**, 那么从 **pool 4** 中你每次能获得一个内存块(24 bytes)大小的空余空间, 以此类推
 
+```python3
 
-	 cpython/Objects/obmalloc.c
-     * 对于小块内存空间的申请, 我们有如下的表
-     *
-     * Request in bytes     Size of allocated block      Size class idx
-     * ----------------------------------------------------------------
-     *        1-8                     8                       0
-     *        9-16                   16                       1
-     *       17-24                   24                       2
-     *       25-32                   32                       3
-     *       33-40                   40                       4
-     *       41-48                   48                       5
-     *       49-56                   56                       6
-     *       57-64                   64                       7
-     *       65-72                   72                       8
-     *        ...                   ...                     ...
-     *      497-504                 504                      62
-     *      505-512                 512                      63
-     *
-     *      0, SMALL_REQUEST_THRESHOLD + 1 and up: routed to the underlying
-     *      allocator.
-     */
+ cpython/Objects/obmalloc.c
+ * 对于小块内存空间的申请, 我们有如下的表
+ *
+ * Request in bytes     Size of allocated block      Size class idx
+ * ----------------------------------------------------------------
+ *        1-8                     8                       0
+ *        9-16                   16                       1
+ *       17-24                   24                       2
+ *       25-32                   32                       3
+ *       33-40                   40                       4
+ *       41-48                   48                       5
+ *       49-56                   56                       6
+ *       57-64                   64                       7
+ *       65-72                   72                       8
+ *        ...                   ...                     ...
+ *      497-504                 504                      62
+ *      505-512                 512                      63
+ *
+ *      0, SMALL_REQUEST_THRESHOLD + 1 and up: routed to the underlying
+ *      allocator.
+ */
+
+```
 
 **idx0** 是一个双端链表的表头的入口, 链表上的每一个元素都指向一个 **pool** 对象, **idx0** 中的所有的 **pool** 会处理那些 <= 8 bytes 的申请内存的请求, 无论调用者需要多少空间(1 bytes, 3bytes 还是 6bytes 都一样), **idx0** 中的 **pool** 对象每次都只会返回一个 8 bytes 的对象供申请者使用
 
@@ -162,10 +174,13 @@ step4, 返回给调用者
 
 通常应用中小块的内存申请是比较频繁的, 每一次内存申请都需要找到 **usedpools** 中对应的 **idxn**, 所以对于每次内存分配申请大小为 **nbytes** 的请求, 必须有一种非常快就能定位到对应的 **idxn** 的方法
 
-    #define ALIGNMENT_SHIFT         3
-    size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT
-    # idxn = size + size
-    pool = usedpools[size + size]
+```c
+#define ALIGNMENT_SHIFT         3
+size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT
+# idxn = size + size
+pool = usedpools[size + size]
+
+```
 
 如果申请的大小 **nbytes** 为 7, (7 - 1) >> 3 为 0,  idxn = 0 + 0, usedpools[0 + 0] 就是被选中的链表, **idx0** 中的第一个 **pool** 既为获取到的 **pool**
 
@@ -179,8 +194,11 @@ step4, 返回给调用者
 
 假设我们需要通过 python 的 memory allocator 申请 5 bytes 大小的空间, 因为申请的大小比 **SMALL_REQUEST_THRESHOLD**(512 bytes) 小, 这个请求会被转发到 python 的 raw memory allocator 中, 而不是操作系统默认的 allocator(使用 **malloc** 这个系统调用)
 
-	size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
-    pool = usedpools[0 + 0]
+```c
+size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT = (5 - 1) >> 3 = 0
+pool = usedpools[0 + 0]
+
+```
 
 **idx0** 会被选中, 跟着这个链表, 我们可以找到第一个拥有空闲空间的 **pool**, 就是图中的 **pool1**
 

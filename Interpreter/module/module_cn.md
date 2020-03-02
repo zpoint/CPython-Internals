@@ -44,11 +44,17 @@
 
 更多详情请参考 [PEP 3121 -- Extension Module Initialization and Finalization](https://www.python.org/dev/peps/pep-3121/)
 
-    import _locale
+```python3
+import _locale
+
+```
 
 ![locale](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/locale.png)
 
-    import re
+```python3
+import re
+
+```
 
 ![re](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/re.png)
 
@@ -62,28 +68,34 @@
 
 你可以发现, 核心的函数是 `interp->importlib`, 这个函数是在下面这个位置初始化的
 
-    /* cpython/Python/pylifecycle.c */
-    static _PyInitError
-    initimport(PyInterpreterState *interp, PyObject *sysmod)
-    {
-        /* 忽略 */
-        importlib = PyImport_AddModule("_frozen_importlib");
-        if (importlib == NULL) {
-            return _Py_INIT_ERR("couldn't get _frozen_importlib from sys.modules");
-        }
-        interp->importlib = importlib;
-        Py_INCREF(interp->importlib);
-        /* 忽略 */
+```c
+/* cpython/Python/pylifecycle.c */
+static _PyInitError
+initimport(PyInterpreterState *interp, PyObject *sysmod)
+{
+    /* 忽略 */
+    importlib = PyImport_AddModule("_frozen_importlib");
+    if (importlib == NULL) {
+        return _Py_INIT_ERR("couldn't get _frozen_importlib from sys.modules");
     }
+    interp->importlib = importlib;
+    Py_INCREF(interp->importlib);
+    /* 忽略 */
+}
+
+```
 
 搜索 `_frozen_importlib`, 你可以找到一个几乎是二进制的文件 `Python/importlib.h`, 里面的内容如下
 
-    /* 被 Programs/_freeze_importlib.c 这个程序自动生成的 */
-    const unsigned char _Py_M__importlib_bootstrap[] = {
-        99,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,
-        ...
-    }
-    */
+```c
+/* 被 Programs/_freeze_importlib.c 这个程序自动生成的 */
+const unsigned char _Py_M__importlib_bootstrap[] = {
+    99,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,
+    ...
+}
+*/
+
+```
 
 我们发现 `_freeze_importlib.c` 编译后的程序会把 `Lib/importlib/_bootstrap.py` 中的 python 代码转换为 二进制格式并存储在 `Python/importlib.h` 中
 
@@ -93,25 +105,31 @@
 
 当你更改了 `Lib/importlib/_bootstrap.py` 中的代码时, 你需要重新生成 `Python/importlib.h` 这个文件, 并重新编译生成一个新的可执行程序 `python.exe`
 
-	# 编译 ./Programs/_freeze_importlib.c, 用编译后的程序去做下面的转换
-    # _bootstrap_external.py -> importlib_external.h
-    # _bootstrap.py -> importlib.h
-    # zipimport.py -> importlib_zipimport.h
-	make regen-importlib
-    # 重新编译生成新的可执行 `python.exe`
-    make
+```python3
+# 编译 ./Programs/_freeze_importlib.c, 用编译后的程序去做下面的转换
+# _bootstrap_external.py -> importlib_external.h
+# _bootstrap.py -> importlib.h
+# zipimport.py -> importlib_zipimport.h
+make regen-importlib
+# 重新编译生成新的可执行 `python.exe`
+make
+
+```
 
 # import 是如何实现的
 
 我们用 dis 模块处理一个只有一行代码 `import _locale` 的脚本看看
 
-    ./python.exe -m dis test.py
-    1           0 LOAD_CONST               0 (0)
-              2 LOAD_CONST               1 (None)
-              4 IMPORT_NAME              0 (_locale)
-              6 STORE_NAME               0 (_locale)
-              8 LOAD_CONST               1 (None)
-             10 RETURN_VALUE
+```python3
+./python.exe -m dis test.py
+1           0 LOAD_CONST               0 (0)
+          2 LOAD_CONST               1 (None)
+          4 IMPORT_NAME              0 (_locale)
+          6 STORE_NAME               0 (_locale)
+          8 LOAD_CONST               1 (None)
+         10 RETURN_VALUE
+
+```
 
 这里核心的 opcde 是 `IMPORT_NAME`
 
@@ -148,160 +166,178 @@
 
 默认情况下 `sys.meta_path` 只有 3 个不同的 finder
 
-    >>> sys.meta_path
-    [<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
+```python3
+>>> sys.meta_path
+[<class '_frozen_importlib.BuiltinImporter'>, <class '_frozen_importlib.FrozenImporter'>, <class '_frozen_importlib_external.PathFinder'>]
+
+```
 
 ### BuiltinImporter
 
 `BuiltinImporter` 会处理所有的 built-in 模块, 比如当我们运行
 
-	import _locale
+```python3
+import _locale
+
+```
 
 `BuiltinImporter` 定义的位置是在 `Lib/importlib/_bootstrap.py`, `BuiltinImporter.find_spec` 会返回一个 `ModuleSpec` 对象, `ModuleSpec` 有一个 `loader` 属性, 在返回的时候这个 `loader` 已经和 `BuiltinImporter` 绑定在一起了
 
 之后 `ModuleSpec.loader.create_module` 就会被调用, 最终调用到了 `_imp_create_builtin` 这个 c 函数上
 
-    /* 在 cpython/Python/import.c 这个位置 */
-    static PyObject *
-    _imp_create_builtin(PyObject *module, PyObject *spec)
-    {
-        /* 一些类型检查 */
-        PyObject *modules = NULL;
-        for (p = PyImport_Inittab; p->name != NULL; p++) {
-        	/* PyImport_Inittab 是一个 c 数组, 每一个元素都是一个 built-in module 名称 和 初始化的 c 函数
-            这里的 for 循环遍历 PyImport_Inittab 这个数组, 检查他们的名称和你提供的名称是否匹配,
-            如果匹配直接调用对应的初始化的 c 函数并返回m*/
-            PyModuleDef *def;
-            if (_PyUnicode_EqualToASCIIString(name, p->name)) {
-                if (p->initfunc == NULL) {
-                    /* Cannot re-init internal module ("sys" or "builtins") */
-                    mod = PyImport_AddModule(namestr);
-                    Py_DECREF(name);
-                    return mod;
-                }
-                mod = (*p->initfunc)();
-                /* 一些类型检查 */
+```c
+/* 在 cpython/Python/import.c 这个位置 */
+static PyObject *
+_imp_create_builtin(PyObject *module, PyObject *spec)
+{
+    /* 一些类型检查 */
+    PyObject *modules = NULL;
+    for (p = PyImport_Inittab; p->name != NULL; p++) {
+    	/* PyImport_Inittab 是一个 c 数组, 每一个元素都是一个 built-in module 名称 和 初始化的 c 函数
+        这里的 for 循环遍历 PyImport_Inittab 这个数组, 检查他们的名称和你提供的名称是否匹配,
+        如果匹配直接调用对应的初始化的 c 函数并返回m*/
+        PyModuleDef *def;
+        if (_PyUnicode_EqualToASCIIString(name, p->name)) {
+            if (p->initfunc == NULL) {
+                /* Cannot re-init internal module ("sys" or "builtins") */
+                mod = PyImport_AddModule(namestr);
+                Py_DECREF(name);
+                return mod;
             }
+            mod = (*p->initfunc)();
+            /* 一些类型检查 */
         }
-        Py_DECREF(name);
-        Py_RETURN_NONE;
     }
+    Py_DECREF(name);
+    Py_RETURN_NONE;
+}
 
-	/* in cpython/PC/config.c
-    struct _inittab _PyImport_Inittab[] = {
+/* in cpython/PC/config.c
+struct _inittab _PyImport_Inittab[] = {
 
-        {"_abc", PyInit__abc},
-        {"array", PyInit_array},
-        {"_ast", PyInit__ast},
-        {"audioop", PyInit_audioop},
-        {"binascii", PyInit_binascii},
-        {"cmath", PyInit_cmath},
-        {"errno", PyInit_errno},
-        {"faulthandler", PyInit_faulthandler},
-        {"gc", PyInit_gc},
-        {"math", PyInit_math},
-        {"nt", PyInit_nt}, /* Use the NT os functions, not posix */
-        {"_operator", PyInit__operator},
-        {"_signal", PyInit__signal},
-        {"_md5", PyInit__md5},
-        ...
-    }
-    */
+    {"_abc", PyInit__abc},
+    {"array", PyInit_array},
+    {"_ast", PyInit__ast},
+    {"audioop", PyInit_audioop},
+    {"binascii", PyInit_binascii},
+    {"cmath", PyInit_cmath},
+    {"errno", PyInit_errno},
+    {"faulthandler", PyInit_faulthandler},
+    {"gc", PyInit_gc},
+    {"math", PyInit_math},
+    {"nt", PyInit_nt}, /* Use the NT os functions, not posix */
+    {"_operator", PyInit__operator},
+    {"_signal", PyInit__signal},
+    {"_md5", PyInit__md5},
+    ...
+}
+*/
+
+```
 
 ### FrozenImporter
 
 `FrozenImporter.loader.create_module` 的定义, 调用方式等和 `BuiltinImporter` 类似
 
-    int
-    PyImport_ImportFrozenModuleObject(PyObject *name)
-    {
-        p = find_frozen(name);
-        /* 类型检查 */
-        co = PyMarshal_ReadObjectFromString((const char *)p->code, size);
-        /* 类型检查 */
-        d = module_dict_for_exec(name);
-        /* 类型检查 */
-        m = exec_code_in_module(name, d, co);
-        if (m == NULL)
-            goto err_return;
-        Py_DECREF(co);
-        Py_DECREF(m);
-        return 1;
-    err_return:
-        Py_DECREF(co);
-        return -1;
+```c
+int
+PyImport_ImportFrozenModuleObject(PyObject *name)
+{
+    p = find_frozen(name);
+    /* 类型检查 */
+    co = PyMarshal_ReadObjectFromString((const char *)p->code, size);
+    /* 类型检查 */
+    d = module_dict_for_exec(name);
+    /* 类型检查 */
+    m = exec_code_in_module(name, d, co);
+    if (m == NULL)
+        goto err_return;
+    Py_DECREF(co);
+    Py_DECREF(m);
+    return 1;
+err_return:
+    Py_DECREF(co);
+    return -1;
+}
+
+
+static const struct _frozen *find_frozen(PyObject *name)
+{
+	/* 类型检查 */
+    for (p = PyImport_FrozenModules; ; p++) {
+    	/* 遍历 PyImport_FrozenModules 这个 c 数组检查是否有名称匹配的对象 */
+        if (p->name == NULL)
+            return NULL;
+        if (_PyUnicode_EqualToASCIIString(name, p->name))
+            break;
     }
+    return p;
+}
 
+/* 在 cpython/Python/frozen.c 这个位置
+static const struct _frozen _PyImport_FrozenModules[] = {
+    /* importlib */
+    {"_frozen_importlib", _Py_M__importlib_bootstrap,
+        (int)sizeof(_Py_M__importlib_bootstrap)},
+    {"_frozen_importlib_external", _Py_M__importlib_bootstrap_external,
+        (int)sizeof(_Py_M__importlib_bootstrap_external)},
+    {"zipimport", _Py_M__zipimport,
+        (int)sizeof(_Py_M__zipimport)},
+    /* Test module */
+    {"__hello__", M___hello__, SIZE},
+    /* Test package (negative size indicates package-ness) */
+    {"__phello__", M___hello__, -SIZE},
+    {"__phello__.spam", M___hello__, SIZE},
+    {0, 0, 0} /* sentinel */
+};
 
-    static const struct _frozen *find_frozen(PyObject *name)
-    {
-		/* 类型检查 */
-        for (p = PyImport_FrozenModules; ; p++) {
-        	/* 遍历 PyImport_FrozenModules 这个 c 数组检查是否有名称匹配的对象 */
-            if (p->name == NULL)
-                return NULL;
-            if (_PyUnicode_EqualToASCIIString(name, p->name))
-                break;
-        }
-        return p;
-    }
+const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
+*/
 
-    /* 在 cpython/Python/frozen.c 这个位置
-    static const struct _frozen _PyImport_FrozenModules[] = {
-        /* importlib */
-        {"_frozen_importlib", _Py_M__importlib_bootstrap,
-            (int)sizeof(_Py_M__importlib_bootstrap)},
-        {"_frozen_importlib_external", _Py_M__importlib_bootstrap_external,
-            (int)sizeof(_Py_M__importlib_bootstrap_external)},
-        {"zipimport", _Py_M__zipimport,
-            (int)sizeof(_Py_M__zipimport)},
-        /* Test module */
-        {"__hello__", M___hello__, SIZE},
-        /* Test package (negative size indicates package-ness) */
-        {"__phello__", M___hello__, -SIZE},
-        {"__phello__.spam", M___hello__, SIZE},
-        {0, 0, 0} /* sentinel */
-    };
-
-    const struct _frozen *PyImport_FrozenModules = _PyImport_FrozenModules;
-    */
+```
 
 ### PathFinder
 
 `PathFinder.loader.create_module` 会最终调用 `_new_module` 返回, 而不是像上面的调用 `create_module` 返回, 外层函数定义的位置在 `cpython/Lib/importlib/_bootstrap.py`, `_new_module` 不会调用 c 函数, `create_module` 会调用对应的 c 函数
 
-    def module_from_spec(spec):
-        """通过提供的 spec 生成一个  module 对象"""
-        # 典型的 loader 是不会提供 create_module() 函数的
-        module = None
-        if hasattr(spec.loader, 'create_module'):
-            # BuiltinImporter and FrozenImporter 会在这里调用 create_module
-            # 最后跑到他们的 c function 中去
-            module = spec.loader.create_module(spec)
-        elif hasattr(spec.loader, 'exec_module'):
-            raise ImportError('loaders that define exec_module() '
-                              'must also define create_module()')
-        if module is None:
-        	# PathFinder 会到达这里
-            # _new_module 简单的返回了一个基本的 module 类型对象
-            # 加载的过程都是通过参数 spec 完成的
-            module = _new_module(spec.name)
-        _init_module_attrs(spec, module)
-        return module
+```python3
+def module_from_spec(spec):
+    """通过提供的 spec 生成一个  module 对象"""
+    # 典型的 loader 是不会提供 create_module() 函数的
+    module = None
+    if hasattr(spec.loader, 'create_module'):
+        # BuiltinImporter and FrozenImporter 会在这里调用 create_module
+        # 最后跑到他们的 c function 中去
+        module = spec.loader.create_module(spec)
+    elif hasattr(spec.loader, 'exec_module'):
+        raise ImportError('loaders that define exec_module() '
+                          'must also define create_module()')
+    if module is None:
+    	# PathFinder 会到达这里
+        # _new_module 简单的返回了一个基本的 module 类型对象
+        # 加载的过程都是通过参数 spec 完成的
+        module = _new_module(spec.name)
+    _init_module_attrs(spec, module)
+    return module
 
-    def _new_module(name):
-        return type(sys)(name)
+def _new_module(name):
+    return type(sys)(name)
+
+```
 
 `PathFinder.find_spec` 会把 `sys.path_hooks` 中的对象取出来, 并按 `sys.path_hooks` 中的对象的顺序, 把每个对象作为 finder 去尝试进行模块导入
 
 `FileFinder` 会被作为默认的 `path_hooks`, 你可以在 `cpython/Lib/importlib/_bootstrap_external.py` 中找到下面这段代码
 
-    def _install(_bootstrap_module):
-        """Install the path-based import components."""
-        _setup(_bootstrap_module)
-        supported_loaders = _get_supported_file_loaders()
-        sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
-        sys.meta_path.append(PathFinder)
+```python3
+def _install(_bootstrap_module):
+    """Install the path-based import components."""
+    _setup(_bootstrap_module)
+    supported_loaders = _get_supported_file_loaders()
+    sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
+    sys.meta_path.append(PathFinder)
+
+```
 
 `FileFinder.find_spec`  会处理搜索过程, 和操作系统的文件系统交互, 并且把这些文件状态缓存下来, 当文件变更时通过缓存中的状态是可以被感知到的
 

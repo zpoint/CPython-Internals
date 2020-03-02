@@ -19,45 +19,57 @@
 
 # 示例
 
-	c = complex(0, 1)
+```python3
+c = complex(0, 1)
+
+```
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example0.png)
 
-	d = complex(0.1, -0.2)
+```python3
+d = complex(0.1, -0.2)
+
+```
 
 ![example1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example1.png)
 
 我们来读下加法部分的代码
 
-    Py_complex
-    _Py_c_sum(Py_complex a, Py_complex b)
-    {
-        Py_complex r;
-        r.real = a.real + b.real;
-        r.imag = a.imag + b.imag;
-        return r;
-    }
+```c
+Py_complex
+_Py_c_sum(Py_complex a, Py_complex b)
+{
+    Py_complex r;
+    r.real = a.real + b.real;
+    r.imag = a.imag + b.imag;
+    return r;
+}
 
-    static PyObject *
-    complex_add(PyObject *v, PyObject *w)
-    {
-        Py_complex result;
-        Py_complex a, b;
-        TO_COMPLEX(v, a); // 检查下类型, 如果不为 PyComplexObject 需要先转换为 PyComplexObject
-        TO_COMPLEX(w, b);
-        PyFPE_START_PROTECT("complex_add", return 0) // 在 3.7 版本之后就没用了
-        result = _Py_c_sum(a, b); // sum the complex
-        PyFPE_END_PROTECT(result) // 在 3.7 版本之后就没用了
-        return PyComplex_FromCComplex(result);
-    }
+static PyObject *
+complex_add(PyObject *v, PyObject *w)
+{
+    Py_complex result;
+    Py_complex a, b;
+    TO_COMPLEX(v, a); // 检查下类型, 如果不为 PyComplexObject 需要先转换为 PyComplexObject
+    TO_COMPLEX(w, b);
+    PyFPE_START_PROTECT("complex_add", return 0) // 在 3.7 版本之后就没用了
+    result = _Py_c_sum(a, b); // sum the complex
+    PyFPE_END_PROTECT(result) // 在 3.7 版本之后就没用了
+    return PyComplex_FromCComplex(result);
+}
+
+```
 
 加法看起来比较简单, 把实数 **real** 部分相加, 把虚数 **imag** 部分相加, 并返回相加后的整个结构
 
 加减乘数, 负号, 平方等操作都很类似
 
-	>>> e = c + d
-	>>> repr(e)
-	'(0.1+0.8j)'
+```python3
+>>> e = c + d
+>>> repr(e)
+'(0.1+0.8j)'
+
+```
 
 ![example2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example2.png)
 

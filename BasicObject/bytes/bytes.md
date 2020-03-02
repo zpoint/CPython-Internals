@@ -30,7 +30,10 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 **bytes** object is an immutable object, whenever you need to modify a **bytes** object, you need to create a new one, which keeps the implementation simple.
 
-    s = b""
+```python3
+s = b""
+
+```
 
 ![empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/empty.png)
 
@@ -38,13 +41,19 @@ The memory layout of **PyBytesObject** looks like [memory layout of tuple object
 
 let's initialize a byte object with ascii characters
 
-    s = b"abcdefg123"
+```python3
+s = b"abcdefg123"
+
+```
 
 ![ascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/ascii.png)
 
 ## nonascii characters
 
-    s = "我是帅哥".encode("utf8")
+```python3
+s = "我是帅哥".encode("utf8")
+
+```
 
 ![nonascii](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/nonascii.png)
 
@@ -70,8 +79,12 @@ The **PyBytesObject** is a python wrapper of c style null terminate string, with
 
 The implementation of **PyBytesObject** looks like the **embstr** encoding in redis
 
-    redis-cli
-    127.0.0.1:6379> set a "hello"
-    OK
-    127.0.0.1:6379> object encoding a
-    "embstr"
+```shell script
+redis-cli
+127.0.0.1:6379> set a "hello"
+OK
+127.0.0.1:6379> object encoding a
+"embstr"
+
+```
+
