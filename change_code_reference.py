@@ -6,15 +6,12 @@ import sys
 
 def replace_func(match):
     full_text = match.group(0)
-    if "redis-cli" in full_text or"cd " in full_text or "git " in full_text or "mkdir " in full_text:
+    if "redis-cli" in full_text or "cd " in full_text or "git " in full_text or "mkdir " in full_text or "Timer " in full_text:
         lang = "shell script"
-    elif "def " in full_text or ">>>" in full_text or "print(" in full_text:
-        lang = "python3"
+    elif "int " in full_text or "char " in full_text or "void " in full_text or "PyObject" in full_text:
+        lang = "c"
     else:
-        if "int " in full_text or "char " in full_text or "void " in full_text or "PyObject" in full_text:
-            lang = "c"
-        else:
-            lang = "python3"
+        lang = "python3"
     middle = full_text[1:-2]
     final_middle = ""
     for line in middle.split("\n"):
