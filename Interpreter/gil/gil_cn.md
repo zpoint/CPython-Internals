@@ -45,7 +45,7 @@
 
 因为 **tick** 并不是以时间为基准计数, 而是以 opcode 个数为基准的计数, 有一些 opcode 代码复杂耗时长, 一些耗时短, 进而导致同样的 100 个 **tick**, 一些线程的执行时间总是执行的比另一些线程长
 
-在多核机器上, 如果两个线程都在执行 CPU 密集型的任务, 操作系统有可能让这两个线程在不同的核心上运行, 也许会出现以下的情况, 当一个拥有了 **gil** 的线程在一个核心上执行 100 次 **tick** 的过程中, 在另一个核心上运行的线程频繁的进行抢占 **gil**, 抢占失败的循环, 导致 CPU 瞎忙影响性能
+在多核机器上, 如果两个线程都在执行 CPU 密集型的任务, 操作系统有可能让这两个线程在不同的核心上运行, 也许会出现以下的情况, 当一个拥有了 **gil** 的线程在一个核心上执行 100 次 **tick** 的过程中, 在另一个核心上运行的线程频繁的进行抢占 **gil**, 抢占失败的循环, 导致 CPU 空转影响性能
 
 当前的实现完全的把任务(线程)调度交给了操作系统, 哪个线程会抢到锁被唤醒, 哪个线程抢不到锁被阻塞, 程序员是无法控制的, 这也就导致了以下情况发生的概率, 想象一下一个处理 IO 密集型的线程已经收到了 IO 的信号, 但是需要等待另一个线程释放 **gil** 才能去处理, 在等待的过程中, 另一个线程执行满了 **tick** 次数, 释放了 **gil**, 但是之后自己又抢到了自己释放的 **gil**, 导致前面的 IO 密集型的线程又需要至少多等待 100 个 **tick** 才能处理已经接收到的信号, 有可能在信号丢失前都无法及时处理(实际上, 自己主动触发操作系统进行任务调度的线程会比被操作系统强制触发任务调度的线程在执行队列里有更高的优先级, 程序员可以让 IO 密集型任务尽快的进入等待状态, 主动触发任务调度, 提高这个线程的优先级)(详情参考操作系统相关资料)
 
@@ -159,15 +159,18 @@ static void take_gil(PyThreadState *tstate)
         unsigned long saved_switchnum;
 
         saved_switchnum = _PyRuntime.ceval.gil.switch_number;
-        /* 释放 gil.mutex, 并待 INTERVAL 微秒(默认 5000) 或者等待过程中收到 gil.cond 的信号 */
+        /* 释放 gil.mutex, 并在以下两种条件下唤醒
+           1. 等待 INTERVAL 微秒(默认 5000) 
+           2. 还没有等待到 5000 微秒但是收到了 gil.cond 的信号
+        */
         COND_TIMED_WAIT(_PyRuntime.ceval.gil.cond, _PyRuntime.ceval.gil.mutex,
                         INTERVAL, timed_out);
         /* 当前持有 gil.mutex 这把互斥锁 */
         if (timed_out &&
             _Py_atomic_load_relaxed(&_PyRuntime.ceval.gil.locked) &&
             _PyRuntime.ceval.gil.switch_number == saved_switchnum) {
-            /* 如果超过了等待时间, 并且这段等待时间里没有进行 gil 的换手, 则让当前持有 gil 的线程进行释放
-            把 gil_drop_request 值设为 1 */
+            /* 如果超过了等待时间, 并且这段等待时间里 gil 的持有者没有变更过, 则尝试让当前持有 gil 的线程进行释放gil
+            把 gil_drop_request 值设为 1, 持有锁的线程看到这个值的时候, 会尝试放弃 gil */
             SET_GIL_DROP_REQUEST();
         }
         /* 继续回到 while 循环, 检查 gil 是否为锁住状态 */
@@ -187,7 +190,7 @@ static void take_gil(PyThreadState *tstate)
 
 ## switch_cond and switch_mutex
 
-**switch_cond** 是另一个 condition variable, 和 **switch_mutex** 结合起来可以用来保证释放后重新获得 **gil** 的线程不是同一个前面释放 **gil** 的线程, 避免 **gil** 换手但是线程未切换浪费 cpu 时间
+**switch_cond** 是另一个 condition variable, 和 **switch_mutex** 结合起来可以用来保证释放后重新获得 **gil** 的线程不是同一个前面释放 **gil** 的线程, 避免 **gil** 切换时线程未切换浪费 cpu 时间
 
 这个功能如果编译时未定义 `FORCE_SWITCHING` 则不开启
 
@@ -276,7 +279,7 @@ main_loop:
         }
 
     fast_next_opcode:
-		/* 忽略 */
+	/* 忽略 */
     switch (opcode) {
         case TARGET(NOP): {
             FAST_DISPATCH();

@@ -294,7 +294,7 @@ merge_collapse(MergeState *ms)
 
 ```
 
-之后我们把 `l` 到 `start` 的每一个元素都往前移一格, 移完后把 `start` 这个位置的元素值设置为 `pivot` 的值
+之后我们把 `l` 到 `start` 的每一个元素都往后移一格, 移完后把 `start` 这个位置的元素值设置为 `pivot` 的值
 
 ![binary_sort2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort2.png)
 
@@ -310,7 +310,7 @@ merge_collapse(MergeState *ms)
 
 ![binary_sort5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort5.png)
 
-搜索结果为下标为 2, 在把 `l` 到 `start` 的每个值前移一格后
+搜索结果为下标为 2, 在把 `l` 到 `start` 的每个值后移一格后
 
 ![binary_sort6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort6.png)
 

@@ -100,7 +100,7 @@ D + merge(L(A), L(B), AB)
 D + merge(A, B, AB)
 # A 是下一个 list 的头部, 并且不在任何其他 list 的尾部中, 取出 A, 并把 A 从其他的所有的 list 中移除
 D + A + merge(B, B)
-# list 中的第一个元素是头部元素e而不是尾部元素, 所以 B 符合要求
+# list 中的第一个元素应该当成头部元素而不是尾部元素, 所以 B 符合要求
 D + A + B
 
 ```
