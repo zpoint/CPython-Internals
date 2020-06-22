@@ -14,7 +14,7 @@
   * [entries 中的删除](#entries-中的删除)
 * [结束](#结束)
 
-
+* [更多资料](#更多资料)
 
 # 相关位置文件
 
@@ -49,11 +49,11 @@
 
 ![after_py36_search](./after_py36_search.png)
 
-这么做的好处是空间利用率得到了较大的提升, 我们以64 位操作系统为例, 每个指针的长度为 8 字节, 则原本需要 `8 * 3 * 8` 为 `192`
+这么做的好处是空间利用率得到了较大的提升, 我们以 64 位操作系统为例, 每个指针的长度为 8 字节, 则原本需要 `8 * 3 * 8` 为 `192`
 
 现在变成了 `8 * 3 * 3 + 1 * 8` 为 `80`, 节省了 58% 左右的内存空间
 
-并且由于 `entries` 是按照插入顺序进行插入的数组, 对字典进行遍历时能按照插入顺序进行遍历, 而在旧的哈希表方案中, 由于不同键的哈希值不一样, 哈希表中的顺序是按照哈希值大小排序的, 遍历时从前往后遍历表现起来就是 "无序" 的, 这也是为什么 python3.6 以前的版本字典对象是 **无序** 的但是 python3.6 以后的版本字典对象是 **有序**的原因
+并且由于 `entries` 是按照插入顺序进行插入的数组, 对字典进行遍历时能按照插入顺序进行遍历, 而在旧的哈希表方案中, 由于不同键的哈希值不一样, 哈希表中的顺序是按照哈希值大小排序的, 遍历时从前往后遍历表现起来就是 "无序" 的, 这也是为什么 python3.6 以前的版本字典对象是 **无序** 的但是 python3.6 以后的版本字典对象是 **有序** 的原因
 
 ![after_py36_space](./after_py36_space.png)
 
@@ -136,6 +136,8 @@ in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysOb
 ```
 
 `split table` 可以在你对同个`class` 有非常多实例的时候节省很多内存，这些实例在满足上述条件时，都会共享同一个 `PyDictKeysObject`, 更多关于实现方面的细节请参考 [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
+
+![key_shares](./key_shares.png)
 
 ## indices 和 entries
 
@@ -231,7 +233,7 @@ index: 7 ix: -1 DKIX_EMPTY
 "{1: 'value1'}"
 ```
 
-这里 indices 是索引, 索引里面 **-1(DKIX_EMPTY)** 表示这个位置是空的, 现在代码里设置了 `d[1] = "value1"`, 而`hash(1) & mask == 1`, 会对应到 indices 的下标为 1 的位置上, 这个位置原本是 `-1(DKIX_EMPTY)`, 表示没有被占用过, 马上占用他, 把这里的 `-1` 改成 entries 里面第一个空余的真正的存储 key 和 value 的位置, 这个位置是 0, 所以就把 0 存储到了 `indices[1]` 里
+这里 `indices` 是索引, 索引里面 **-1(DKIX_EMPTY)** 表示这个位置是空的, 现在代码里设置了 `d[1] = "value1"`, 而`hash(1) & mask == 1`, 会对应到 indices 的下标为 1 的位置上, 这个位置原本是 `-1(DKIX_EMPTY)`, 表示没有被占用过, 马上占用他, 把这里的 `-1` 改成 entries 里面第一个空余的真正的存储 key 和 value 的位置, 这个位置是 0, 所以就把 0 存储到了 `indices[1]` 里
 
 ![hh_1](./hh_1.png)
 
@@ -414,4 +416,10 @@ index:    0    1         2      3        4           5               6        7
 
 # 结束
 
-看似简单的字典对象, 实际上底层实现起来包括了不少的计算机体系的知识, 看似复杂, 但其实大部分都是我们熟悉的算法和数据结构的知识
+看似简单的字典对象, 实际上底层实现起来包括了不少的计算机体系的知识, 看似复杂, 但其实大部分都是我们熟悉的算法和数据结构
+
+# 更多资料
+
+* [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+
+* [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html)

@@ -17,6 +17,7 @@
     * [why mark as DKIX_DUMMY](#why-mark-as-DKIX_DUMMY)
     * [delete in entries](#delete-in-entries)
 * [end](#end)
+* [read more](#read-more)
 
 # related file
 * cpython/Objects/dictobject.c
@@ -43,17 +44,27 @@ If you have many large sparse hash tables, it will waste lots of memory. In orde
 
 You can think `indices` as a simpler version hash table, and  `entries` as an array, which stores each origin hash value, key, and value as an element
 
-Whenever you search for an element or insert a new element, according to the value of hash reslut mod the size of `indices`, you are able to get an index in the `indices` array, and get the result you want from the `entries` according to the newly get index
+Whenever you search for an element or insert a new element, according to the value of hash reslut mod the size of `indices`, you are able to get an index in the `indices` array, and get the result you want from the `entries` according to the newly get index, For example, result of `hash("key2") % 8`  is `3`, and the value in `indices[3]` is `1`, so we can go to `entries` and find what we need in `entries[1]` 
 
 
 
-It takes about half of the original memory to store the same hash table, and we can traverse the hash table in the same order as we insert/delete items. Before python3.6 it's not possible to retain the order of key/value in the hash table due to the resize/rehash operation. For those who needs more detail, please refer to [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) and [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+![after_py36_search](./after_py36_search.png)
+
+We can benefit more compact space from the above approach, For example, in 64 word size operating system, every pointer takes 8 bytes, we need `8 * 3 * 8` which is `192` originally, while we only need `8 * 3 * 3 + 1 * 8` which is `80`, it saves about 58% of memory usage
+
+Because `entries` store elements in the insertion order, we can traverse the hash table in the same order as we insert items. In the old version implementation, the hash table stores elements in the order of hash key, it appears **unordered** when you traverse the hash table. That's why dict before python3.6 is **unordered** and after python3.6 is **ordered**
+
+![after_py36_space](./after_py36_space.png)
+
+[PyPy](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html) implement the compact and ordered dict firstly, and CPython implement it in [pep 468](https://www.python.org/dev/peps/pep-0468/]) and release after python3.6
+
+# memory layout
 
 Now, let's see the memory layout
 
-![memory layout](https://img-blog.csdnimg.cn/20190308144931301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+![PyDictObject](./PyDictObject.png)
 
-## combined table && split table
+## combined table and split table
 
 I'm confused when I first look at the definition of the **PyDictObject**, what's **ma_values** ? why **PyDictKeysObject** looks different from the indices/entries structure above?
 
@@ -118,7 +129,7 @@ in lookdict_split, address of PyDictObject: 0x10bdbbc00, address of PyDictKeysOb
 
 The split table implementation can save lots of memory if you have many instances of same class. For more detail, please refer to [PEP 412 -- Key-Sharing Dictionary](https://www.python.org/dev/peps/pep-0412/)
 
-![dict_shares](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict_shares.png)
+![key_shares](./key_shares.png)
 
 ## indices and entries
 
@@ -183,7 +194,7 @@ PyDictKeyEntry *entries = (PyDictKeyEntry *) pointer_to_entries;
 
 now, the overview is clear
 
-![dictkeys_basic](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dictkeys_basic.png)
+![dictkeys_basic](./dictkeys_basic.png)
 
 # hash collisions and delete
 
@@ -221,44 +232,47 @@ index: 6 ix: -1 DKIX_EMPTY
 index: 7 ix: -1 DKIX_EMPTY
 '{1: 1}'
 
-
 ```
 
-![hh_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_1.png)
+`indices` is the index, value  **-1(DKIX_EMPTY)** means the current location is empty, now I set `d[1] = "value1"` in the code, `hash(1) & mask == 1` will find the location 1 in the `indices`, it's `-1(DKIX_EMPTY)` originally, means it's free to use, we take the position and change `-1` to the next free index in `entries`, which is `0`, so we store `0` to `indices[1]`
+
+![hh_1](./hh_1.png)
 
 ```python3
-d[4] = 4
-
+d[4] = "value4"
 ```
 
-![hh_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_2.png)
+![hh_2](./hh_2.png)
 
 ```python3
-d[7] = 111
-
+d[7] = "value7"
 ```
 
-![hh_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_3.png)
+![hh_3](./hh_3.png)
 
 ```python3
 # delete, mark as DKIX_DUMMY
 # notice, dk_usable and dk_nentries don't change
 del d[4]
-
 ```
 
-![hh_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_4.png)
+![hh_4](./hh_4.png)
 
 ```python3
 # notice, dk_usable and dk_nentries now change
-d[0] = 0
-
+d[0] = "value0"
 ```
 
-![hh_5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_5.png)
+![hh_5](./hh_5.png)
+
+If we insert an element with hash key result 16, `hash (16) & mask == 0`, but `0`  is already taken, we encounter hash collision
+
+There're various different way to handle  hash collision, `Redis` use open hashing(linked list) to solve the problem, CPython `set` object implements a close hashing(linear probing algorithm), while `set` implements a more sporadic algorithm(go to read the source code if you're interested with it)
+
+![dict_prob](./dict_prob.png)
 
 ```python3
-d[16] = 16
+d[16] = "value16"
 # hash (16) & mask == 0
 # but position 0 already taken by key: 0, value: 0
 # currently perturb = 16, PERTURB_SHIFT = 5, i = 0
@@ -272,7 +286,7 @@ d[16] = 16
 
 ```
 
-![hh_6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/hh_6.png)
+# ![hh_6](./hh_6.png)
 
 # resize
 
@@ -284,25 +298,57 @@ d[5] = 5
 
 ```
 
-![resize](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/resize.png)
+![resize](./resize.png)
 
 ```python3
 # step2: insert key: 5, value: 5
-
-
 ```
 
 # variable size indices
-Notice, the indices array is variable size. when the size of your hash table is <= 128, type of each item is int_8, int16 and int64 for bigger table. The variable size indices array can save memory usage.
+Notice, the indices array is variable size. when the size of your hash table is <= 128, type of each item is int_8, int16, int32 and int64 for bigger table. The variable size indices array can save memory usage.
+
+![indices](./indices.png)
 
 # free list
 
 ```python3
+#ifndef PyDict_MAXFREELIST
+#define PyDict_MAXFREELIST 80
+#endif
 static PyDictObject *free_list[PyDict_MAXFREELIST];
-
 ```
 
-CPython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance, I've illustrated free_list in [list object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md#why-free-list)
+CPython also use free_list to reuse the deleted hash table, to avoid memory fragment and improve performance
+
+ There exists per process global variable named **free_list**
+
+![free_list0](./free_list0.png)
+
+if we create a new `dict` object, the memory request is delegate to CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
+
+```python3
+d = dict()
+```
+
+![free_list1](./free_list1.png)
+
+```python3
+del a
+```
+
+the destructor of the `dict` type will stores the current `dict` to **free_list** (if **free_list** is not full)
+
+![free_list2](./free_list2.png)
+
+next time you create a new `dict` object, **free_list** will be checked if there is available objects you can use directly, if so, allocate from **free_list**, if not, allocate from CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
+
+```python3
+d = dict()
+```
+
+
+
+![free_list3](./free_list3.png)
 
 # delete
 
@@ -372,3 +418,9 @@ deleting entries from dictionaries is not very common, in some case a little bit
 # end
 
 now, you understand how python dictionary object works internally.
+
+# read more
+
+* [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
+
+* [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html)
