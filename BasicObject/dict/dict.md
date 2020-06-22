@@ -2,9 +2,10 @@
 
 # contents
 
-because the **PyDictObject** is a little bit more complicated than other basic objects, I will not show `__setitem__`/`__getitem__` step by step, instead, I will illustrate in the middle of some concept
+[related file](#related-file)
 
-* [related file](#related-file)
+[evolvement and implementation](#evolvement-and-implementation)
+
 * [memory layout](#memory-layout)
     * [combined table && split table](#combined-table-&&-split-table)
     * [indices and entries](#indices-and-entries)
@@ -24,19 +25,27 @@ because the **PyDictObject** is a little bit more complicated than other basic o
 * cpython/Include/cpython/dictobject.h
 
 
-# memory layout
+# evolvement and implementation
 
 before we dive into the memory layout of python dictionary, let's imagine what normal dictionary object looks like
 
-usually, we implement a dictionary as a hash table, it takes O(1) time to look up an element, that's how exactly CPython does.
+usually, we implement a dictionary as a hash table, it takes O(1) time to look up an element, that's how exactly CPython does
 
 this is an entry, which points to a hash table inside the python dictionary object before python3.6
 
-![entry_before](https://img-blog.csdnimg.cn/20190311111041784.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
+![before_py36](./before_py36.png)
 
 If you have many large sparse hash tables, it will waste lots of memory. In order to represent the hash table in a more compact way, you can split indices and real key-value object inside the hashtable(After python3.6)
 
-![entry_after](https://img-blog.csdnimg.cn/20190311114021201.png)
+![after_py36](./after_py36.png)
+
+`indices` points to an array of index, `entries` points to where the origin content stores
+
+You can think `indices` as a simpler version hash table, and  `entries` as an array, which stores each origin hash value, key, and value as an element
+
+Whenever you search for an element or insert a new element, according to the value of hash reslut mod the size of `indices`, you are able to get an index in the `indices` array, and get the result you want from the `entries` according to the newly get index
+
+
 
 It takes about half of the original memory to store the same hash table, and we can traverse the hash table in the same order as we insert/delete items. Before python3.6 it's not possible to retain the order of key/value in the hash table due to the resize/rehash operation. For those who needs more detail, please refer to [python-dev](https://mail.python.org/pipermail/python-dev/2012-December/123028.html) and [pypy-blog](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html)
 
