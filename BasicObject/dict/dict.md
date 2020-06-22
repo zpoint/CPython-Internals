@@ -7,7 +7,7 @@
 [evolvement and implementation](#evolvement-and-implementation)
 
 * [memory layout](#memory-layout)
-    * [combined table && split table](#combined-table-&&-split-table)
+    * [combined table and split table](#combined-table-and-split-table)
     * [indices and entries](#indices-and-entries)
 * [hash collisions and delete](#hash-collisions-and-delete)
 * [resize](#resize)
