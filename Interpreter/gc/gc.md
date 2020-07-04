@@ -174,7 +174,7 @@ case TARGET(DELETE_NAME): {
 
 ### when will it be triggered
 
-if the reference count becomes 0, the deallocate procedure will be triggered imeediately
+if the reference count becomes 0, the deallocate procedure will be triggered immediately
 
 ```c
 /* cpython/Include/object.h */
