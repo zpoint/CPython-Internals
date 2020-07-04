@@ -27,6 +27,8 @@ The following contents are suitable for those who have python programming experi
 * [Interpreter](#Interpreter)
 * [Extension](#Extension)
 * [Learning material](#Learning-material)
+* [Contribution](#Contribution)
+* [License](#License)
 
 
 # Objects
@@ -97,3 +99,22 @@ I will only recommend what I've read
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
 * [Junnplus(blog/cn)](https://github.com/Junnplus/blog/issues)
 * [manjusaka(blog/cn)](https://manjusaka.itscoder.com/)
+
+# Contribution
+
+All kinds of contributions are welcome
+
+* submit a pull request
+  *  if you want to share any knowledge you know
+  * post a new article
+  * correct any technical mistakes
+  * correct english grammar
+  * translation
+  * anything else
+* open an issue 
+  * any suggestions
+  * any questions
+  * correct mistakes
+  * anything else
+
+# [License](https://creativecommons.org/licenses/by-nc-sa/4.0/)

@@ -27,6 +27,9 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [解释器相关](#解释器相关)
 * [扩展](#扩展)
 * [学习资料](#学习资料)
+* [参与贡献](#参与贡献)
+
+* [授权](#授权)
 
 
 # 基本对象
@@ -84,7 +87,7 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 这一部分我计划在读完 [< < Compilers > >](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811) 和 [< < SICP > >](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871) 之后对这类知识有更好的理解之后再来更新, 与此同时我还需要处理优先级更高的日常工作, 所以可能数月之后这部分才会有更新
 
 
-# 学习资料
+# 参与贡献学习资料
 
 以下的资料笔者遵循先阅读后推荐的原则
 
@@ -95,3 +98,23 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
 * [Junnplus(blog/中文)](https://github.com/Junnplus/blog/issues)
 * [manjusaka(blog/中文)](https://manjusaka.itscoder.com/)
+
+## 参与贡献
+
+欢迎所有形式的贡献
+
+* 提交一个 pull request
+  * 如果你想分享任何你知道的相关知识
+  *  发布一篇文章
+  * 更正技术性错误
+  * 更正语法性错误
+  * 翻译
+  * 其他情况, 不限于上述
+* 提交一个 issue 
+  * 任何建议
+  * 任何问题
+  * 更正错误
+  * 其他情况, 不限于上述
+
+# [授权](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)
+
