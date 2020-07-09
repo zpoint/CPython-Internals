@@ -1,4 +1,4 @@
-# 字典
+# 字典![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/dict_cn)
 
 * [相关位置文件](#相关位置文件)
 * [演变和实现](#演变和实现)

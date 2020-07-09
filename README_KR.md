@@ -1,4 +1,4 @@
-# Cpython 내부
+# Cpython 내부![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals-KR)
 
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
 * [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
