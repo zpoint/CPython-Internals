@@ -1,4 +1,4 @@
-# descr
+# descr![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/descr_cn)
 
 感谢 @Hanaasagi 指出之前本章节存在的问题 [#19](https://github.com/zpoint/CPython-Internals/issues/19) 已改正
 

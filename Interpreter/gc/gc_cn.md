@@ -1,4 +1,4 @@
-# gc
+# gc![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/gc_cn)
 
 * 长文, 预计阅读时间在十五分钟以上
 

@@ -1,4 +1,4 @@
-# memory management
+# memory management![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/memory-management)
 
 * you may need more than 20 minutes to read this article
 
