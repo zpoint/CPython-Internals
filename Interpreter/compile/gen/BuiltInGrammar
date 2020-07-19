@@ -1,0 +1,6 @@
+MSTART: (NEWLINE | RULE)* ENDMARKER
+RULE: NAME ':' RHS NEWLINE
+RHS: ALT ('|' ALT)*
+ALT: ITEM+
+ITEM: '[' RHS ']' | ATOM ['*' | '+']
+ATOM: NAME | STRING | '(' RHS ')'

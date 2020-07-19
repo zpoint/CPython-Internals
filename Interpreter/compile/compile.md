@@ -77,9 +77,9 @@ Parser/pgen ./Grammar/ExampleGrammar \
                 ./Parser/examplegrammar.c
 ```
 
-With a little manual edition to make the following compile command work, the final [examplegrammar.c](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/examplegrammar.c) 
+With a little manual edition to make the following compile command work, the final [examplegrammar.c](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/examplegrammar.c) 
 
-And compile the edited generated grammar code and compile a new `pgen2` program [example_grammar.sh](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/example_grammar.sh)
+And compile the edited generated grammar code and compile a new `pgen2` program [example_grammar.sh](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/example_grammar.sh)
 
 ```bash
 sh example_grammar.sh
@@ -100,6 +100,18 @@ Parser/pgen2 ./my_file.txt \
                 ./Include/my_file.h \
                 ./Parser/my_file.c
 ```
+
+## the dfa of `ExampleGrammar`
+
+![dfa_example_grammar](./dfa_example_grammar.png)
+
+This is the dfa due to [examplegrammar.c](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/examplegrammar.c) or [ExampleGrammar](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/ExampleGrammar)
+
+## how to make dfa
+
+Let's make the above example dfa
+
+The first step is parse the Grammar file according to the [BuiltInGrammar](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/BuiltInGrammar) and build a CST tree
 
 The call stack of `Parser/pgenmain.c`
 
