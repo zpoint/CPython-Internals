@@ -83,9 +83,9 @@ The following contents are suitable for those who have python programming experi
 # Grammar
 
  - [x] [Compile Phase](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
-* [x] [Grammar/MetaGrammar to DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
-    * [ ] [CST to AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
-    * [ ] [AST to python byte code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+    - [x] [Grammar/MetaGrammar to DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+    - [ ] [CST to AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+    - [ ] [AST to python byte code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
 
 
 # Learning material
