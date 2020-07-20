@@ -84,7 +84,11 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
 # 语法
 
-这一部分我计划在读完 [< < Compilers > >](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811) 和 [< < SICP > >](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871) 之后对这类知识有更好的理解之后再来更新, 与此同时我还需要处理优先级更高的日常工作, 所以可能数月之后这部分才会有更新
+[编译阶段](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+
+* [x] [从语法/元语法到DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile_cn.md)
+* [ ] [从 CST 到 AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+* [ ] [从 AST 到 python 字节码](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
 
 
 # 参与贡献学习资料
@@ -98,6 +102,7 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
 * [Junnplus(blog/中文)](https://github.com/Junnplus/blog/issues)
 * [manjusaka(blog/中文)](https://manjusaka.itscoder.com/)
+* [aoik-Python's compiler series(blog/eng)](https://aoik.me/blog/posts/python-compiler-from-grammar-to-dfa)
 
 ## 参与贡献
 
