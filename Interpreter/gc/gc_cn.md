@@ -539,3 +539,6 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 
 * [Garbage collection in Python: things you need to know](https://rushter.com/blog/python-garbage-collector/)
 * [the garbage collector](https://pythoninternal.wordpress.com/2014/08/04/the-garbage-collector/)
+
+* [关于 `__del__` 和 `finalizers` 和 `unreachable`](https://github.com/zpoint/CPython-Internals/issues/28)
+

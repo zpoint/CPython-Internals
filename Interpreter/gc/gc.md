@@ -530,3 +530,5 @@ while other garbage collector in other programming language such as [Java-g1](ht
 
 * [Garbage collection in Python: things you need to know](https://rushter.com/blog/python-garbage-collector/)
 * [the garbage collector](https://pythoninternal.wordpress.com/2014/08/04/the-garbage-collector/)
+* [关于 `__del__` 和 `finalizers` 和 `unreachable`](https://github.com/zpoint/CPython-Internals/issues/28)
+
