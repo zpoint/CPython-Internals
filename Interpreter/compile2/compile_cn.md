@@ -1,13 +1,13 @@
-# CST TO AST![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/compile2)
+# CST TO AST![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/compile2_cn)
 
-# contents
+# 目录
 
-* [related file](#related-file)
+* [相关位置文件](#相关位置文件)
 * [pythonrun](#pythonrun)
-* [CST TO AST](#CST-TO-AST)
-* [read more](#read-more)
+* [CST 到 AST](#CST-到-AST)
+* [更多资料](#更多资料)
 
-# related file
+# 相关位置文件
 
 * Python/ast.c
 
@@ -23,7 +23,7 @@
 
   
 
-The following command will generate `Include/Python-ast.h` and `Python/Python-ast.c` from `Parser/Python.asdl`, which will be used to construct `AST` from the previos [parse tree](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md#parse)
+下面的命令会从 `Parser/Python.asdl` 中生成 `Include/Python-ast.h` 和 `Python/Python-ast.c`, 这两个自动生成的文件的结构体会被用来从之前的  [语法树](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile_cn.md#parse) 中生成 `AST`
 
 ```shell
 % make regen-ast
@@ -42,30 +42,30 @@ python3 ./Tools/scripts/update_file.py ./Python/Python-ast.c ./Python/Python-ast
 
 ```
 
-> * Lowercase names are non-terminals.
-> * Uppercase names are terminals.
-> * Literal tokens are in double quotes.
-> * `[]` means zero or one.
-> * `{}` means one or more.
-> * `?` means it is optional, `*` means 0 or more
+> * 小写名称是 non-terminals.
+> * 大写名称是 terminals
+> * 文本 tokens 用双引号引起来
+> * `[]` 表示 >= 0 个
+> * `{}` 表示 >= 1 个
+> * `?` 表示可能有可能没有, `*` 表示 >= 0 个
 
 # pythonrun
 
-We  take the interactive loop as example, the call stack of `pythonrun`
+我们以交互式循环为例, 展开 `pythonrun` 的调用栈看看
 
 ![pythonrun](./pythonrun.png)
 
-# CST TO AST
+# CST 到 AST
 
-Let's focus on `PyAST_FromNodeObject`
+我们把关注点放到 `PyAST_FromNodeObject` 上
 
-If we execute 
+如果我们执行
 
 ```python3
 a = 2
 ```
 
-This is the CST of above expression
+这是上述语句生成的 CST 结构
 
 ```shell
 n_type: 256, n_type_str: single_input, n_str: (null), n_children: 1
@@ -110,11 +110,11 @@ n_type: 256, n_type_str: single_input, n_str: (null), n_children: 1
     n_type: 4, n_type_str: NEWLINE, n_str: , n_children: 0
 ```
 
-In diagram representation, you can check the `Grammar/Grammar` file
+图像表示的话如下, 你可以参数 `Grammar/Grammar` 语法文件
 
 ![cst](./cst.png)
 
-The CST to AST part is written in `Python/ast.c`, The function inside the file is a hand writting parsing according to gramma file, while the return type `expr_ty` is the above auto generated c structure
+CST 到 AST 的转换部分是在 `Python/ast.c` 中写好的, 这个文件中对应的转换函数都是根据语法规则去进行对应的处理, 返回结构比如 `expr_ty` 则是上述自动生成的 C 文件生成的
 
 ```c
 // in Python/ast.c
@@ -166,7 +166,7 @@ ast_for_atom(struct compiling *c, const node *n)
 }
 ```
 
-`Name` and `Load` are defined in `Python/Python-ast.c`
+`Name` 和 `Load` 在 `Python/Python-ast.c` 中定义好了
 
 ```c
 // Python/Python-ast.c
@@ -191,7 +191,7 @@ typedef enum _expr_context { Load=1, Store=2, Del=3, AugLoad=4, AugStore=5,
 typedef struct _expr *expr_ty;
 ```
 
-`_Py_asdl_seq_new` is defined in `Python/asdl.c` and `asdl_seq_SET` is defined in `Include/asdl.h`
+`_Py_asdl_seq_new` 在 `Python/asdl.c` 中定义好了, 而 `asdl_seq_SET` 在 `Include/asdl.h` 中定义好了
 
 ```c
 // Python/ast.c
@@ -224,13 +224,13 @@ typedef struct {
 #define asdl_seq_SET(S, I, V) (S)->elements[I] = (V)
 ```
 
-This is the AST after conversion
+这是转换后的 AST 结构
 
 ![ast](./ast.png)
 
-The following [function](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile2/inspect_ast.c) can be used to inspect the above AST sctucture
+这里的 [函数](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile2/inspect_ast.c) 可以用来打印上述 AST 的结构内容
 
-# read more
+# 更多资料
 
 * [using-asdl-to-describe-asts-in-compilers](https://eli.thegreenplace.net/2014/06/04/using-asdl-to-describe-asts-in-compilers)
 * [What is Zephyr ASDL](https://www.oilshell.org/blog/2016/12/11.html)
