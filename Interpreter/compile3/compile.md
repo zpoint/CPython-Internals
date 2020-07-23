@@ -153,7 +153,7 @@ After `_PyAST_Optimize`, the `PySymtable_BuildObject` will traverse the AST and 
 
 ![symtable](./symtable.png)
 
-#CodeObject
+# CodeObject
 
 `compiler_mod`  will traverse the AST, generate the appropriate byte code instruction and helper data, finally generate and return a`PyCodeObject`
 

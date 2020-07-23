@@ -154,7 +154,7 @@ AST 表示如下
 
 ![symtable](./symtable.png)
 
-#CodeObject
+# CodeObject
 
 `compiler_mod`  会遍历这个 AST, 并且生成对应的指令集和所需要的数据, 之后生成对应的 `PyCodeObject` 对象
 
