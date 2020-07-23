@@ -39,7 +39,7 @@ PyAST_CompileObject(mod_ty mod, PyObject *filename, PyCompilerFlags *flags,
     PyCodeObject *co = NULL;
     PyCompilerFlags local_flags;
     int merged;
-		// ... 忽略 ...
+    // ... 忽略 ...
 
     if (!_PyAST_Optimize(mod, arena, c.c_optimize)) {
         goto finally;
@@ -162,21 +162,21 @@ AST 表示如下
 static int
 compiler_visit_expr1(struct compiler *c, expr_ty e)
 {
-  		// ...
+      // ...
       case Constant_kind:
         ADDOP_LOAD_CONST(c, e->v.Constant.value);
         break;
-  		// ...
+      // ...
 }
 
 static int
 compiler_addop_load_const(struct compiler *c, PyObject *o)
 {
-  	// 把对应的常量加到字典对象 c->u->u_consts 中, 并把对应常量的最后的位移位置返回
+    // 把对应的常量加到字典对象 c->u->u_consts 中, 并把对应常量的最后的位移位置返回
     Py_ssize_t arg = compiler_add_const(c, o);
     if (arg < 0)
         return 0;
-  	// 把 `LOAD_CONST arg` 加到下一个指令中
+    // 把 `LOAD_CONST arg` 加到下一个指令中
     return compiler_addop_i(c, LOAD_CONST, arg);
 }
 
@@ -187,7 +187,7 @@ compiler_addop_i(struct compiler *c, int opcode, Py_ssize_t oparg)
     struct instr *i;
     int off;
 
-  	// ...
+    // ...
   
     off = compiler_next_instr(c, c->u->u_curblock);
     if (off < 0)

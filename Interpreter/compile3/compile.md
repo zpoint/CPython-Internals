@@ -161,21 +161,21 @@ After `_PyAST_Optimize`, the `PySymtable_BuildObject` will traverse the AST and 
 static int
 compiler_visit_expr1(struct compiler *c, expr_ty e)
 {
-  		// ...
+      // ...
       case Constant_kind:
         ADDOP_LOAD_CONST(c, e->v.Constant.value);
         break;
-  		// ...
+      // ...
 }
 
 static int
 compiler_addop_load_const(struct compiler *c, PyObject *o)
 {
-  	// add the constant value to a dictionary object: c->u->u_consts, returns the index after converted to list(offset of arg list)
+    // add the constant value to a dictionary object: c->u->u_consts, returns the index after converted to list(offset of arg list)
     Py_ssize_t arg = compiler_add_const(c, o);
     if (arg < 0)
         return 0;
-  	// add the `LOAD_CONST arg` to the next instruction
+    // add the `LOAD_CONST arg` to the next instruction
     return compiler_addop_i(c, LOAD_CONST, arg);
 }
 
@@ -186,7 +186,7 @@ compiler_addop_i(struct compiler *c, int opcode, Py_ssize_t oparg)
     struct instr *i;
     int off;
 
-  	// ...
+    // ...
   
     off = compiler_next_instr(c, c->u->u_curblock);
     if (off < 0)
