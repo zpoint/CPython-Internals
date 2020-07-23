@@ -88,7 +88,7 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
 * [x] [从语法/元语法到DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile_cn.md)
 * [x] [从 CST 到 AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile2/compile_cn.md)
-* [x] [从 AST 到 python 字节码](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile3/compile_cn.md)
+* [x] [从 AST 到 字节码](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile3/compile_cn.md)
 
 
 # 参与贡献学习资料

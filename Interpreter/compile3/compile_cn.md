@@ -1,4 +1,4 @@
-# AST 到 byte code![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/compile3_cn)
+# AST 到 字节码![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/compile3_cn)
 
 # 目录
 
