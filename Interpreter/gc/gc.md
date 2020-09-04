@@ -400,7 +400,7 @@ all objects survive this round of garbage collections will be moved to the elder
 
 ### finalizer
 
-what if the object needed to be garbage collected has defined it's own finalizer ?
+what if an unusual object(which contains cyclic reference) needed to be garbage collected has defined it's own finalizer ?
 
 before python3.4, those objects won't be collected, they will be moved to `gc.garbage` and you need to call `__del__` and collect them manually
 
