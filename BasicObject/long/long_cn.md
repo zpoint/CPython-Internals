@@ -149,7 +149,7 @@ k = i + j
 
 ![temp_add](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/temp_add.png)
 
-第一步, 把两个数 **ob_digit** 里的第一个坑位里的 **digit** 加起来, 并加到 **carray** 里
+第一步, 把两个数 **ob_digit** 里的第一个坑位里的 **digit** 加起来, 并加到 **carry** 里
 
 ![step_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_1.png)
 
@@ -157,11 +157,11 @@ k = i + j
 
 ![step_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_2.png)
 
-第三步, 右移 carray, 值保留下最左边的一位(这一位其实就是之前两个数相加的进位)
+第三步, 右移 carry, 值保留下最左边的一位(这一位其实就是之前两个数相加的进位)
 
 ![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
-第四步, 把两边下一个 **ob_digit** 的对应位置的值加起来, 并把结果与 **carray** 相加
+第四步, 把两边下一个 **ob_digit** 的对应位置的值加起来, 并把结果与 **carry** 相加
 
 ![step_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_4.png)
 
@@ -173,7 +173,7 @@ k = i + j
 
 ![step_3_rshift](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_3_rshift.png)
 
-回到步骤四, 直到两边都没有剩余的 **digit** 可以相加为止, 把最后的 carray 存储到 temp 最后一格
+回到步骤四, 直到两边都没有剩余的 **digit** 可以相加为止, 把最后的 carry 存储到 temp 最后一格
 
 ![step_final](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/step_final.png)
 
