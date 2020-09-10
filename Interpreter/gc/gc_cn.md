@@ -504,7 +504,7 @@ CPython 中一共有 3 代, 对应了 3 个 **threshold**, 每一代对应一个
 一个方式是直接调用 `gc.collect()`, 不传参数的情况下直接从最老年代开始回收
 
 ```python3
->>> imporr gc
+>>> import gc
 >>> gc.collect()
 
 ```
