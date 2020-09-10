@@ -494,7 +494,7 @@ gc.set_threshold(100, 20)
 one way is to call `gc.collect()` manually, it will collect the highest collection directly
 
 ```python3
->>> imporr gc
+>>> import gc
 >>> gc.collect()
 
 ```
