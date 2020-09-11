@@ -256,6 +256,9 @@ in the above procedures, we can learn that **metaclass** controls the creation o
 we can change the behaviour of a class on the fly by manually define a **metaclass**
 
 ```python3
+class F(object):
+    pass
+
 
 class MyMeta(type):
     def __new__(mcs, name, bases, attrs, **kwargs):
@@ -282,7 +285,7 @@ class AnotherF(F, metaclass=MyMeta):
     pass
 
 
-print(Animal1.leg) # 4
+print(Animal1.leg)  # 4
 print(Normal.leg)  # 0
 print(AnotherF)  # <class '__main__.F'>
 

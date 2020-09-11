@@ -267,6 +267,9 @@ f = F()
 根据以上发现, 我们可以自己定义一个 **metaclass** 在代码运行过程中个性化定制最终的 class
 
 ```python3
+class F(object):
+    pass
+
 
 class MyMeta(type):
     def __new__(mcs, name, bases, attrs, **kwargs):
@@ -293,7 +296,7 @@ class AnotherF(F, metaclass=MyMeta):
     pass
 
 
-print(Animal1.leg) # 4
+print(Animal1.leg)  # 4
 print(Normal.leg)  # 0
 print(AnotherF)  # <class '__main__.F'>
 
