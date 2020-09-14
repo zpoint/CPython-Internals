@@ -81,6 +81,9 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
  - [x] [C API(python 性能分析和 C 扩展)](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c_cn.md)
  - [ ] Cython(C extension)
  - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
+ - [ ] [C++ 扩展](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/cpp.md)
+   - [ ] 写 NumPy 扩展
+   - [ ] 解锁 GIL
 
 # 语法
 
