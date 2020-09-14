@@ -80,8 +80,8 @@ The following contents are suitable for those who have python programming experi
  - [ ] Cython(C extension)
  - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
  - [ ] [C++ extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/cpp.md)
-  - [ ] integrate with NumPy
-  - [ ] bypass the GIL
+ 	- [ ] integrate with NumPy
+ 	- [ ] bypass the GIL
 
 # Grammar
 
