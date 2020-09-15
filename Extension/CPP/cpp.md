@@ -30,7 +30,7 @@ setup(name='m_example',
       ext_modules=[my_module])
 ```
 
-and the [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) 
+and the [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) get elements from the Python array and stores all integer to a C++ vectors and use `std::sort` from`<algorithm>` to sort the vector, finally returns the first element as Python object to the caller
 
 Run the example
 
@@ -48,7 +48,25 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
+# integrate with NumPy
 
+Sometimes we need to work with NumPy, let's begin with an example
+
+We take a two dimension numpy array, a one dimension numpy array as input and a double value, do some computation and write  the result back to the one dimension array
+
+```python3
+import numpy as np
+def compute(two_dim: np.array, one_dim: np.array, val: np.float) -> None
+	# do some computation and store result to one_dim
+	one_dim[0] = (two_dim[0][0] + two_dim[1][0]) *val 
+	# ...
+```
+
+We are going to write the above function as extension module in C++
+
+
+
+# bypass the GIL
 
 # read more
 
