@@ -1,22 +1,20 @@
 # C++ extension![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/cpp_ext)
 
-# contents
+# 目录
 
-* [overview](#overview)
-* [example](#example)
-* [integrate with NumPy](#integrate-with-NumPy)
+* [介绍](#介绍)
+* [示例](#示例)
+* [和 NumPy 结合](#和-NumPy-结合)
 * [bypass the GIL](#bypass-the-GIL)
 * [read more](#read-more)
 
-# overview
+# 介绍
 
-We've written [C extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c.md) before to help performance penalty
+我们在之前已经尝试过使用 [C 扩展](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c_cn.md) 来提高性能了, 现在我们尝试更进一步, 在 C++ 下编写一个扩展, 并同样的利用 python API 暴露给 python 调用
 
-Now we want to take a further step to develop a complex module in C++ and expose to python API
+C++ 的编译器是兼容 C 语言的, 我们将会借助 `C++11`(或以上) 的标准的 `STL` 来实现一些功能
 
-The C++ compiler is compatible with C and I want to use the power of `STL` in `C++11`(or newer) standard
-
-# example
+# 示例
 
 ```python3
 # setup.py
@@ -30,9 +28,9 @@ setup(name='m_example',
       ext_modules=[my_module])
 ```
 
-and the [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) get elements from the Python array and stores all integer to a C++ vectors and use `std::sort` from `<algorithm>` to sort the vector, finally returns the first element as Python object to the caller
+并且 [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) 从 Python 数组中获取元素, 之后把它作为整数类型存储在了 `C++` 的 `vector` 中, 然后用 `<algorithm>` 中的 `std::sort` 方法对其进行排序, 最后把排好序的第一个值作为 Python 对象返回给调用者
 
-Run the example
+运行这个示例
 
 ```bash
 cd Cpython-Internals/Extension/CPP/example
@@ -48,17 +46,17 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-# integrate with NumPy
+# 和 NumPy 结合
 
-Sometimes we need to work with NumPy, let's begin with an example
+有些时候我们需要和 NumPy 结合使用, 让我们从一个新的示例开始
 
-We take a two dimension numpy array, a one dimension numpy array as input and a double value, do some computation and write  the result back to the one dimension array
+我们以一个二维数组, 一个一位数组, 和一个双精度浮点数作为输入, 对输入进行一些运算, 之后把结果写回一维数组中
 
-The numpy array should have dtype float64
+numpy 数组中的元素类型我们先指定为 float64
 
-two_dim is `3*N` array
+two_dim 维度是 `3*N`
 
-one_dim is `N` array
+one_dim 维度是 `N`
 
 ```python3
 import numpy as np
@@ -69,7 +67,7 @@ def compute(two_dim: np.array, one_dim: np.array, val: np.float) -> None:
 	# ...
 ```
 
-We are going to write the above function as extension module in C++ 
+我们会把上面的示例函数用 C++ 扩展的方式进行重写
 
 [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/m_numpy/example.cpp)
 
@@ -90,13 +88,13 @@ Type "help", "copyright", "credits" or "license" for more information.
 array([4.5, 6. ])
 ```
 
-# bypass the GIL
+# 绕过 GIL
 
-What if we want to schedule a parallel task to utilize the run time of our task ?
+如果我们想要通过并行任务的方式, 来缩小我们任务的执行时间呢 ?
 
-two_dim becomes `X * 3 * N` array
+two_dim 的维度变成了 `X * 3 * N`
 
-one_dim is `X * N` array
+one_dim 的维度变成了 `X * N`
 
 ```python3
 import numpy as np
@@ -110,11 +108,11 @@ def compute(two_dim: np.array, one_dim: np.array, val: np.float) -> None:
 	# ...
 ```
 
-I want to seperate these tasks to several different threads, and let os schedule them to work together
+我想要把这些任务均匀地分布到不同的线程中, 并让操作系统对这些任务进行调度
 
-We've learned [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) before, we know that the interpreter in different thread will accquire the mutex before executing every python byte code, so as long as our code in different thread not executing by the python interpreter, everything will be find
+我们先前已经学过了 [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_cn.md) 相关的知识了, 我们知道不同线程中的解释器会在执行 python 字节码之前获取同一个互斥锁, 所以只要我们在不同线程中的代码不通过解释器去执行即可
 
-We use the `std::future` from `C++ STL` to schedule our thread according to the environment variable `CONCURRENCY_NUM`
+我们这里会使用到 `C++ STL` 中的 `std::future` 来让我们不同的线程执行任务(具体起多少个 `future` 根据环境变量 `CONCURRENCY_NUM` 来判断)
 
 ```bash
 cd Cpython-Internals/Extension/CPP/m_parallel
@@ -139,7 +137,6 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 
-
-# read more
+# 更多资料
 
 * [numpy-api](https://numpy.org/doc/stable/reference/c-api/array.html?highlight=array%20api)
