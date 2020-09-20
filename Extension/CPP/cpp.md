@@ -92,11 +92,52 @@ array([4.5, 6. ])
 
 # bypass the GIL
 
+What if we want to schedule a parallel task to utilize the run time of our task ?
+
+two_dim becomes `X * 3 * N` array
+
+one_dim is `X * N` array
+
+```python3
+import numpy as np
+def compute(two_dim: np.array, one_dim: np.array, val: np.float) -> None:
+	# do some computation and store result to one_dim
+	for task_index in range(len(one_dim)):
+		curr_one_dim = one_dim[task_index]
+		curr_two_dim = two_dim[task_index]
+	for index in range(len(one_dim)):
+		curr_one_dim[index] = (curr_two_dim[0][index] + curr_two_dim[1][index] + curr_two_dim[2][index]) * val
+	# ...
+```
+
+I want to seperate these tasks to several different threads, and let os schedule them to work together
+
+We've learned [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) before, we know that the interpreter in different thread will accquire the mutex before executing every python byte code, so as long as our code in different thread not executing by the python interpreter, everything will be find
+
+```bash
+cd Cpython-Internals/Extension/CPP/m_parallel
+python3 setup.py build
+mv build/lib.macosx-10.15-x86_64-3.8/m_example.cpython-38-darwin.so ./
+zpoint@zpoints-MacBook-Pro m_parallel % python3
+Python 3.8.4 (default, Jul 14 2020, 02:58:48) 
+[Clang 11.0.3 (clang-1103.0.32.62)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import os
+>>> import numpy as np
+>>> import m_example
+>>> os.putenv("CONCURRENCY_NUM", "2")
+>>> one_dim = np.zeros([4, 2], dtype=np.float)
+>>> two_dim = np.array([[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]], dtype=np.float)
+>>> m_example.example(two_dim, one_dim, 0.5)
+>>> print(one_dim)
+[[4.5 6. ]
+ [4.5 6. ]
+ [4.5 6. ]
+ [4.5 6. ]]
+```
+
 
 
 # read more
 
-* [python2.7-capi](https://docs.python.org/2.7/c-api/index.html)
-* [python3.7-capi](https://docs.python.org/3.7/c-api/index.html)
-* [python line profiler without magic](https://lothiraldan.github.io/2018-02-18-python-line-profiler-without-magic/)
-* [Writing a C Extension Module for Python](http://madrury.github.io/jekyll/update/programming/2016/06/20/python-extension-modules.html)
+* [numpy-api](https://numpy.org/doc/stable/reference/c-api/array.html?highlight=array%20api)

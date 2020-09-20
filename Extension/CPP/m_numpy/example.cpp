@@ -8,7 +8,7 @@ PyObject* failure(PyObject *type, const char *message) {
 }
 
 static PyObject* example(PyObject *self, PyObject *args) {
-    /* def example(arr: typing.List[int]) -> int: */
+    /* def example(two_dim: np.array, one_dim: np.array, val: np.float) -> None */
     PyArrayObject *two_dim, *one_dim;
     double val;
     if (!PyArg_ParseTuple(args, "O!O!d", &PyArray_Type, &two_dim, &PyArray_Type, &one_dim, &val))
