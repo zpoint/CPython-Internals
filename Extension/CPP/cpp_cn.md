@@ -28,7 +28,7 @@ setup(name='m_example',
       ext_modules=[my_module])
 ```
 
-并且 [example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) 从 Python 数组中获取元素, 之后把它作为整数类型存储在了 `C++` 的 `vector` 中, 然后用 `<algorithm>` 中的 `std::sort` 方法对其进行排序, 最后把排好序的第一个值作为 Python 对象返回给调用者
+[example.cpp](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/example/example.cpp) 从 Python 数组中获取元素, 之后把它作为整数类型存储在了 `C++` 的 `vector` 中, 然后用 `<algorithm>` 中的 `std::sort` 方法对其进行排序, 最后把排好序的第一个值作为 Python 对象返回给调用者
 
 运行这个示例
 
