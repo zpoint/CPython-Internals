@@ -30,7 +30,7 @@ static PyObject* example(PyObject *self, PyObject *args) {
 static PyMethodDef MyMethods[] = {
     {"example", example, METH_VARARGS, "example function"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
-}
+};
 
 static struct PyModuleDef m_example = {
    PyModuleDef_HEAD_INIT,
@@ -38,7 +38,7 @@ static struct PyModuleDef m_example = {
    "example module to provide python api",
    -1,
    MyMethods
-}
+};
 
 PyMODINIT_FUNC PyInit_m_example(void) {
     PyObject *m;
