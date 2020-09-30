@@ -5,8 +5,8 @@
 * [介绍](#介绍)
 * [示例](#示例)
 * [和 NumPy 结合](#和-NumPy-结合)
-* [bypass the GIL](#bypass-the-GIL)
-* [read more](#read-more)
+* [绕过 GIL](#绕过-GIL)
+* [更多资料](#更多资料)
 
 # 介绍
 
