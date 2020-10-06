@@ -1,4 +1,6 @@
-# Cpython 내부![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals-KR)
+# Cpython Internals!![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals-KR)
+
+![cpython logo](https://docs.google.com/drawings/d/e/2PACX-1vQKKPvv9xI22zZcRtElIMx_-G22qYcLUvl-gbngubjf76dr80ZjsYQZCCKVqEvJnmBnwZyDXqG9GPlu/pub?w=300&h=200)
 
 * [English](https://github.com/zpoint/CPython-Internals/blob/master/README.md)
 * [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
@@ -24,7 +26,10 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [라이브러리(Lib)](#라이브러리(Lib))
 * [인터프리터(Interpreter)](#인터프리터(Interpreter))
 * [확장(Extension)](#확장(Extension))
-* [공부할 자료](#공부할-자료)
+* [공부할 자료(Learning material)](#공부할-자료)
+* [기여(Contribution)](#Contribution)
+* [라이센스(License)](#License)
+
 
 
 # 객체들(Objects)
@@ -76,14 +81,19 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
  - [x] [C API(profile python code and write pure C extension)](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c.md)
  - [ ] Cython(C extension)
  - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
+ - [ ] [C++ extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/cpp.md)
+ 	- [x] integrate with NumPy
+ 	- [x] bypass the GIL
+
 
 # 문법(Grammar)
 
-[< < Compilers > >](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811) 와 [< < SICP > >](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871) 를 읽어 본 후 이런 종류의 것들에 대한 이해가 높아지면, 이 부분을 업데이트 할 것 입니다.
+- [x] [Compile Phase](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+   - [x] [Grammar/MetaGrammar to DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
+   - [x] [CST to AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile2/compile.md)
+   - [x] [AST to python byte code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile3/compile.md)
 
-그 동안, 내 일상적인 작업의 우선 순위가 더 높으므로, 이 부분의 업데이트를 보려면 몇 달이 필요할 수 있습니다.
-
-# 공부할 자료
+# 공부할 자료(Learning material)
 
 읽어본 자료들만 추천할 것 입니다.
 
@@ -94,3 +104,23 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [YET ANOTHER PYTHON INTERNALS BLOG(blog/eng)](https://pythoninternal.wordpress.com/)
 * [Junnplus(blog/cn)](https://github.com/Junnplus/blog/issues)
 * [manjusaka(blog/cn)](https://manjusaka.itscoder.com/)
+* [aoik-Python's compiler series(blog/eng)](https://aoik.me/blog/posts/python-compiler-from-grammar-to-dfa)
+
+# 기여(Contribution)
+
+모든 기여는 환영입니다!
+
+* pull request 제출하기
+  *  당신이 공유하기를 원하는 지식
+  * 새로운 내용 추가
+  * 기술적 결함 교정
+  * 영어 문법 교정
+  * 번역
+  * 그밖에 다른 무엇이든지
+* issue 열기
+  * 제안
+  * 질문
+  * 실수 교정
+  * 그밖에 다른 무엇이든지
+
+# [라이센스(License)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
