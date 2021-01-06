@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-my_module = Extension('my_module', sources=['my_module.c'])
+my_module = Extension('my_module', sources=['my_module.c'], extra_compile_args=["-std=c99"])
 
 setup(name='my_module',
       version='1.0',
