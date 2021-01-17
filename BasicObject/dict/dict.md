@@ -4,7 +4,7 @@
 
 [Related File](#related-file)
 
-[evolvement and implementation](#evolvement-and-implementation)
+[Evolvement and Implementation](#evolvement-and-implementation)
 
 * [memory layout](#memory-layout)
     * [combined table and split table](#combined-table-and-split-table)
@@ -25,7 +25,7 @@
 * cpython/Include/dictobject.h ([File URL](https://github.com/python/cpython/blob/master/Include/dictobject.h))
 
 
-# evolution and implementation
+# Evolvement and Implementation
 
 Before we dive into the memory layout of python dictionary, let's imagine what a normal dictionary object looks like
 usually, we implement a dictionary as a hash table, it takes **O(1)** time to lookup an element, that's how exactly CPython does
