@@ -52,7 +52,7 @@ Because `entries` store elements in the insertion order, we can traverse the has
 
 ![after_py36_space](./after_py36_space.png)
 
-[PyPy](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html) implement the compact and ordered dict firstly, and CPython implement it in [pep 468](https://www.python.org/dev/peps/pep-0468/]) and release after python3.6.
+[PyPy](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html) implement the compact and ordered dict firstly, and CPython implement it in [pep 468](https://www.python.org/dev/peps/pep-0468/) and release after python3.6.
 
 # memory layout
 
