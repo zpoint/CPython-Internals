@@ -4,6 +4,7 @@
 
 * [related file](#related-file)
 * [introduction](#introduction)
+* [implementation](#implementation)
 * [read more](#read-more)
 
 # related file
@@ -14,7 +15,7 @@
 
 # introduction
 
-The `pickle` module will use the faster  `_pickle` implemented `C`(`Modules/_pickle.c`)  if possible, if the `_pickle` module not found, the `python` implemented `pickle`(`Lib/pickle.py`) will be used
+The `pickle` module will use the faster  `_pickle` implemented in `C`(`Modules/_pickle.c`)  if possible, if the `_pickle` module not found, the `python` implemented `pickle`(`Lib/pickle.py`) will be used
 
 |     Type     | Implementation |
 | :----------: | :------------: |
@@ -31,6 +32,19 @@ The `pickle` module will use the faster  `_pickle` implemented `C`(`Modules/_pic
 |  frozenset   | save_frozenset |
 | FunctionType |  save_global   |
 |              |  save_reduce   |
+
+# implementation
+
+## None
+
+```python3
+NONE = b'N'   # push None
+
+def save_none(self, obj):
+	self.write(NONE)
+```
+
+It's obvious
 
 # read more
 
