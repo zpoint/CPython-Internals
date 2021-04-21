@@ -35,6 +35,18 @@ The `pickle` module will use the faster  `_pickle` implemented in `C`(`Modules/_
 
 # implementation
 
+Whenever you call dump, some extra information will be added to the result
+
+The first byte is an identifier indicate that the following binary content is encoded in "pickle protocol"
+
+The second byte is the protocol version
+
+The final byte is a stop symbol indicate that it's the end of the binary content
+
+![pickle_head](pickle_head.png)
+
+
+
 ## None
 
 ```python3
@@ -45,6 +57,8 @@ def save_none(self, obj):
 ```
 
 It's obvious
+
+
 
 # read more
 
