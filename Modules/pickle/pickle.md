@@ -56,7 +56,13 @@ def save_none(self, obj):
 	self.write(NONE)
 ```
 
-It's obvious
+The `data` is `N` here, with the aforementioned information added
+
+```python3
+>>> import pickle
+>>> pickle.dumps(None)
+b'\x80\x04N.'
+```
 
 
 
