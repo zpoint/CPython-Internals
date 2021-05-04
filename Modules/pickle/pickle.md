@@ -5,6 +5,9 @@
 * [related file](#related-file)
 * [introduction](#introduction)
 * [implementation](#implementation)
+  * [None](#None)
+  * [bool](#bool)
+  * [int](#int)
 * [read more](#read-more)
 
 # related file
@@ -56,7 +59,7 @@ def save_none(self, obj):
 	self.write(NONE)
 ```
 
-The `data` is `N` here, with the aforementioned information added
+The `data` is `N` here, with the aforementioned information added to it
 
 ```python3
 >>> import pickle
@@ -64,7 +67,32 @@ The `data` is `N` here, with the aforementioned information added
 b'\x80\x04N.'
 ```
 
+## bool
 
+`bool` is simiiar to `None`
+
+```python3
+NEWTRUE        = b'\x88'  # push True
+NEWFALSE       = b'\x89'  # push False
+
+def save_bool(self, obj):
+	if self.proto >= 2:
+		self.write(NEWTRUE if obj else NEWFALSE)
+```
+
+The `data` here is `b'\x88'(True)` and `b'\x89'(False)`
+
+```python3
+>>> import pickle
+>>> pickle.dumps(True)
+b'\x80\x04\x88.'
+>>> pickle.dumps(False)
+b'\x80\x04\x89.'
+```
+
+## int
+
+![int](int.png)
 
 # read more
 
