@@ -8,6 +8,10 @@
   * [None](#None)
   * [bool](#bool)
   * [int](#int)
+  * [float](#float)
+  * [bytes](#bytes)
+  * [str](#str)
+  * [tuple](#tuple)
 * [read more](#read-more)
 
 # related file
@@ -92,7 +96,43 @@ b'\x80\x04\x89.'
 
 ## int
 
+The integer will be saved in various format according to it's value
+
 ![int](int.png)
+
+![int2](int2.png)
+
+
+
+## float
+
+The float is saved in [IEEE_754](https://en.wikipedia.org/wiki/IEEE_754-1985) standard
+
+![float](float.png)
+
+## bytes
+
+``bytes` object is save directly as the `data` part below
+
+The `head` part various according to the data size
+
+![bytes](bytes.png)
+
+## str
+
+`str` is similar to [bytes](#bytes),  except that `str` is encoded in `utf-8` format before dump
+
+![str](str.png)
+
+## tuple
+
+`tuple` is more complicated than other basic type
+
+If the `tuple` is empty
+
+![tuple0](tuple0.png)
+
+If 
 
 # read more
 
