@@ -132,7 +132,11 @@ If the `tuple` is empty
 
 ![tuple0](tuple0.png)
 
-If 
+If the tuple does not contain itself
+
+
+
+
 
 # read more
 
