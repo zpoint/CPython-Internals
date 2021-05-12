@@ -12,6 +12,8 @@
   * [bytes](#bytes)
   * [str](#str)
   * [tuple](#tuple)
+  * [list](#list)
+  * [object](#object)
 * [read more](#read-more)
 
 # related file
@@ -132,11 +134,49 @@ If the `tuple` is empty
 
 ![tuple0](tuple0.png)
 
-If the tuple does not contain itself
+Let's see an example
 
+```python3
+dumps(("a", "b", (2, )))
+b'\x80\x04\x95\x0f\x00\x00\x00\x00\x00\x00\x00\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94\x87\x94.'
+```
 
+`\x80\x04` is pickle protocol and pickle version
 
+`\x95\x0f\x00\x00\x00\x00\x00\x00\x00` is frame symbol(`\x95`) and frame size(8 bytes) in little endian
 
+`.` in last byte is the `STOP` symbol
+
+Besides are the data
+
+ ![tuple1](tuple1.png)
+
+I find that dumps does not support self reference tuples(how to [Build Self-Referencing Tuples](https://stackoverflow.com/questions/11873448/building-self-referencing-tuples))
+
+## list
+
+Let's see an exmple again
+
+```python3
+dumps(["a", "b", (2, )])
+b'\x80\x04\x95\x11\x00\x00\x00\x00\x00\x00\x00]\x94(\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94e.'
+```
+
+The first several bytes are pickle protocol, pickle version and frame size
+
+The last byte is `STOP` symbol
+
+The data can be described as (`]\x94(\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94e`)
+
+List will be dumped batch by batch(default batch size `1000`)
+
+![list1](/Users/zpoint/Desktop/Cpython-Internals/Modules/pickle/list1.png)
+
+`dict` and `set` are similar to `list` and `tuple`, begin and end with `type` symbol inidicate the type, and iter through each object and recursive call `dump` for each object
+
+## Object
+
+  
 
 # read more
 
