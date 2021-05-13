@@ -13,7 +13,7 @@
   * [str](#str)
   * [tuple](#tuple)
   * [list](#list)
-  * [object](#object)
+  * [type](#type)
 * [read more](#read-more)
 
 # related file
@@ -174,7 +174,21 @@ List will be dumped batch by batch(default batch size `1000`)
 
 `dict` and `set` are similar to `list` and `tuple`, begin and end with `type` symbol inidicate the type, and iter through each object and recursive call `dump` for each object
 
-## Object
+## type
+
+If what's to be saved is a type
+
+```python3
+class A(object):
+    a = "a"
+    b = "b"
+
+    def run(self):
+        print(self.a, self.b)
+
+pickle.dumps(A)
+b'\x80\x04\x95\x12\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x01A\x94\x93\x94.'
+```
 
   
 
