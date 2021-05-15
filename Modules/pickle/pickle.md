@@ -24,7 +24,9 @@
 
 # introduction
 
-The `pickle` module will use the faster  `_pickle` implemented in `C`(`Modules/_pickle.c`)  if possible, if the `_pickle` module not found, the `python` implemented `pickle`(`Lib/pickle.py`) will be used
+We use `pickle` module to serialize and unserialize our python object, There're several protocol version for `pickle`, The current version is `4`
+
+ The `pickle` module will use the faster  `_pickle` implemented in `C`(`Modules/_pickle.c`)  if possible, if the `_pickle` module not found, the `python` implemented `pickle`(`Lib/pickle.py`) will be used
 
 |     Type     | Implementation |
 | :----------: | :------------: |
@@ -114,7 +116,7 @@ The float is saved in [IEEE_754](https://en.wikipedia.org/wiki/IEEE_754-1985) st
 
 ## bytes
 
-``bytes` object is save directly as the `data` part below
+`bytes` object is save directly as the `data` part below
 
 The `head` part various according to the data size
 
@@ -168,7 +170,7 @@ The last byte is `STOP` symbol
 
 The data can be described as (`]\x94(\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94e`)
 
-List will be dumped batch by batch(default batch size `1000`)
+`list` will be dumped batch by batch(default batch size `1000`)
 
 ![list1](/Users/zpoint/Desktop/Cpython-Internals/Modules/pickle/list1.png)
 
@@ -212,7 +214,7 @@ The only difference is that there're some extra information appended after the p
 
 A `TUPLE` indicate the `args` needed for instance call, in the current case `a = A()` the args is empty, so it's an `EMPTY_TUPLE`
 
-A `NEWOBJ` tuple indicate that it needs to call `cls.__new__(cls, *args)` after load the dumped result
+A `NEWOBJ` symbol indicate that it needs to call `cls.__new__(cls, *args)` after load the dumped result
 
 ![object1](./object1.png)
 

@@ -55,7 +55,7 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 
  - [ ] io
  	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio_cn.md)
- - [ ] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle_cn.md)
+ - [x] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle_cn.md)
 
 # 库
 

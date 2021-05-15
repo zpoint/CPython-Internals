@@ -53,7 +53,7 @@ The following contents are suitable for those who have python programming experi
 
  - [ ] io
  	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio.md)
- - [ ] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle.md)
+ - [x] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle.md)
 
 # Lib
 
