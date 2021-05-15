@@ -1,4 +1,4 @@
-# Pickle
+# pickle
 
 # contents
 
@@ -14,7 +14,7 @@
   * [tuple](#tuple)
   * [list](#list)
   * [type](#type)
-* [read more](#read-more)
+  * [object](#object)
 
 # related file
 
@@ -192,7 +192,27 @@ b'\x80\x04\x95\x12\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x01A\x94\
 
   The data part is `\x8c\x08__main__\x94\x8c\x01A\x94\x93\x94`
 
+![type1](./type1.png)
 
+`dumps(A)` saves the `module_name` (`__main__`) and the `object` name(`A`) in [str](#str) formart
 
-# read more
+## object
+
+If what's to be saved is an instance
+
+```python3
+a = A()
+pickle.dumps(a)
+b'\x80\x04\x95\x15\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x01A\x94\x93\x94)\x81\x94.'
+```
+
+The data part is `\x8c\x08__main__\x94\x8c\x01A\x94\x93\x94)\x81\x94`
+
+The only difference is that there're some extra information appended after the previous dumped result
+
+A `TUPLE` indicate the `args` needed for instance call, in the current case `a = A()` the args is empty, so it's an `EMPTY_TUPLE`
+
+A `NEWOBJ` tuple indicate that it needs to call `cls.__new__(cls, *args)` after load the dumped result
+
+![object1](./object1.png)
 
