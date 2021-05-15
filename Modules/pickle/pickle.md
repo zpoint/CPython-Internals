@@ -172,7 +172,7 @@ The data can be described as (`]\x94(\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94e`)
 
 `list` will be dumped batch by batch(default batch size `1000`)
 
-![list1](/Users/zpoint/Desktop/Cpython-Internals/Modules/pickle/list1.png)
+![list1](./list1.png)
 
 `dict` and `set` are similar to `list` and `tuple`, begin and end with `type` symbol inidicate the type, and iter through each object and recursive call `dump` for each object
 

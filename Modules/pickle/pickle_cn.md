@@ -172,7 +172,7 @@ b'\x80\x04\x95\x11\x00\x00\x00\x00\x00\x00\x00]\x94(\x8c\x01a\x94\x8c\x01b\x94K\
 
 `list` 会分批进行序列化(默认批大小为1000)
 
-![list1](/Users/zpoint/Desktop/Cpython-Internals/Modules/pickle/list1.png)
+![list1](./list1.png)
 
 `dict` 和 `set` 和 `list` 还有 `tuple ` 相似, 头尾分别用对应的标志表示类型, 之后遍历对象对于每个对象再递归调用 `save` 方法进行序列化存储
 
