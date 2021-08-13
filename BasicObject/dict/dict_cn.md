@@ -261,7 +261,7 @@ del d[4]
 
 ```python3
 # 注意, dk_usable 和 dk_nentries 现在变了
-d[0] = "value0"
+d[0] = "value3"
 ```
 
 ![hh_5](./hh_5.png)
