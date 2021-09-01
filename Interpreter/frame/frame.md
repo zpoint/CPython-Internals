@@ -22,7 +22,7 @@ the **PyFrameObject** is the stack frame in python virtual machine, it contains 
 
 for more information please refer to [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
 
-![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/layout.png)
+![layout](./layout.png)
 
 # example
 
@@ -65,7 +65,7 @@ the **ob_size** is the sum of code->co_stacksize, code->co_nlocals, code->co_cel
 
 **code->co_cellvars**: a tuple containing the names of all variables in the function that are also used in a nested function
 
-**code->nfrees**: the names of all variables used in the function that is defined in an enclosing function scope
+**code->co_freevars**: the names of all variables used in the function that is defined in an enclosing function scope
 
 for more information about **PyCodeObject** please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) and [code object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
 
@@ -147,7 +147,7 @@ the value(address 0x100a5b538) in **f_valuestack** is the same as the previous s
 
 ```
 
-![example1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1.png)
+![example1](./example1.png)
 
 ```python3
 >>> next(gg)
@@ -158,39 +158,39 @@ the value(address 0x100a5b538) in **f_valuestack** is the same as the previous s
 
 the opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` and `10 LOAD_FAST                2 (c)` in line 3 pushes **str**(parameter str is stored in the frame-f_code->co_names field), **b**(int 1) and **c**(int 2) to **f_valuestack**, opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack**(**b** and **c**), sum these two values, store to the top of the **f_valuestack**, this is what the **f_valuestack** looks like after `12 BINARY_ADD`
 
-![example1_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2.png)
+![example1_2](./example1_2.png)
 
 the opcode `14 CALL_FUNCTION            1` will pop the function and argument off the stack and delegate the actual function call
 
 after the function call, result `'3'` is pushed onto the stack
 
-![example1_2_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_1.png)
+![example1_2_1](./example1_2_1.png)
 
 opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_valuestack** and stores it into the 2th position of the **f_localsplus**
 
-![example1_2_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_2.png)
+![example1_2_2](./example1_2_2.png)
 
 opcode `18 LOAD_FAST                2 (c)` push the 2th element in the **f_localsplus** onto the **f_valuestack**, and  `20 YIELD_VALUE ` pops it and send it to the caller
 
 field **f_lasti** is 20, indicate that it's currently executing the opcode `20 YIELD_VALUE`
 
-![example2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example2.png)
+![example2](./example2.png)
 
 after `24 LOAD_GLOBAL              1 (range)` and `26 LOAD_CONST               1 (3)`
 
-![example1_3_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_1.png)
+![example1_3_1](./example1_3_1.png)
 
 after `28 CALL_FUNCTION            1`
 
-![example1_3_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_2.png)
+![example1_3_2](./example1_3_2.png)
 
 after `30 STORE_FAST               3 (new_g)`
 
-![example1_3_3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_3.png)
+![example1_3_3](./example1_3_3.png)
 
 after `32 LOAD_FAST                3 (new_g)`
 
-![example1_3_4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_4.png)
+![example1_3_4](./example1_3_4.png)
 
 the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable object
 
@@ -204,7 +204,7 @@ the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable ob
 
 field **f_lasti** is 36, indicate that it's before the `38 YIELD_FROM`
 
-![example3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example3.png)
+![example3](./example3.png)
 
 the frame object deallocated after the **StopIteration** raised (the opcode `44 RETURN_VALUE` also executed)
 
@@ -261,7 +261,7 @@ def g3():
 
 ```
 
-![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
+![blockstack0](./blockstack0.png)
 
 in the first **yield** statement, the first **try block** is set up
 
@@ -275,7 +275,7 @@ in the first **yield** statement, the first **try block** is set up
 
 ```
 
-![blockstack1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack1.png)
+![blockstack1](./blockstack1.png)
 
 **b_type** 257 is the opcode `EXCEPT_HANDLER`, `EXCEPT_HANDLER` has a special meaning
 
@@ -298,7 +298,7 @@ in the first **yield** statement, the first **try block** is set up
 
 ```
 
-![blockstack2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack2.png)
+![blockstack2](./blockstack2.png)
 
 **f_iblock** is 3, the second try block comes from `finally:`(opcode position 116), and the third try block comes from `except ModuleNotFoundError:`(opcode position 62)
 
@@ -308,7 +308,7 @@ in the first **yield** statement, the first **try block** is set up
 
 ```
 
-![blockstack3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack3.png)
+![blockstack3](./blockstack3.png)
 
 ```python3
 >>> next(gg)
@@ -318,7 +318,7 @@ in the first **yield** statement, the first **try block** is set up
 
 **b_type** of the third try block becomes 257 and **b_handler** becomes -1, means this block is currently being handling
 
-![blockstack4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack4.png)
+![blockstack4](./blockstack4.png)
 
 the other two try block is handled properly
 
@@ -334,7 +334,7 @@ the other two try block is handled properly
 
 ```
 
-![blockstack5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack5.png)
+![blockstack5](./blockstack5.png)
 
 frame object deallocated
 
@@ -378,7 +378,7 @@ depth 0
 
 ```
 
-![f_back](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/f_back.png)
+![f_back](./f_back.png)
 
 # free_list mechanism
 
@@ -452,7 +452,7 @@ def g6():
 
 ```
 
-![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list0.png)
+![free_list0](./free_list0.png)
 
 the frame attached to variable **gg** is deallocated, because it's the first frame execute the code block, it becomes the "zombie" frame of the **code** object
 
@@ -468,7 +468,7 @@ StopIteration
 
 ```
 
-![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list1.png)
+![free_list1](./free_list1.png)
 
 ```python3
 >>> next(gg1)
@@ -480,7 +480,7 @@ StopIteration
 
 ```
 
-![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list2.png)
+![free_list2](./free_list2.png)
 
 ```python3
 >>> next(gg2)
@@ -492,4 +492,4 @@ StopIteration
 
 ```
 
-![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list3.png)
+![free_list3](./free_list3.png)

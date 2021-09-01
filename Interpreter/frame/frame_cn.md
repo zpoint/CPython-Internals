@@ -22,7 +22,7 @@
 
 需要更多有关栈帧的信息请参考 [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
 
-![layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/layout.png)
+![layout](./layout.png)
 
 # 示例
 
@@ -65,7 +65,7 @@ for (i=0; i<extras; i++)
 
 **code->co_cellvars**: 一个元组, 包含了自己用到并且内嵌函数也用到的所有的变量名称
 
-**code->nfrees**: 自己是内嵌函数的情况下, 包含了外部函数和自己同时用到的变量名称
+**code->co_freevars**: 自己是内嵌函数的情况下, 包含了外部函数和自己同时用到的变量名称
 
 更多关于 **PyCodeObject** 的信息请参考 [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python) 和 [code 对象](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code_cn.md)
 
@@ -131,7 +131,7 @@ Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
 
 ```
 
-![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example0.png)
+![example0](./example0.png)
 
 第一次 **next** 返回时, **opcode** `0 LOAD_FAST                0 (a)` 已经被执行了, 并且当前的执行位置是在 `2 YIELD_VALUE` 中
 
@@ -147,7 +147,7 @@ Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
 
 ```
 
-![example1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1.png)
+![example1](./example1.png)
 
 ```python3
 >>> next(gg)
@@ -158,39 +158,39 @@ Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
 
 在第三行代码的 opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` 和 `10 LOAD_FAST                2 (c)` 分别把 **str**(str 存储在了 frame-f_code->co_names 这个字段中), **b**(int 1) 和 **c**(int 2) 推入 **f_valuestack**, opcode `12 BINARY_ADD` 弹出 **f_valuestack**(**b** and **c**) 顶部的两个元素, 相加之后存储回 **f_valuestack** 的顶部, 下图的 **f_valuestack** 为 `12 BINARY_ADD` 执行之后的样子
 
-![example1_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2.png)
+![example1_2](./example1_2.png)
 
 opcode `14 CALL_FUNCTION            1` 会弹出可执行对象和可执行对象对应的参数, 并用这些参数传递给可执行对象, 之后执行
 
 执行完成之后, 执行结果 `'3'` 会被压回堆中
 
-![example1_2_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_1.png)
+![example1_2_1](./example1_2_1.png)
 
 opcode `16 STORE_FAST               2 (c)` 弹出 **f_valuestack** 顶部的元素, 并把它存储到了 **f_localsplus** 下标为 2 的位置中
 
-![example1_2_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_2_2.png)
+![example1_2_2](./example1_2_2.png)
 
 opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 2 的元素推入 **f_valuestack**, 之后  `20 YIELD_VALUE ` 弹出这个元素并把它传递给调用者
 
 字段 **f_lasti** 位置的值为 20, 表明当前正在 opcode `20 YIELD_VALUE` 的位置
 
-![example2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example2.png)
+![example2](./example2.png)
 
 在 `24 LOAD_GLOBAL              1 (range)` 和 `26 LOAD_CONST               1 (3)` 之后
 
-![example1_3_1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_1.png)
+![example1_3_1](./example1_3_1.png)
 
 在 `28 CALL_FUNCTION            1` 之后
 
-![example1_3_2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_2.png)
+![example1_3_2](./example1_3_2.png)
 
 在 `30 STORE_FAST               3 (new_g)` 之后
 
-![example1_3_3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_3.png)
+![example1_3_3](./example1_3_3.png)
 
 在 `32 LOAD_FAST                3 (new_g)` 之后
 
-![example1_3_4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example1_3_4.png)
+![example1_3_4](./example1_3_4.png)
 
  opcode `34 GET_YIELD_FROM_ITER` 作用是保证堆顶的元素是一个可迭代对象
 
@@ -204,7 +204,7 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
 
 字段 **f_lasti** 现在值是 36, 表明他在 `38 YIELD_FROM` 之前
 
-![example3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example3.png)
+![example3](./example3.png)
 
 栈帧对象在 **StopIteration** 抛出后就进入了释放阶段(opcode `44 RETURN_VALUE` 执行之后)
 
@@ -261,7 +261,7 @@ def g3():
 
 ```
 
-![blockstack0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack0.png)
+![blockstack0](./blockstack0.png)
 
 在第一个 **yield** 声明时, 第一个 **try block** 已经设置好了
 
@@ -275,7 +275,7 @@ def g3():
 
 ```
 
-![blockstack1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack1.png)
+![blockstack1](./blockstack1.png)
 
 **b_type** 257 是 opcode `EXCEPT_HANDLER` 的值, opcode `EXCEPT_HANDLER` 有特殊的含义
 
@@ -301,7 +301,7 @@ def g3():
 
 ```
 
-![blockstack2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack2.png)
+![blockstack2](./blockstack2.png)
 
 **f_iblock** 值为 3, 第二个 try block 来自 `finally:`(opcode 位置 116), 第三个来自 `except ModuleNotFoundError:`(opcode 位置 62)
 
@@ -311,7 +311,7 @@ def g3():
 
 ```
 
-![blockstack3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack3.png)
+![blockstack3](./blockstack3.png)
 
 ```python3
 >>> next(gg)
@@ -321,7 +321,7 @@ def g3():
 
 第三个 try block 的 **b_type**  变为了 257 并且 **b_handler** 变为 -1, 表明当前的 block 正在处理中
 
-![blockstack4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack4.png)
+![blockstack4](./blockstack4.png)
 
 另外两个 try block 也正确的处理完了
 
@@ -337,7 +337,7 @@ def g3():
 
 ```
 
-![blockstack5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/blockstack5.png)
+![blockstack5](./blockstack5.png)
 
 frame 对象进入释放阶段
 
@@ -381,7 +381,7 @@ depth 0
 
 ```
 
-![f_back](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/f_back.png)
+![f_back](./f_back.png)
 
 # free_list 机制
 
@@ -455,7 +455,7 @@ def g6():
 
 ```
 
-![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list0.png)
+![free_list0](./free_list0.png)
 
 和 **gg** 对象关联的 frame 进入了回收阶段, 因为当前的 **code** 对象 "zombie" frame 字段为空, 所以这个 frame 成为了 **code** 对象的 "zombie" frame
 
@@ -471,7 +471,7 @@ StopIteration
 
 ```
 
-![free_list1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list1.png)
+![free_list1](./free_list1.png)
 
 ```python3
 >>> next(gg1)
@@ -483,7 +483,7 @@ StopIteration
 
 ```
 
-![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list2.png)
+![free_list2](./free_list2.png)
 
 ```python3
 >>> next(gg2)
@@ -495,4 +495,4 @@ StopIteration
 
 ```
 
-![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/free_list3.png)
+![free_list3](./free_list3.png)
