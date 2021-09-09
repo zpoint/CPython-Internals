@@ -202,7 +202,9 @@ opcode `18 LOAD_FAST                2 (c)` 把 **f_localsplus** 位置下标为 
 
 ```
 
-字段 **f_lasti** 现在值是 36, 表明他在 `38 YIELD_FROM` 之前
+字段 **f_lasti** 现在值是 36, 表明他在 `38 YIELD_FROM` 之后
+
+在 `YIELD_FROM` 的末尾这一行代码 `f->f_lasti -= sizeof(_Py_CODEUNIT);`  会把 `f_lasti` 重置为刚进入 `YIELD_FROM` 的位置 [感谢 @RyanHe123 指正](https://github.com/zpoint/CPython-Internals/issues/46)
 
 ![example3](./example3.png)
 

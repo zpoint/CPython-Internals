@@ -202,7 +202,9 @@ the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable ob
 
 ```
 
-field **f_lasti** is 36, indicate that it's before the `38 YIELD_FROM`
+field **f_lasti** is 36, indicate that it's after `38 YIELD_FROM`
+
+in the end of `YIELD_FROM` the following code `f->f_lasti -= sizeof(_Py_CODEUNIT);`  reset the `f_lasti` to the beginning of `YIELD_FROM` [Thanks to @RyanHe123](https://github.com/zpoint/CPython-Internals/issues/46)
 
 ![example3](./example3.png)
 
