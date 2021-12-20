@@ -94,7 +94,7 @@ git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 * [x] [从 AST 到 字节码](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile3/compile_cn.md)
 
 
-# 参与贡献学习资料
+# 学习资料
 
 以下的资料笔者遵循先阅读后推荐的原则
 
