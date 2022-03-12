@@ -2,4 +2,4 @@
 *.less linguist-language=Python
 *.js linguist-language=Python
 *.html linguist-language=Python
-*.md linguist-language=Python
+*.md linguist-language=Markdown
