@@ -30,7 +30,7 @@
 
 通常情况下，我们会用哈希表来实现一个字典对象，平均情况下你只需要花费 O(1) 的时间复杂度即可以完成对一个元素的查找，这也是 CPython 的实现方式
 
-下图是在 [python3.6](https://github.com/python/cpython/commit/742da040db28e1284615e88874d5c952da80344e ) 版本之前，一个指向 python 内部字典对象的入口指针
+下图是在 [python3.6](https://github.com/python/cpython/commit/742da040db28e1284615e88874d5c952da80344e) 版本之前，一个指向 python 内部字典对象的入口指针
 
 ![before_py36](./before_py36.png)
 
@@ -56,7 +56,7 @@
 
 ![after_py36_space](./after_py36_space.png)
 
-这个方案最初是由 [PyPy](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html) 提出, 并在 [pep 468](https://www.python.org/dev/peps/pep-0468/]) 中引入到了 CPython, 在 python3.6 版本进行了实现
+这个方案最初是由 [PyPy](https://morepypy.blogspot.com/2015/01/faster-more-memory-efficient-and-more.html) 提出, 并在 [pep 468](https://www.python.org/dev/peps/pep-0468/) 中引入到了 CPython, 在 python3.6 版本进行了实现
 
 # 内存构造
 
