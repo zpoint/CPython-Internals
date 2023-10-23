@@ -20,7 +20,7 @@
 
 the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the currently executing code object, parameters, variables in different scope, try block info and etc
 
-for more information please refer to [stack frame strategy](http://en.citizendium.org/wiki/Memory_management)
+for more information please refer to [stack frame strategy](https://en.citizendium.org/wiki/Stack_frame)
 
 ![layout](./layout.png)
 
