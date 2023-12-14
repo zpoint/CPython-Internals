@@ -189,7 +189,7 @@ static void take_gil(PyThreadState *tstate)
 
 ## switch_cond and switch_mutex
 
-**switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquiring the **GIL** is not the thread releasing the **GIL**, avoiding a waste of the time slice.
+**switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquiring the **GIL** is not the thread that released the **GIL**, avoiding a waste of the time slice.
 
 It can be turned off without the definition of `FORCE_SWITCHING`.
 
