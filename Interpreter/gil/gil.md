@@ -1,6 +1,6 @@
-# gil![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/gil)
+# GIL ![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/gil)
 
-# contents
+# Contents
 
 * [related file](#related-file)
 * [introduction](#introduction)
@@ -17,69 +17,69 @@
 	* [switch_cond and switch_mutex](#switch_cond-and-switch_mutex)
 * [when will the gil be released](#when-will-the-gil-be-released)
 
-# related file
+# Related files
 
 * cpython/Python/ceval.c
 * cpython/Python/ceval_gil.h
 * cpython/Include/internal/pycore_gil.h
 
-# introduction
+# Introduction
 
-this is the defination of the [**Global Interpreter Lock**](https://wiki.python.org/moin/GlobalInterpreterLock)
+This is the definition of the [**Global Interpreter Lock**](https://wiki.python.org/moin/GlobalInterpreterLock).
 
 > In CPython, the global interpreter lock, or GIL, is a mutex that protects access to Python objects, preventing multiple threads from executing Python bytecodes at once. This lock is necessary mainly because CPython's memory management is not thread-safe. (However, since the GIL exists, other features have grown to depend on the guarantees that it enforces.)
 
-## thread scheduling before python32
+## Thread scheduling before Python 3.2
 
-basically, the **tick** is a counter for how many opcodes current thread executed continuously without releasing the **gil**
+Basically, the **tick** is a counter for how many opcodes current thread executed continuously without releasing the **GIL**.
 
-if the current thread is running a CPU-bound task, it will release the **gil** and offer an opportunity for other thread to run for every 100 **ticks**
+If the current thread is running a CPU-bound task, it will release the **gil** and offer an opportunity for another thread to run for every 100 **ticks**.
 
-if the current thread is running an IO-bound task, the **gil** will be relaesed manually if you call `sleep/recv/send(...etc)` even without count to 100 **ticks**
+If the current thread is running an IO-bound task, the **GIL** will be released manually if you call `sleep/recv/send(...etc)` even without count to 100 **ticks**.
 
-you can call `sys.setcheckinterval()` to set other **tick** count value instead of 100
+You can call `sys.setcheckinterval()` to set other **tick** count value instead of 100.
 
 ![old_gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/old_gil.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-because the **tick** is not time-based, some thread might run far longer than other threads
+Because the **tick** is not time-based, some thread might run far longer than other threads.
 
-in multi-core machine, if two threads both running CPU-bound tasks, the os might schedule the two threads running on different cores, there might be a situation that one thread holding the **gil** executing it's task in it's **100 ticks cycle** in a core, while the thread in the other core wakes up periodically try to acquire the **gil** but fail, spinning the CPU
+In multi-core machine, if two threads both running CPU-bound tasks, the OS might schedule the two threads running on different cores, there might be a situation that one thread holding the **GIL** executing its task in its **100 ticks cycle** in a core, while the thread in the other core wakes up periodically try to acquire the **GIL** but fail, spinning the CPU.
 
-the job(thread) schedule mechanism is fully controlled by the operating system, the thread handling IO-bound task have to wait for other thread to release the **gil**, and other thread might re-acquire the **gil** after it release the **gil**, which makes the current IO-bound task thread wait even longer (actually, the thread that cause os's context-switch by it self will have higher priority than those thread forced by os, programmer can utilize this feature by putting the IO-bound thread to sleep as soon as possible)
+The job (thread) schedule mechanism is fully controlled by the operating system, the thread handling an IO-bound task have to wait for other thread to release the **GIL**, and other thread might re-acquire the **GIL** after it release the **GIL**, which makes the current IO-bound task thread wait even longer (actually, the thread that cause OS's context-switch by itself will have higher priority than those thread forced by the OS, programmer can utilize this feature by putting the IO-bound thread to sleep as soon as possible).
 
 ![gil_battle](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_battle.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-## thread scheduling after python32
+## Thread scheduling after Python 3.2
 
-due to some performance issue in multi-core machine, the implementation of the **gil** has changed a lot after python3.2
+Due to some performance issue in multi-core machine, the implementation of the **GIL** has changed a lot after Python 3.2.
 
-if there's only one thread, it can run forever without check and release **gil**
+If there's only one thread, it can run forever without checking and releasing the **GIL**.
 
-if there're more than one threads, the thread currently blocking by the **gil** will wait for a period of timeout and set the **gil_drop_request** to 1, and continue waiting, the thread currently holding the **gil** will release the **gil** and wait for same period of timeout if the **gil_drop_request** is set to 1, thread currently blocking will be signaled and is able to acqure the **gil**
+If there're more than one threads, the thread currently blocked by the **GIL** will wait for a period of timeout and set the **gil_drop_request** to 1, and continue waiting, the thread currently holding the **GIL** will release the **GIL** and wait for same period of timeout if the **gil_drop_request** is set to 1, the thread currently blocking will be signaled and is able to acqure the **GIL**
 
 ![new_gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/new_gil.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-the thread set the **gil_drop_request** to 1 might not be the thread acquire the **gil**
+The thread set the **gil_drop_request** to 1 might not be the thread acquiring the **GIL**.
 
-if the current thread is waiting for the interval, and owner of the **gil** changed during the waiting **interval**, after wake up, the current thread need to wait, set **gil_drop_request** to 1 and wait again
+If the current thread is waiting for the interval, and the owner of the **GIL** changed during the waiting **interval**, after wake up, the current thread need to wait, set **gil_drop_request** to 1, and wait again.
 
 ![new_gil2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/new_gil2.png)
 (picture from [Understanding the Python GIL(youtube)](https://www.youtube.com/watch?v=Obt-vMVdM8s))
 
-for those who are interested in detail, please refer to [Understanding the Python GIL(article)](http://www.dabeaz.com/GIL/)
+For those who are interested in further details, please refer to [Understanding the Python GIL(article)](http://www.dabeaz.com/GIL/).
 
-## memory layout
+## Memory layout
 
 ![git_layout](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil_layout.png)
 
-# fields
+# Fields
 
-the python intepreter is a program written in C, every executable program written in C have a `main` function
+The python intepreter is a program written in C, every executable program written in C have a `main` function.
 
-those `main` related functions are defined in `cpython/Modules/main.c`, you will find that the `main` related function does some inilialization for the intepreter status before execute the `main loop`, the `_gil_runtime_state` will be created and initialized in the inilialization
+Those `main`-related functions are defined in `cpython/Modules/main.c`, you will find that the `main`-related function does some initialization for the intepreter status before executing the `main loop`, the `_gil_runtime_state` will be created and initialized in the initialization.
 
 ```python3
 ./python.exe
@@ -97,17 +97,17 @@ those `main` related functions are defined in `cpython/Modules/main.c`, you will
 
 ```
 
-**interval** is the suspend timeout before set the `gil_drop_request` in microseconds, 5000 microseconds is 0.005 seconds
+**interval** is the suspend timeout before setting the `gil_drop_request` in microseconds, 5000 microseconds is 0.005 seconds.
 
-it's stored as microseconds in C and represent as seconds in python
+It's stored as microseconds in C and represented as seconds in Python.
 
 ## last_holder
 
-**last_holder** stores the C address of the last PyThreadState hloding the **gil**, this helps us know whether anyone else was scheduled after we dropped the **gil**
+**last_holder** stores the C address of the last `PyThreadState` holding the **GIL**, this helps us know whether anyone else was scheduled after we dropped the **GIL**.
 
 ## locked
 
-**locked** is a field of type **_Py_atomic_int**, -1 indicate uninitialized, 0 means no one is currently holding the **gil**, 1 means someone is holding it. This is atomic because it can be read without any lock taken in ceval.c
+**locked** is a field of type **_Py_atomic_int**, -1 indicates uninitialized, 0 means no one is currently holding the **GIL**, 1 means someone is holding it. This is atomic because it can be read without any lock taken in `ceval.c`.
 
 ```c
 /* cpython/Python/ceval_gil.h */
@@ -144,9 +144,9 @@ static void drop_gil(PyThreadState *tstate)
 
 ## switch_number
 
-**switch_number** is a counter for number of **gil** switches since the beginning
+**switch_number** is a counter for the number of **GIL** switches since the beginning.
 
-it's used in function `take_gil`
+It's used in function `take_gil`.
 
 ```c
 static void take_gil(PyThreadState *tstate)
@@ -181,17 +181,17 @@ static void take_gil(PyThreadState *tstate)
 
 ## mutex
 
-**mutex** is a mutex used for protecting `locked`, `last_holder`, `switch_number` and other variables in `_gil_runtime_state`
+**mutex** is a mutex used for protecting `locked`, `last_holder`, `switch_number`, and other variables in `_gil_runtime_state`.
 
 ## cond
 
-**cond** is a condition variable, combined with **mutex**, used for signaling release of **gil**
+**cond** is a condition variable, combined with **mutex**, used for signaling  the release of the **GIL**.
 
 ## switch_cond and switch_mutex
 
-**switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquire the **gil** is not the thread release the **gil**, avoiding waste of time slice
+**switch_cond** is another condition variable, combined with **switch_mutex** can be used for making sure that the thread acquiring the **GIL** is not the thread releasing the **GIL**, avoiding a waste of the time slice.
 
-it can be turned off without the defination of `FORCE_SWITCHING`
+It can be turned off without the definition of `FORCE_SWITCHING`.
 
 ```c
 static void drop_gil(PyThreadState *tstate)
@@ -225,15 +225,15 @@ static void drop_gil(PyThreadState *tstate)
 
 ```
 
-# when will the gil be released
+# When the GIL will be released
 
-the `main_loop` in `cpython/Python/ceval.c` is a big `for loop`, and a big `switch statement`
+The `main_loop` in `cpython/Python/ceval.c` is a big `for loop`, and a big `switch statement`.
 
-the big `for loop` loads opcode one by one, and the big `switch statement` execute different c code according to the opcode
+The big `for loop` loads opcode one by one, and the big `switch statement` executes different C code according to the opcode.
 
-the `for loop` will check the variable `gil_drop_request` and release the `gil` if necessary
+The `for loop` will check the variable `gil_drop_request` and release the `gil` if necessary.
 
-not every opcode will check the `gil_drop_request`, some opcode ends with `FAST_DISPATCH()` will go to the next statement directly, while some opcode ends with `DISPATCH()` act as `continue statement` and will go to the beginning of the for loop
+Not every opcode will check the `gil_drop_request`, some opcode that ends with `FAST_DISPATCH()` will go to the next statement directly, while some opcode that ends with `DISPATCH()` acts as `continue statement` and will go to the beginning of the for loop.
 
 ```c
 /* cpython/Python/ceval.c */
