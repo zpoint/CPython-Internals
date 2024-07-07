@@ -105,6 +105,7 @@ $ ./python.exe -m dis test.py
 `2 STORE_NAME               0`
 
 ```c
+/* cpython/Python/ceval.c */
 case TARGET(STORE_NAME): {
     /* name 是一个 str 对象, 值为 's'
        ns 是 local namespace
@@ -149,6 +150,7 @@ case TARGET(STORE_NAME): {
 `8 DELETE_NAME              0 (s)`
 
 ```c
+/* cpython/Python/ceval.c */
 case TARGET(DELETE_NAME): {
 	/* name 这里为 's'
        ns 为 the local namespace
