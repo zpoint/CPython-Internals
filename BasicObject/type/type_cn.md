@@ -118,7 +118,7 @@ E + B + C
 **F** 的 MRO 计算结果如下
 
 ```python3
-F + merge(L(D), L(E), BC)
+F + merge(L(D), L(E), DE)
 F + merge(DAB, EBC, DE)
 F + D + merge(AB, EBC, E)
 F + D + A + merge(B, EBC, E)
