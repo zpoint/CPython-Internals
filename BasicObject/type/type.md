@@ -106,7 +106,7 @@ E + B + C
 mro of **F** is computed as
 
 ```python3
-F + merge(L(D), L(E), BC)
+F + merge(L(D), L(E), DE)
 F + merge(DAB, EBC, DE)
 F + D + merge(AB, EBC, E)
 F + D + A + merge(B, EBC, E)
