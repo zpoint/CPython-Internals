@@ -1,4 +1,4 @@
-# thread![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/thread_cn)
+# thread
 
 # 目录
 

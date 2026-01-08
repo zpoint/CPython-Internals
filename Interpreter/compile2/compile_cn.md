@@ -1,4 +1,4 @@
-# CST TO AST![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/compile2_cn)
+# CST TO AST
 
 # 目录
 

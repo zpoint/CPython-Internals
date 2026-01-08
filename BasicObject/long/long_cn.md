@@ -1,4 +1,4 @@
-# int![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/long_cn)
+# int
 
 感谢 @MambaWong 指出之前本章节存在的问题 [#22](https://github.com/zpoint/CPython-Internals/issues/22) 已改正
 
