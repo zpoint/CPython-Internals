@@ -1,4 +1,4 @@
-# C++ extension![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/cpp_ext)
+# C++ extension
 
 # 目录
 

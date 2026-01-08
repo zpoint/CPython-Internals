@@ -1,4 +1,4 @@
-# module![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/module_cn)
+# module
 
 # 目录
 

@@ -1,4 +1,4 @@
-# float![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/float_cn)
+# float
 
 # 目录
 

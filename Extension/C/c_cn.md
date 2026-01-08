@@ -1,4 +1,4 @@
-# python 性能分析和 C 扩展![image title](http://www.zpoint.xyz:8080/count/tag.svg?url=github%2FCPython-Internals/c_ext_cn)
+# python 性能分析和 C 扩展
 
 # 目录
 
