@@ -1,0 +1,5 @@
+title: CPython Internals
+description: Dive into CPython internals, trying to illustrate every detail of CPython implementation
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+  - jekyll-remote-theme
