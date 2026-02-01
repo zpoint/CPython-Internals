@@ -2,8 +2,8 @@
 
 ![cpython logo](Media/Python-logo-notext.svg)
 
-* [简体中文](https://github.com/zpoint/CPython-Internals/blob/master/README_CN.md)
-* [한국어](https://github.com/zpoint/CPython-Internals/blob/master/README_KR.md)
+* [简体中文](README_CN.md)
+* [한국어](README_KR.md)
 *  **Watch** this repo if you need to be notified when there's update
 
 This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code
@@ -31,64 +31,64 @@ The following contents are suitable for those who have python programming experi
 
 
 # Objects
- - [x] [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md)
- - [x] [long/int](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/long/long.md)
- - [x] [unicode/str](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/str.md)
- - [x] [set](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/set/set.md)
- - [x] [list(timsort)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md)
- - [x] [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md)
- - [x] [bytes](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytes/bytes.md)
- - [x] [bytearray(buffer protocol)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/bytearray.md)
- - [x] [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md)
- - [x] [func(user-defined method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/func/func.md)
- - [x] [method(builtin method)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
- - [x] [iter](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iter.md)
- - [x] [gen(generator/coroutine/async generator)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md)
- - [x] [class(bound method/classmethod/staticmethod)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
- - [x] [complex](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/complex.md)
- - [x] [enum](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/enum/enum.md)
- - [x] [type(mro/metaclass/creation of class/instance)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md)
+ - [x] [dict](BasicObject/dict/dict.md)
+ - [x] [long/int](BasicObject/long/long.md)
+ - [x] [unicode/str](BasicObject/str/str.md)
+ - [x] [set](BasicObject/set/set.md)
+ - [x] [list(timsort)](BasicObject/list/list.md)
+ - [x] [tuple](BasicObject/tuple/tuple.md)
+ - [x] [bytes](BasicObject/bytes/bytes.md)
+ - [x] [bytearray(buffer protocol)](BasicObject/bytearray/bytearray.md)
+ - [x] [float](BasicObject/float/float.md)
+ - [x] [func(user-defined method)](BasicObject/func/func.md)
+ - [x] [method(builtin method)](BasicObject/method/method.md)
+ - [x] [iter](BasicObject/iter/iter.md)
+ - [x] [gen(generator/coroutine/async generator)](BasicObject/gen/gen.md)
+ - [x] [class(bound method/classmethod/staticmethod)](BasicObject/class/class.md)
+ - [x] [complex](BasicObject/complex/complex.md)
+ - [x] [enum](BasicObject/enum/enum.md)
+ - [x] [type(mro/metaclass/creation of class/instance)](BasicObject/type/type.md)
 
 # Modules
 
  - [ ] io
- 	- [x] [fileio](https://github.com/zpoint/CPython-Internals/blob/master/Modules/io/fileio/fileio.md)
- - [x] [pickle](https://github.com/zpoint/CPython-Internals/blob/master/Modules/pickle/pickle.md)
+ 	- [x] [fileio](Modules/io/fileio/fileio.md)
+ - [x] [pickle](Modules/pickle/pickle.md)
 
 # Lib
 
- - [x] [re(regex)](https://github.com/zpoint/CPython-Internals/blob/master/Modules/re/re.md)
+ - [x] [re(regex)](Modules/re/re.md)
  - [ ] asyncio
 
 # Interpreter
 
- - [x] [gil(Global Interpreter Lock)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md)
- - [x] [gc(Garbage Collection)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/gc.md)
- - [x] [memory management](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
- - [x] [descr(how does attribute access work/`__get__`/`__getattribute__`/`__getattr__`)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
- - [x] [exception(exception handling)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md)
- - [x] [module(how does import work)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/module/module.md)
- - [x] [frame](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
- - [x] [code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/code/code.md)
- - [x] [slots/`__slots__`(how does attribute initialized in the creation of class/instance)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/slot.md)
- - [x] [thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.md)
- - [x] [PyObject(overview)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md)
+ - [x] [gil(Global Interpreter Lock)](Interpreter/gil/gil.md)
+ - [x] [gc(Garbage Collection)](Interpreter/gc/gc.md)
+ - [x] [memory management](Interpreter/memory_management/memory_management.md)
+ - [x] [descr(how does attribute access work/`__get__`/`__getattribute__`/`__getattr__`)](Interpreter/descr/descr.md)
+ - [x] [exception(exception handling)](Interpreter/exception/exception.md)
+ - [x] [module(how does import work)](Interpreter/module/module.md)
+ - [x] [frame](Interpreter/frame/frame.md)
+ - [x] [code](Interpreter/code/code.md)
+ - [x] [slots/`__slots__`(how does attribute initialized in the creation of class/instance)](Interpreter/slot/slot.md)
+ - [x] [thread](Interpreter/thread/thread.md)
+ - [x] [PyObject(overview)](Interpreter/pyobject/pyobject.md)
 
 # Extension
 
- - [x] [C API(profile python code and write pure C extension)](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c.md)
+ - [x] [C API(profile python code and write pure C extension)](Extension/C/c.md)
  - [ ] Cython(C extension)
  - [x] [Boost C++ libaries (C\+\+ extension)](https://github.com/zpoint/Boost-Python-Examples)
- - [ ] [C++ extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/CPP/cpp.md)
+ - [ ] [C++ extension](Extension/CPP/cpp.md)
  	- [x] integrate with NumPy
  	- [x] bypass the GIL
 
 # Grammar
 
- - [x] [Compile Phase](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
-    - [x] [Grammar/MetaGrammar to DFA](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile/compile.md)
-    - [x] [CST to AST](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile2/compile.md)
-    - [x] [AST to python byte code](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/compile3/compile.md)
+ - [x] [Compile Phase](Interpreter/compile/compile.md)
+    - [x] [Grammar/MetaGrammar to DFA](Interpreter/compile/compile.md)
+    - [x] [CST to AST](Interpreter/compile2/compile.md)
+    - [x] [AST to python byte code](Interpreter/compile3/compile.md)
 
 
 # Learning material
