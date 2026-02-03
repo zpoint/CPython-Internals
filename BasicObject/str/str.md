@@ -17,7 +17,7 @@
 
 # memory layout
 
-you can read [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) first to have an overview of how **unicode** stored internally
+You can read [How Python saves memory when storing strings](https://rushter.com/blog/python-strings-and-memory/) first to have an overview of how **unicode** is stored internally
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/layout.png)
 
@@ -25,7 +25,7 @@ for those who are interested in bit-fields in C please refer to [When to use bit
 
 # conversion
 
-before we look into how unicode object create, resize, let's look into the c function **PyUnicode_AsUTF8**
+Before we look into how unicode objects are created and resized, let's look at the C function **PyUnicode_AsUTF8**
 
 ```c
 /* Whenever I try to covert PyUnicodeObject to const char* pointer,
@@ -122,7 +122,7 @@ calling PyUnicode_AsUTF8(unicode): s
 
 ```
 
-have you notice the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's', yes, this is the begin address of the c style null terminate string
+Have you noticed the field **utf8_length** in **PyCompactUnicodeObject** is 115, and chr(115) is 's'? Yes, this is the beginning address of the C-style null-terminated string
 
 ![s_s](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/s_s.png)
 
@@ -136,15 +136,15 @@ s = "aaa"
 
 # interned
 
-all unicode object with "interned" set to 1 will be held in this dictionary,
-any other new created unicode object with the same value will points to the same object, it act as singleton
+All unicode objects with "interned" set to 1 will be held in this dictionary.
+Any other newly created unicode object with the same value will point to the same object; it acts as a singleton
 
 ```c
 static PyObject *interned = NULL;
 
 ```
 
-if you delete the string and initialize a new same string, the id of them are the same, the first time you created it, it's stored in the **interned** dictionary
+If you delete the string and initialize a new string with the same value, the IDs are the same. The first time you created it, it was stored in the **interned** dictionary
 
 ```python3
 >>> id(s)
@@ -162,7 +162,7 @@ if you delete the string and initialize a new same string, the id of them are th
 
 # kind
 
-there are totally four values of **kind** field in **PyASCIIObject**, it means how characters are stored in the unicode object internally.
+There are four possible values for the **kind** field in **PyASCIIObject**, indicating how characters are stored in the unicode object internally.
 
 * PyUnicode_WCHAR_KIND
 
@@ -174,7 +174,7 @@ I haven't found a way to define an unicode object represent with **PyUnicode_WCH
         * ascii flag set true: U+0000-U+007F
         * ascii flag set false: at least one character in U+0080-U+00FF
 
-the **utf8_length** field still stores the null terminated c style string, except the interned field is 0, only the characters in specific range will CPython store the unicode object in the interned dictionary.
+The **utf8_length** field still stores the null-terminated C-style string, except the interned field is 0. Only characters in a specific range will cause CPython to store the unicode object in the interned dictionary.
 
 ```python3
 >>> s1 = "\u007F\u0000"
@@ -188,18 +188,18 @@ the **utf8_length** field still stores the null terminated c style string, excep
 
 ![1_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/1_byte_kind.png)
 
-let's define an unicode object with a character **\u0088** inside
+Let's define a unicode object with a character **\u0088** inside
 
 ```python3
 s = "\u0088\u0011\u00f1"
 
 ```
 
-now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer return the address of **utf8_length** field, instead, it returns the value in the `char *utf8` field, and that's 0
+Now, because the first character is **U+0088**, the ascii flag becomes 0, and **PyUnicode_UTF8(unicode)** no longer returns the address of the **utf8_length** field. Instead, it returns the value in the `char *utf8` field, which is 0
 
-if **PyUnicode_UTF8(unicode)** is zero, where are the three bytes located?
-we haven't used the data field in **PyUnicodeObject**, let's print whatever inside **data** field.
-it took me some time to figure out how to print those bytes in the latin1 field.
+If **PyUnicode_UTF8(unicode)** is zero, where are the three bytes located?
+We haven't used the data field in **PyUnicodeObject**. Let's print whatever is inside the **data** field.
+It took me some time to figure out how to print those bytes in the latin1 field.
 
 ```c
 static PyObject *
@@ -247,7 +247,7 @@ unicode_repr(PyObject *unicode)
 
 ```
 
-after recompile the above code, we are able to track latin1 fields in repr() function
+After recompiling the above code, we are able to track latin1 fields in the repr() function
 
 ```python3
 >>> repr(s)
@@ -263,7 +263,7 @@ PyUnicodeObject->latin1: 0x88 0x11 0xf1
     * all characters are in range U+0000-U+FFFF
     * at least one character is in the range U+0100-U+FFFF
 
-we can use the same code to trace bytes stored in **data** field, now the field name is **ucs2**(**ucs2** or **latin1** have a different name, but same address, they are inside same c union structure)
+We can use the same code to trace bytes stored in the **data** field. Now the field name is **ucs2** (**ucs2** and **latin1** have different names but the same address; they are inside the same C union structure)
 
 ```python3
 >>> s = "\u0011\u0111\u1111"
@@ -272,7 +272,7 @@ kind: PyUnicode_2BYTE_KIND,  PyUnicodeObject->ucs2: 0x11 0x111 0x1111
 
 ```
 
-now, the **kind** field is **PyUnicode_2BYTE_KIND** and it takes 2 bytes to store each character
+Now the **kind** field is **PyUnicode_2BYTE_KIND** and it takes 2 bytes to store each character
 
 ![2_byte_kind](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/str/2_byte_kind.png)
 
@@ -281,7 +281,7 @@ now, the **kind** field is **PyUnicode_2BYTE_KIND** and it takes 2 bytes to stor
     * all characters are in the range U+0000-U+10FFFF
     * at least one character is in the range U+10000-U+10FFFF
 
-now, kind field become **PyUnicode_4BYTE_KIND**
+Now the kind field becomes **PyUnicode_4BYTE_KIND**
 
 ```python3
 >>> s = "\u00ff\U0010FFFF\U00100111\U0010FFF1"
@@ -295,7 +295,7 @@ kind: PyUnicode_4BYTE_KIND, PyUnicodeObject->ucs4: 00xff 0x10ffff 0x100111 0x10f
 
 ## unicode memory usage summary
 
-we now know that there are three kinds of storage mechanism, how many bytes CPython will consume to store an unicode object depends on the maximum range of your character. All characters inside the unicode object must be in the same size, if CPython use variable size representation such as utf-8, it would be impossible to do index operation in O(1) time
+We now know that there are three kinds of storage mechanisms. How many bytes CPython consumes to store a unicode object depends on the maximum range of your characters. All characters inside the unicode object must be the same size; if CPython used variable-size representation such as UTF-8, it would be impossible to do index operations in O(1) time
 
 ```python3
 # if represented as utf8 encoding, and stores 1 million variable size characters
@@ -309,7 +309,7 @@ s[999999]
 
 # compact
 
-if flag in **compact** field in 1, it means all characters are stored within **PyUnicodeObject**, no matter what **kind** field is. The example above all have **compact** field set to 1. Otherwise, the data block will not be stored inside the **PyUnicodeObject** object directly, the data block will be a newly malloced location.
-the difference between **compact** 0 and **compact** 1 is the same as the difference between Redis string encoding **raw** and **embstr**
+If the flag in the **compact** field is 1, it means all characters are stored within **PyUnicodeObject**, no matter what the **kind** field is. The examples above all have the **compact** field set to 1. Otherwise, the data block will not be stored inside the **PyUnicodeObject** object directly; the data block will be in a newly malloced location.
+The difference between **compact** 0 and **compact** 1 is the same as the difference between Redis string encoding **raw** and **embstr**
 
-now, we understand most of the unicode implementations in CPython, for more detail, you can directly refer to the source code
+Now we understand most of the unicode implementation in CPython. For more detail, you can refer directly to the source code

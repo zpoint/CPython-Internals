@@ -24,7 +24,7 @@
 
 # memory layout
 
-everything is an object in python, including function, a function is defined as **PyFunctionObject** in the c level
+Everything is an object in Python, including functions. A function is defined as **PyFunctionObject** at the C level
 
 ```python3
 def f(a, b=2):
@@ -41,16 +41,15 @@ the type **function** indicates the user-defined method/classes, for **builtin_f
 
 # field
 
-let's figure out the meaning of each field in the **PyFunctionObject**
+Let's figure out the meaning of each field in **PyFunctionObject**
 
 ## func_code
 
-**func_code** field stores an instance of **PyCodeObject**, which contains information of a code block
+The **func_code** field stores an instance of **PyCodeObject**, which contains information about a code block.
 
-A code block must contain python virtual machine's instruction, argument number, argument
-body and etc
+A code block contains the Python virtual machine's instructions, argument count, argument body, etc.
 
-I will explain **PyCodeObject** in other article
+I will explain **PyCodeObject** in another article
 
 ```python3
 >>> f.__code__
@@ -60,7 +59,7 @@ I will explain **PyCodeObject** in other article
 
 ## func_globals
 
-the global namespace attached to the function object
+The global namespace attached to the function object
 
 ```python3
 >>> type(f.__globals__)
@@ -72,7 +71,7 @@ the global namespace attached to the function object
 
 ## func_defaults
 
-a tuple stores all the default argument of the function object
+A tuple that stores all the default arguments of the function object
 
 ```python3
 >>> f.__defaults__
@@ -82,7 +81,7 @@ a tuple stores all the default argument of the function object
 
 ## func_kwdefaults
 
-field **func_kwdefaults** is a python dictionary, which stores the [keyword-only argument](https://www.python.org/dev/peps/pep-3102/) with default value
+The field **func_kwdefaults** is a Python dictionary that stores [keyword-only arguments](https://www.python.org/dev/peps/pep-3102/) with default values
 
 ```python3
 def f2(a, b=4, *x, key=111):
@@ -95,7 +94,7 @@ def f2(a, b=4, *x, key=111):
 
 ## func_closure
 
-the **func_closure** field is a tuple, indicate all the enclosing level of the current function object
+The **func_closure** field is a tuple that indicates all the enclosing levels of the current function object
 
 ```python3
 def wrapper(func):
@@ -164,7 +163,7 @@ call done
 
 ## func_doc
 
-usually, it's an **unicode** object for explanation
+Usually, it's a **unicode** object for documentation
 
 ```python3
 def f():
@@ -179,7 +178,7 @@ print(f.__doc__)
 
 ## func_name
 
-the name of the **PyFunctionObject** object
+The name of the **PyFunctionObject** object
 
 ```python3
 def i_have_a_very_long_long_long_name():
@@ -194,7 +193,7 @@ print(i_have_a_very_long_long_long_name.__name__)
 
 ## func_dict
 
-**func_dict** field stores the attribute of the function object
+The **func_dict** field stores the attributes of the function object
 
 ```python3
 >>> f.__dict__
@@ -207,7 +206,7 @@ print(i_have_a_very_long_long_long_name.__name__)
 
 ## func_module
 
-**func_module** field indicate the module which the **PyFunctionObject** attached to
+The **func_module** field indicates the module to which the **PyFunctionObject** is attached
 
 ```python3
 >>> f.__module__
@@ -233,7 +232,7 @@ def a(x: "I am a int" = 3, y: "I am a float" = 4) -> "return a list":
 
 ## func_qualname
 
-it's used for nested class/function representation, it contains a dotted path leading to the object from the module top-level, refer [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
+It's used for nested class/function representation. It contains a dotted path leading to the object from the module top-level. Refer to [PEP 3155 -- Qualified name for classes and functions](https://www.python.org/dev/peps/pep-3155/) for more detail
 
 ```python3
 def f():

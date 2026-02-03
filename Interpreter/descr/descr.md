@@ -30,7 +30,7 @@ Thanks @Hanaasagi for pointing out the errors [#19](https://github.com/zpoint/CP
 
 ## built in types
 
-let's see an example first before we look into how descriptor object implements
+Let's see an example first before we look into how the descriptor object is implemented
 
 ```python3
 print(type(str.center)) # <class 'method_descriptor'>
@@ -38,11 +38,11 @@ print(type("str".center)) # <class 'builtin_function_or_method'>
 
 ```
 
-what is type **method_descriptor** ? why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ? how does attribute access work in python ?
+What is type **method_descriptor**? Why does `str.center` return a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method**? How does attribute access work in Python?
 
 ### instance attribute access
 
-this is the defination of `inspect.ismethoddescriptor` and `inspect.isdatadescriptor`
+This is the definition of `inspect.ismethoddescriptor` and `inspect.isdatadescriptor`
 
 ```python3
 def ismethoddescriptor(object):
@@ -68,7 +68,7 @@ def isdatadescriptor(object):
 
 ```
 
-according to the comments, we know that **data descriptor** has both `__set__` and `__get__` attribute defined while **method descriptor** has only `__get__` defined
+According to the comments, we know that a **data descriptor** has both `__set__` and `__get__` attributes defined while a **method descriptor** has only `__get__` defined
 
 if we **dis** the `print(type(str.center))`
 
@@ -86,7 +86,7 @@ if we **dis** the `print(type(str.center))`
 
 ```
 
-we can see that the core **opcode** is `LOAD_ATTR`, follow the `LOAD_ATTR` to the `Python/ceval.c`, we can find the definition
+We can see that the core **opcode** is `LOAD_ATTR`. Following `LOAD_ATTR` to `Python/ceval.c`, we can find the definition
 
 ```c
 case TARGET(LOAD_ATTR): {
@@ -147,7 +147,7 @@ The only difference between them is the second parameter, which is of type `PyOb
 
 From the above `PyObject_GetAttr` function, we can learn that `tp_getattro` have a higher priority than `tp_getattr`
 
-we can see how type **str** is defined in `Objects/unicodeobject.c`
+We can see how type **str** is defined in `Objects/unicodeobject.c`
 
 ```c
 PyTypeObject PyUnicode_Type = {
@@ -174,7 +174,7 @@ PyTypeObject PyUnicode_Type = {
 
 ```
 
-it's using the widely used c function `PyObject_GenericGetAttr` in cpython as it's `tp_getattro`, which is defined in `Objects/object.c`
+It's using the widely used C function `PyObject_GenericGetAttr` in CPython as its `tp_getattro`, which is defined in `Objects/object.c`
 
 ```c
 PyObject *
@@ -301,11 +301,11 @@ _PyObject_GenericGetAttrWithDict(PyObject *obj, PyObject *name,
 
 ```
 
-we can draw the process according to the code above
+We can draw the process according to the code above
 
 ![_str__attribute_access](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/_str__attribute_access.png)
 
-until now, I made a mistake, the `tp_getattro` in `PyUnicode_Type` will not be called in `str.center`, otherwise, it will be called in `"str".center`, you can tell the differences in the following codes
+Up until now, I made a mistake. The `tp_getattro` in `PyUnicode_Type` will not be called in `str.center`; rather, it will be called in `"str".center`. You can tell the differences in the following code
 
 ```python3
 >>> type("str")
@@ -324,13 +324,13 @@ until now, I made a mistake, the `tp_getattro` in `PyUnicode_Type` will not be c
 
 ```
 
-so, the procedure above describes the attribute access of `"str".center`
+So, the procedure above describes the attribute access of `"str".center`
 
 ### class attribute access
 
-let's find the definition of `<class 'type'>` and how exactly `str.center` works (mostly same as `"str".center`)
+Let's find the definition of `<class 'type'>` and how exactly `str.center` works (mostly the same as `"str".center`)
 
-for the type `<class 'type'>`, the `LOAD_ATTR` calls the `type_getattro`
+For the type `<class 'type'>`, `LOAD_ATTR` calls `type_getattro`
 
 ```c
 PyTypeObject PyType_Type = {
@@ -387,9 +387,9 @@ method_get(PyMethodDescrObject *descr, PyObject *obj, PyObject *type)
 
 ```
 
-now, we have the answers of
-* why will `str.center` returns a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method** ?
-* how does attribute access work in python ?
+Now, we have the answers to:
+* Why does `str.center` return a **method_descriptor** object, but `"str".center` returns a **builtin_function_or_method**?
+* How does attribute access work in Python?
 
 ## self defined types
 
@@ -604,16 +604,16 @@ Because `type(newly_created_class)` will always return `<class 'type'>`, and the
 
 # method_descriptor
 
-let's find out the answer of
-* what is type **method_descriptor** ?
+Let's find out the answer to:
+* What is type **method_descriptor**?
 
-it's defined in `Include/descrobject.h`
+It's defined in `Include/descrobject.h`
 
 ## memory layout
 
 ![PyMethodDescrObject](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/PyMethodDescrObject.png)
 
-we can see that when you try to access `"str".center` and `str.center`, they both shares the same **PyMethodDescrObject**, which is a wrapper of the **PyMethodDef** object
+We can see that when you try to access `"str".center` and `str.center`, they both share the same **PyMethodDescrObject**, which is a wrapper of the **PyMethodDef** object
 
 for those who are interested in **PyMethodDef**, please refer to [method](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/method.md)
 
@@ -625,7 +625,7 @@ descr->d_common->d_type: 0x10fdefc10, descr->d_common->d_type.tp_name: str, repr
 
 ```
 
-there exists various descriptor type
+There exist various descriptor types
 
 **PyMemberDescrObject**: wrapper of **PyMemberDef**
 
@@ -633,7 +633,7 @@ there exists various descriptor type
 
 # how to change the behavior of attribute access
 
-we know that when you try to access the attribute of an object, the python virtual machine will
+We know that when you try to access the attribute of an object, the Python virtual machine will
 
 1. execute the opcode `LOAD_ATTR`
 2. `LOAD_ATTR` will try to call `tp_getattro` function of the object, if success go to 4
@@ -642,13 +642,13 @@ we know that when you try to access the attribute of an object, the python virtu
 
 the default `tp_getattro` will be installed in the creation process of the newly created type, different behaviour depends on what methods are override by user, generally, the default `tp_getattro` is `PyObject_GenericGetAttr` which implements the **descriptor protocol**(we learned above from the source code)
 
-when we define a python object, if we need to change the behavior of attribute access
+When we define a Python object, if we need to change the behavior of attribute access:
 
-we are not able to change the behavior of opcode `LOAD_ATTR`, it's written in C
+We are not able to change the behavior of opcode `LOAD_ATTR`; it's written in C.
 
-instead, we can provide our own `__getattribute__` and `__getattr__` to change the function installed in the `tp_getattro` slot of the newly created type
+Instead, we can provide our own `__getattribute__` and `__getattr__` to change the function installed in the `tp_getattro` slot of the newly created type.
 
-notice, provide your own `__getattribute__` may violate the **descriptor protocol**, I will not recommend you to do that(usually we only need to define our own `__getattr__`)
+Note: Providing your own `__getattribute__` may violate the **descriptor protocol**. I would not recommend doing that (usually we only need to define our own `__getattr__`)
 
 ```python3
 class A(object):

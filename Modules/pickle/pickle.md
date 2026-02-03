@@ -24,7 +24,7 @@
 
 # introduction
 
-We use `pickle` module to serialize and unserialize our python object, There're several protocol version for `pickle`, The current version is `4`
+We use the `pickle` module to serialize and deserialize our Python objects. There are several protocol versions for `pickle`. The current version is `4`
 
  The `pickle` module will use the faster  `_pickle` implemented in `C`(`Modules/_pickle.c`)  if possible, if the `_pickle` module not found, the `python` implemented `pickle`(`Lib/pickle.py`) will be used
 
@@ -77,7 +77,7 @@ b'\x80\x04N.'
 
 ## bool
 
-`bool` is simiiar to `None`
+`bool` is similar to `None`
 
 ```python3
 NEWTRUE        = b'\x88'  # push True
@@ -100,7 +100,7 @@ b'\x80\x04\x89.'
 
 ## int
 
-The integer will be saved in various format according to it's value
+The integer will be saved in various formats according to its value
 
 ![int](int.png)
 
@@ -116,9 +116,9 @@ The float is saved in [IEEE_754](https://en.wikipedia.org/wiki/IEEE_754-1985) st
 
 ## bytes
 
-`bytes` object is save directly as the `data` part below
+`bytes` object is saved directly as the `data` part below
 
-The `head` part various according to the data size
+The `head` part varies according to the data size
 
 ![bytes](bytes.png)
 
@@ -153,11 +153,11 @@ Besides are the data
 
  ![tuple1](tuple1.png)
 
-I find that dumps does not support self reference tuples(how to [Build Self-Referencing Tuples](https://stackoverflow.com/questions/11873448/building-self-referencing-tuples))
+I found that dumps does not support self-referencing tuples(how to [Build Self-Referencing Tuples](https://stackoverflow.com/questions/11873448/building-self-referencing-tuples))
 
 ## list
 
-Let's see an exmple again
+Let's see an example again
 
 ```python3
 dumps(["a", "b", (2, )])
@@ -174,7 +174,7 @@ The data can be described as (`]\x94(\x8c\x01a\x94\x8c\x01b\x94K\x02\x85\x94e`)
 
 ![list1](./list1.png)
 
-`dict` and `set` are similar to `list` and `tuple`, begin and end with `type` symbol inidicate the type, and iter through each object and recursive call `dump` for each object
+`dict` and `set` are similar to `list` and `tuple`, beginning and ending with a `type` symbol to indicate the type, and iterating through each object and recursively calling `dump` for each object
 
 ## type
 
@@ -196,7 +196,7 @@ b'\x80\x04\x95\x12\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x01A\x94\
 
 ![type1](./type1.png)
 
-`dumps(A)` saves the `module_name` (`__main__`) and the `object` name(`A`) in [str](#str) formart
+`dumps(A)` saves the `module_name` (`__main__`) and the `object` name (`A`) in [str](#str) format
 
 ## object
 
@@ -210,7 +210,7 @@ b'\x80\x04\x95\x15\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x01A\x94\
 
 The data part is `\x8c\x08__main__\x94\x8c\x01A\x94\x93\x94)\x81\x94`
 
-The only difference is that there're some extra information appended after the previous dumped result
+The only difference is that there is some extra information appended after the previous dumped result
 
 A `TUPLE` indicate the `args` needed for instance call, in the current case `a = A()` the args is empty, so it's an `EMPTY_TUPLE`
 

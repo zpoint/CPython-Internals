@@ -15,17 +15,17 @@
 
 # memory layout
 
-there are various exception types defined in `Include/cpython/pyerrors.h`, the most widely used **PyBaseExceptionObject**(also the base part of any other exception type)
+There are various exception types defined in `Include/cpython/pyerrors.h`. The most widely used is **PyBaseExceptionObject** (also the base part of any other exception type)
 
 ![base_exception](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/base_exception.png)
 
-all other basic exception types defined in same C file are shown
+All other basic exception types defined in the same C file are shown
 
 ![error_layout1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/error_layout1.png)
 
 ![error_layout2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/error_layout2.png)
 
-what's following the definition of the basic exception types above are the definition of derived exception types according to exception hierarchy, because there're dozens of derived exceptions need to be defined, some **marco** are used for shortening the codes
+Following the definition of the basic exception types above are the definitions of derived exception types according to the exception hierarchy. Because there are dozens of derived exceptions that need to be defined, some **macros** are used for shortening the code
 
 ```c
 #define SimpleExtendsException(EXCBASE, EXCNAME, EXCDOC) \
@@ -141,7 +141,7 @@ BaseException
 
 # exception handling
 
-let's define an example
+Let's define an example
 
 ```python3
 import sys
@@ -182,7 +182,7 @@ def t2():  # position 1
 
 ```
 
-and try to compile it
+And try to compile it
 
 ```python3
 python.exe -m dis .\test.py
@@ -406,11 +406,11 @@ Disassembly of <code object t2 at 0x10b710b70, file "test.py", line 27>:
 
 ```
 
-we can see that the opcode `0 SETUP_FINALLY          178 (to 202)` maps to the outermost `finally` statement, 0 is the byte offset of opcode, 178 is the parameter of the `SETUP_FINALLY`, the real handler offset is calculated as `INSTR_OFFSET() + oparg`(`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode(here is 24), `oparg` is the parameter 178), which adds up to 202 in result
+We can see that the opcode `0 SETUP_FINALLY          178 (to 202)` maps to the outermost `finally` statement. 0 is the byte offset of the opcode, 178 is the parameter of `SETUP_FINALLY`. The real handler offset is calculated as `INSTR_OFFSET() + oparg` (`INSTR_OFFSET` is the byte offset of the first opcode to the next opcode (here it's 24), `oparg` is the parameter 178), which adds up to 202
 
 `2 SETUP_FINALLY           26 (to 52)` maps to the first `except` statement, the byte offset of opcode is 26(`LOAD_GLOBAL`) and the parameter of the `SETUP_FINALLY` is also 26, 26(parameter) + 26(opcode offset) is 52
 
-what does `SETUP_FINALLY` do ?
+What does `SETUP_FINALLY` do?
 
 ```c
 /* cpython/Python/ceval.c */
@@ -439,21 +439,21 @@ void PyFrame_BlockSetup(PyFrameObject *f, int type, int handler, int level)
 
 ```
 
-for those who need detail of frame object, please refer to [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md)
+For those who need details about the frame object, please refer to [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md).
 
-the `PyFrame_BlockSetup` will be called in the following opcode `SETUP_FINALLY`, `SETUP_ASYNC_WITH`, and `SETUP_WITH`(parameter `int type` equals `SETUP_FINALLY` in these opcode)
+`PyFrame_BlockSetup` will be called in the following opcodes: `SETUP_FINALLY`, `SETUP_ASYNC_WITH`, and `SETUP_WITH` (parameter `int type` equals `SETUP_FINALLY` in these opcodes)
 
 `RAISE_VARARGS`, `END_FINALLY` and `END_ASYNC_FOR` will call `PyFrame_BlockSetup` in some cases
 
-what will happen if we call the function `t2()` ?
+What will happen if we call the function `t2()`?
 
-this is the definition of `PyTryBlock`
+This is the definition of `PyTryBlock`
 
 ![try_block](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/try_block.png)
 
 in `position 1`
 
-the value `CO_MAXBLOCKS` is 20, you can't set up more than 20 blocks inside a frame(`try/finally/with/async with`)
+The value `CO_MAXBLOCKS` is 20. You can't set up more than 20 blocks inside a frame (`try/finally/with/async with`)
 
 ![pos1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos1.png)
 
@@ -520,11 +520,11 @@ exception_unwind:
 
 bacause `66 SETUP_FINALLY          116 (to 184)` exists before the `print("position 5\n\n")` statement, the third try block will exist
 
-the block is created by the compiler, the opcode `184 LOAD_CONST               0 (None)` is between `position 8` and `position 9`, it does nothing except for load variable `e1` and deallocates `e1`
+The block is created by the compiler. The opcode `184 LOAD_CONST               0 (None)` is between `position 8` and `position 9`. It does nothing except load variable `e1` and deallocate `e1`
 
 ![pos5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/pos5.png)
 
-in `position 6`, the following two opcodes create two more try block
+in `position 6`, The following two opcodes create two more try blocks
 
 ```python3
  12          82 SETUP_FINALLY           80 (to 164)

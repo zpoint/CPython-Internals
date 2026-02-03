@@ -22,7 +22,7 @@
 
 ## memory layout generator
 
-there's a common defination among **generator**, **coroutine** and **async generator**
+There's a common definition among **generator**, **coroutine**, and **async generator**
 
 ```c
 #define _PyGenObject_HEAD(prefix)                                           \
@@ -43,7 +43,7 @@ there's a common defination among **generator**, **coroutine** and **async gener
 
 ```
 
-the definition of **generator** object is less than 4 lines
+The definition of the **generator** object is less than 4 lines
 
 ```c
 typedef struct {
@@ -68,13 +68,13 @@ typedef struct {
 
 ```
 
-we can draw the layout according to the code now
+We can draw the layout according to the code now
 
 ![layout_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_gen.png)
 
 ## example generator
 
-let's define and iter through a generator
+Let's define and iterate through a generator
 
 ```python3
 def fib(n):
@@ -118,7 +118,7 @@ def fib(n):
 
 ```
 
-we initialize a new generator, the **f_lasti** in **gi_frame** act as the program counter in the python virtual machine, it indicates the next instruction offset from the code block inside the **gi_code**
+We initialize a new generator. The **f_lasti** in **gi_frame** acts as the program counter in the Python virtual machine; it indicates the next instruction offset from the code block inside **gi_code**
 
 ```python3
 >>> fib.__code__
@@ -128,11 +128,11 @@ we initialize a new generator, the **f_lasti** in **gi_frame** act as the progra
 
 ```
 
-the **gi_code** inside the f object is the **code** object that represents the function fib
+The **gi_code** inside the f object is the **code** object that represents the function fib.
 
-the **gi_running** is 0, indicating the generator is not executing right now
+The **gi_running** is 0, indicating the generator is not executing right now.
 
-**gi_name** and **gi_qualname** all points to same **unicode** object, all fields in **gi_exc_state** have value 0x00
+**gi_name** and **gi_qualname** both point to the same **unicode** object; all fields in **gi_exc_state** have value 0x00
 
 ![example_gen_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_0.png)
 
@@ -146,13 +146,13 @@ result None
 
 ```
 
-looking into the object f, nothing changed
+Looking into the object f, nothing changed.
 
-but the **f_lasti** in **gi_frame** now in the position 52(the first place keyword **yield** appears)
+But the **f_lasti** in **gi_frame** is now at position 52 (the first place the keyword **yield** appears)
 
 ![example_gen_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_1.png)
 
-step one more time, due to the while loop, the **f_lasti** still points to the same position
+Step one more time. Due to the while loop, the **f_lasti** still points to the same position
 
 ```python3
 >>> r = f.send("handsome")
@@ -164,7 +164,7 @@ result 'handsome'
 
 ```
 
-send again, the **f_lasti** indicate the code offset in the position of second **yield**
+Send again. The **f_lasti** indicates the code offset at the position of the second **yield**
 
 ```python3
 >>> r = f.send("handsome2")
@@ -200,9 +200,9 @@ result 'handsome5'
 
 ```
 
-now, the while loop terminated by the break statement
+Now the while loop is terminated.
 
-the **f_lasti** is in the position of the first **except** statement, the **exc_type** points to the type of the exception, **exc_value** points to the instance of the exception, and **exc_traceback** points to the traceback object
+The **f_lasti** is at the position of the first **except** statement. **exc_type** points to the type of the exception, **exc_value** points to the instance of the exception, and **exc_traceback** points to the traceback object
 
 ```python3
 >>> r = f.send("handsome6")
@@ -215,7 +215,7 @@ the **f_lasti** is in the position of the first **except** statement, the **exc_
 
 ![example_gen_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_2.png)
 
-the **f_lasti** is in the position of the second **except** statement, **exc_type**, **exc_value**, and **exc_traceback** now relate to ModuleNotFoundError
+The **f_lasti** is at the position of the second **except** statement. **exc_type**, **exc_value**, and **exc_traceback** now relate to ModuleNotFoundError
 
 ```python3
 >>> r = f.send("handsome7")
@@ -229,9 +229,9 @@ the **f_lasti** is in the position of the second **except** statement, **exc_typ
 
 ![example_gen_3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_3.png)
 
-the **f_lasti** is in the position of the first **finally** statement, the ModuleNotFoundError is handled properly, at the top of the exception stack is the **ZeroDivisionError**
+The **f_lasti** is at the position of the first **finally** statement. The ModuleNotFoundError is handled properly; at the top of the exception stack is the **ZeroDivisionError**.
 
-actually the information about [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md) is stored in [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md), **gi_exec_state** is used for representing whether current generator ojbect is handling exception and the detail of the most nested exception
+Actually, the information about [exception handling](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/exception/exception.md) is stored in [frame object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md). **gi_exc_state** is used for representing whether the current generator object is handling an exception and the details of the most nested exception
 
 ```python3
 >>> r = f.send("handsome8")
@@ -245,13 +245,13 @@ result 'handsome8'
 
 ![example_gen_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_gen_4.png)
 
-now, the **StopIteration** is raised
+Now the **StopIteration** is raised.
 
-the frameObject in **gi_frame** field is freed
+The frameObject in the **gi_frame** field is freed.
 
-field **gi_frame** points to a null pointer, indicating that the generator is terminated
+The field **gi_frame** points to a null pointer, indicating that the generator is terminated.
 
-and states in **gi_exc_state** is restored
+The state in **gi_exc_state** is restored
 
 ```python3
 >>> r = f.send("handsome9")
@@ -278,17 +278,17 @@ AttributeError: 'NoneType' object has no attribute 'f_lasti'
 
 ## memory layout coroutine
 
-most parts of the definition of the **coroutine** type and **generator** are the same
+Most parts of the definition of the **coroutine** type and **generator** are the same.
 
-the coroutine-only field named **cr_origin**, tracking the trackback of the **coroutine** object, is disabled by default, can be enabled by **sys.set_coroutine_origin_tracking_depth**, for more detail please refer to [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
+The coroutine-only field named **cr_origin**, which tracks the traceback of the **coroutine** object, is disabled by default. It can be enabled by **sys.set_coroutine_origin_tracking_depth**. For more detail, please refer to [docs.python.org(set_coroutine_origin_tracking_depth)](https://docs.python.org/3/library/sys.html#sys.set_coroutine_origin_tracking_depth)
 
 ![layout_coro](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_coro.png)
 
 ## example coroutine
 
-let's try to run an example with **coroutine** type defined to understand each field's meaning
+Let's try to run an example with the **coroutine** type defined to understand each field's meaning.
 
-as usual, I've altered the source code so that my **repr** function is able to print all the low-level detail of the object
+As usual, I've altered the source code so that my **repr** function is able to print all the low-level details of the object
 
 ```python3
 import sys
@@ -336,7 +336,7 @@ if __name__ == "__main__":
 
 ```
 
-if you call a function defined with the **async** keyword, the calling result is an object of type **coroutine**
+If you call a function defined with the **async** keyword, the result is an object of type **coroutine**
 
 ```python3
 >>> c = cor()
@@ -354,7 +354,7 @@ in the **test** function, before the first **await** statement at the moment
 
 ```
 
-the content in field **cr_origin** in my computer is the calling stack from bottom to top
+The content in field **cr_origin** on my computer is the calling stack from bottom to top
 
 ![example_coro_0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/example_coro_0.png)
 
@@ -388,15 +388,15 @@ in the 6.01 seconds, both **cor_list[0]** and **cor_list[1]** returned, and thei
 
 ## memory layout async generator
 
-the layout of **async generator** is the same as **generator** type, except for the **ag_finalizer**, **ag_hooks_inited** and **ag_closed**
+The layout of **async generator** is the same as the **generator** type, except for **ag_finalizer**, **ag_hooks_inited**, and **ag_closed**
 
 ![layout_async_gen](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/layout_async_gen.png)
 
 ## example async generator
 
-the **set_asyncgen_hooks** function is used for setting up a **firstiter** and a **finalizer**, **firstiter** will be called before when an asynchronous generator is iterated for the first time, finalizer will be called when asynchronous generator is about to be gc
+The **set_asyncgen_hooks** function is used for setting up a **firstiter** and a **finalizer**. **firstiter** will be called when an asynchronous generator is iterated for the first time; **finalizer** will be called when an asynchronous generator is about to be garbage collected.
 
-the **run_forever** function in asyncio base event loop has defined
+The **run_forever** function in the asyncio base event loop has defined
 
 ```python3
 def run_forever(self):
@@ -434,7 +434,7 @@ in firstiter:  <async_generator object async_fib at 0x10a98f598>
 
 ```
 
-let's define and iter through an async iterator
+Let's define and iterate through an async iterator
 
 ```python3
 import asyncio

@@ -29,9 +29,9 @@
 
 ## memory layout iter
 
-The python sequence iterator is a wrapper of a python object with _\_getitem_\_ defined
+The Python sequence iterator is a wrapper of a Python object with _\_getitem_\_ defined.
 
-so the sequence iterator can iter through the target object by calling the object[index], and set index to index + 1
+So the sequence iterator can iterate through the target object by calling object[index], and set index to index + 1
 
 ```c
 static PyObject *
@@ -75,7 +75,7 @@ iter_iternext(PyObject *iterator)
 
 ### iter0
 
-let's iter through an iterator object
+Let's iterate through an iterator object
 
 ```python3
 class A(object):
@@ -98,7 +98,7 @@ type(a) # iterator
 
 ### iter1
 
-the **next(a)** calls object[0], and return the result
+**next(a)** calls object[0] and returns the result
 
 ```python3
 >>> next(a)
@@ -120,7 +120,7 @@ the **next(a)** calls object[0], and return the result
 
 ### iter3
 
-the current **it_index** is 2, so the next(a) calls object[2] which returns 4
+The current **it_index** is 2, so next(a) calls object[2] which returns 4
 
 ```python3
 >>> next(a)
@@ -152,9 +152,9 @@ the current **it_index** is 2, so the next(a) calls object[2] which returns 4
 
 ### iter end
 
-now, the **it_idnex** is 5, next(a) will raise an IndexError
+Now the **it_index** is 5, and next(a) will raise an IndexError.
 
-the content in **it_index** is still 5, but the content in **it_seq** becomes 0x00, which indicate end of iteration
+The content in **it_index** is still 5, but the content in **it_seq** becomes 0x00, which indicates end of iteration
 
 ```python3
 >>> next(a)
@@ -167,7 +167,7 @@ StopIteration
 
 ![iterend](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/iter/iterend.png)
 
-notice, if you call next(a) again, the **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**, it loses the way to access the instance of **class A**, and can no longer call the _\_getitem_\_ function
+Notice: if you call next(a) again, **"raise by myself"** won't be printed, since the **it_seq** field no longer points to the instance of **class A**. It has lost the way to access the instance of **class A** and can no longer call the _\_getitem_\_ function
 
 ```python3
 >>> next(a)
@@ -219,7 +219,7 @@ calliter_iternext(calliterobject *it)
 
 ```
 
-a callable_iterator calls whatever stores in **it_callable** each time you iter through it, until the result match the **it_sentinel** or a StopIteration raised
+A callable_iterator calls whatever is stored in **it_callable** each time you iterate through it, until the result matches **it_sentinel** or a StopIteration is raised
 
 
 ## example citer
@@ -246,9 +246,9 @@ type(r) # callable_iterator
 
 ### citer1
 
-the callable_iterator calls the _\_call_\_ method of the instance of A, and compare the result with the sentinel **2**
+The callable_iterator calls the _\_call_\_ method of the instance of A and compares the result with the sentinel **2**.
 
-the next operation won't change any state of the callable_iterator object, the state inside **it_callable** is changed anyway
+The next operation won't change any state of the callable_iterator object; the state inside **it_callable** is changed instead
 
 ```python3
 >>> next(r)
@@ -260,9 +260,9 @@ the next operation won't change any state of the callable_iterator object, the s
 
 ### citer end
 
-this time the instance of A returns PyLongObject 2, which is the same as the object stored inside **it_sentinel** field,
+This time the instance of A returns PyLongObject 2, which is the same as the object stored in the **it_sentinel** field.
 
-so the callable_iterator clears its state and return NULL to the outer scope, which raise a StopIteration
+So the callable_iterator clears its state and returns NULL to the outer scope, which raises a StopIteration
 
 ```python3
 >>> next(r)

@@ -42,7 +42,7 @@ python3 ./Tools/scripts/update_file.py ./Include/graminit.h ./Include/graminit.h
 python3 ./Tools/scripts/update_file.py ./Python/graminit.c ./Python/graminit.c.new
 ```
 
-There's a program inside the `Parser/` directory, the above command will compile and run the `Parser/pgenmain.o` and output a program named `Parser/pgen`, which takes a **grammar file** as input and generate `grammar` structure, `dfa` tables and etc...(above diagram)  as outpout(two c files, `graminit.c` and `graminit.h`)
+There's a program inside the `Parser/` directory. The above command will compile and run the `Parser/pgenmain.o` and output a program named `Parser/pgen`, which takes a **grammar file** as input and generates `grammar` structure, `dfa` tables, etc. (above diagram) as output (two C files, `graminit.c` and `graminit.h`)
 
 ![pgen](./pgen.png)
 
@@ -54,7 +54,7 @@ The built-in `Parser/metagrammar.c` and `Include/metagrammar.h` will be used as 
 
 `graminit` is used for parsing `Python` 's source code
 
-They both generated in the same way, with different `Grammar` file
+They are both generated in the same way, with different `Grammar` files
 
 ![pgen2](./pgen2.png)
 
@@ -69,9 +69,9 @@ The `Parser/metagrammar.c` and `Include/metagrammar.h` 's grammar
 >ATOM: NAME | STRING | '(' RHS ')'
 >```
 
-It's like a compiler which can compile itself, For more detail please refer to [python compiler from grammar to dfa](https://aoik.me/blog/posts/python-compiler-from-grammar-to-dfa)
+It's like a compiler which can compile itself. For more detail please refer to [Python compiler from grammar to dfa](https://aoik.me/blog/posts/python-compiler-from-grammar-to-dfa)
 
-Let's focus on how `pgen` work with a simple example
+Let's focus on how `pgen` works with a simple example
 
 ```bash
 % cat Grammar/ExampleGrammar 
@@ -89,7 +89,7 @@ Parser/pgen ./Grammar/ExampleGrammar \
                 ./Parser/examplegrammar.c
 ```
 
-With a little manual edition to make the following compile command work, the final [examplegrammar.c](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/examplegrammar.c) 
+With a little manual editing to make the following compile command work, the final [examplegrammar.c](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/examplegrammar.c) 
 
 And compile the edited generated grammar code and compile a new `pgen2` program [example_grammar.sh](https://github.com/zpoint/CPython-Internals/tree/master/Interpreter/compile/gen/example_grammar.sh)
 
@@ -97,14 +97,14 @@ And compile the edited generated grammar code and compile a new `pgen2` program 
 sh example_grammar.sh
 ```
 
-After get `Parser/pgen2`, we can verify that if our grammar works correctly
+After getting `Parser/pgen2`, we can verify that our grammar works correctly
 
 ```bash
 % cat my_file.txt 
 1 + 3 + 4
 2 - 5
 # run the following command will fail, our purpose is to see the dfa state
-# if you comment `Parser/parser.c`'s marco and set the `Parser/parser.c`'s marco to '#define D(x) x' and rerun the above compile command
+# if you comment `Parser/parser.c`'s macro and set the `Parser/parser.c`'s macro to '#define D(x) x' and rerun the above compile command
 # you can see the output of DFA state is in the ACCEPT state
 # it means our grammar works correctly
 Parser/pgen2 ./my_file.txt \
@@ -132,13 +132,13 @@ The call stack of `Parser/pgenmain.c`
 
 `parsetok` will call `PyTokenizer_Get->tok_get` to get tokens, for each token, `PyParser_AddToken` will be called
 
-`tokens` are predefined in `Parser/token.c` and `Include/token.h`, which is also auto generated from `Grammar/Tokens` by command `make regen-token`
+`tokens` are predefined in `Parser/token.c` and `Include/token.h`, which are also auto-generated from `Grammar/Tokens` by the command `make regen-token`
 
 This is the helper structure when parsing
 
 ![parser](./parser.png)
 
-There're too much detail, I am not going to show every element's value is every structure, Let's go through our `ExampleGrammar`  with `my_file.txt` token by token
+There are too many details. I am not going to show every element's value in every structure. Let's go through our `ExampleGrammar` with `my_file.txt` token by token
 
 After `push`
 

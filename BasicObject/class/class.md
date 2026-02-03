@@ -18,7 +18,7 @@
 
 # memory layout
 
-the **PyMethodObject** represents the type **method** in c-level
+**PyMethodObject** represents the type **method** at the C level
 
 ```python3
 class C(object):
@@ -35,7 +35,7 @@ class C(object):
 
 # fields
 
-the layout of **c.f1**
+The layout of **c.f1**
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/example0.png)
 
@@ -51,7 +51,7 @@ as you can see from the layout, field **im_func** stores the [function](https://
 
 ## im_self
 
-field **im_self** stores the instance object this method bound to
+The field **im_self** stores the instance object this method is bound to
 
 ```python3
 >>> c
@@ -67,7 +67,7 @@ when you call
 
 ```
 
-the **PyMethodObject** delegate the real call to **im_func** with **im_self** as the first argument
+**PyMethodObject** delegates the real call to **im_func** with **im_self** as the first argument
 
 ```c
 static PyObject *
@@ -99,11 +99,11 @@ static int numfree = 0;
 
 ```
 
-free_list is a single linked list, it's used for **PyMethodObject** to safe malloc/free overhead
+free_list is a singly linked list. It's used for **PyMethodObject** to save malloc/free overhead.
 
-**im_self** field is used to chain the element
+The **im_self** field is used to chain the elements.
 
-the **PyMethodObject** will be created when you trying to access the bound-method, not when the instance is created
+The **PyMethodObject** will be created when you try to access the bound-method, not when the instance is created
 
 ```python3
 >>> c1 = C()
@@ -121,7 +121,7 @@ the **PyMethodObject** will be created when you trying to access the bound-metho
 
 ```
 
-now, let's see an example of free_list
+Now let's see an example of free_list
 
 ```python3
 >>> c1_f1_1 = c1.f1
@@ -156,7 +156,7 @@ assume the free_list is empty now
 
 # classmethod and staticmethod
 
-let's define an object with **classmethod** and **staticmethod**
+Let's define an object with **classmethod** and **staticmethod**
 
 ```python3
 class C(object):
@@ -193,7 +193,7 @@ the **@classmethod** keeps type of **c1.fc** as **method**
 
 ![classmethod](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod.png)
 
-how **classmethod** work internally?
+How does **classmethod** work internally?
 
 **classmethod** is a **type** in python3
 
@@ -208,7 +208,7 @@ typedef struct {
 
 ![classmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod1.png)
 
-let's see what's under the hood
+Let's see what's under the hood
 
 ```python3
 fc = classmethod(lambda self : self)
@@ -228,9 +228,9 @@ class C(object):
 
 ```
 
-get a different result when access the same object in a different way, why?
+We get a different result when accessing the same object in a different way. Why?
 
-when you trying to access the **fc1** in instance cc, the **descriptor protocol** will try several different paths to get the attribute in the following step
+When you try to access **fc1** in instance cc, the **descriptor protocol** will try several different paths to get the attribute in the following steps
 * call `__getattribute__` of the object C
 * `C.__dict__["fc1"]` is a data descriptor?
     * yes, return `C.__dict__['fc1'].__get__(instance, Class)`
@@ -246,7 +246,7 @@ for more detail, please refer to this blog [object-attribute-lookup](https://blo
 
 because **classmethod** implements `__get__` and `__set__`, it's a data descriptor, when you try to access attribute **cc.fc1**, you will actually call `fc1.__get__`, and caller will get whatever it returns
 
-we can see the `__get__` function of classmethod object(defined as `cm_descr_get` in C)
+We can see the `__get__` function of the classmethod object (defined as `cm_descr_get` in C)
 
 ```c
 static PyObject *
@@ -268,7 +268,7 @@ cm_descr_get(PyObject *self, PyObject *obj, PyObject *type)
 
 ![classmethod_get](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/classmethod_get.png)
 
-when you access fc1 by **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever in the **cm_callable**, wrapped by **PyMethod_New()** function, which makes the return object a new bounded-PyMethodObject
+When you access fc1 via **cc.fc1**, the **descriptor protocol** will call the function above, which returns whatever is in **cm_callable**, wrapped by the **PyMethod_New()** function, which makes the returned object a new bound PyMethodObject
 
 ## staticmethod
 
@@ -291,7 +291,7 @@ typedef struct {
 
 ```
 
-this is the layout of **staticmethod** object
+This is the layout of the **staticmethod** object
 
 ![staticmethod1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod1.png)
 
@@ -315,7 +315,7 @@ class C(object):
 
 ![staticmethod2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/staticmethod2.png)
 
-we can see the `__get__` function of staticmethod object
+We can see the `__get__` function of the staticmethod object
 
 ```c
 static PyObject *

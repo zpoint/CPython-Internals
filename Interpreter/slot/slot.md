@@ -56,9 +56,9 @@ class A(object):
 
 ```
 
-what's the difference of accessing attribute `wing` and `x` of instance `a` ?
+What's the difference between accessing attribute `wing` and `x` of instance `a`?
 
-what's the difference of accessing attribute `wing` and `x` of type `A` ?
+What's the difference between accessing attribute `wing` and `x` of type `A`?
 
 # instance access
 
@@ -75,13 +75,11 @@ AttributeError: wing
 
 ```
 
-according to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md)
-
-we can draw the procedure of accessing `a.wing` in a brief view
+According to the **attribute accessing procedure** described in [descr](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/descr/descr.md), we can draw the procedure of accessing `a.wing` in a brief view
 
 ![instance_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_desc.png)
 
-the **descriptor protocol** help us find an object named `descr`, type is `member_descriptor`, if you call
+The **descriptor protocol** helps us find an object named `descr` whose type is `member_descriptor`. If you call
 
 ```python3
 repr(descr)
@@ -89,11 +87,11 @@ descr: <member 'wing' of 'A' objects>
 
 ```
 
-the `descr` has a member named `d_member`, which stores information about the attribute name, type and offset
+The `descr` has a member named `d_member`, which stores information about the attribute name, type, and offset.
 
-with the informations stored in `d_member`, you are able to access the address of attribute in a very fast way
+With the information stored in `d_member`, you are able to access the address of the attribute in a very fast way.
 
-in the current example, if the begin address of the instance `a` is `0x00`, address after adding the offset is `0x18`, you can cast the address in `0x18` to a proper object according to `type` stored in `d_member`
+In the current example, if the beginning address of the instance `a` is `0x00`, the address after adding the offset is `0x18`. You can cast the address at `0x18` to a proper object according to `type` stored in `d_member`
 
 ```c
 /* Include/structmember.h */
@@ -130,7 +128,7 @@ switch (l->type) {
 
 ```
 
-because wing attribute of instance `a` is set before, `AttributeError` won't be raised
+Because the wing attribute of instance `a` is set before, `AttributeError` won't be raised
 
 ## instance access x
 
@@ -140,11 +138,11 @@ because wing attribute of instance `a` is set before, `AttributeError` won't be 
 
 ```
 
-type of `descr` is `int`, it's not a data descriptor(does not have `__get__` or `__set__` attribute), so the `descr` will be returned directly
+The type of `descr` is `int`. It's not a data descriptor (does not have `__get__` or `__set__` attribute), so the `descr` will be returned directly
 
 ![instance_normal](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_normal.png)
 
-you are not able to create any other attribute in instance `a` if `A` defined `__slots__`, we will figure out why later
+You are not able to create any other attribute in instance `a` if `A` defines `__slots__`. We will figure out why later
 
 ```python3
 >>> a.not_exist = 100
@@ -166,7 +164,7 @@ AttributeError: 'A' object has no attribute 'not_exist'
 
 ```
 
-the procedure of accessing `A.wing` is nearly the same as `a.wing`
+The procedure of accessing `A.wing` is nearly the same as `a.wing`
 
 ![type_desc](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_desc.png)
 
@@ -178,7 +176,7 @@ the procedure of accessing `A.wing` is nearly the same as `a.wing`
 
 ```
 
-the procedure of accessing `A.x` is nearly the same as `a.x`
+The procedure of accessing `A.x` is nearly the same as `a.x`
 
 ![type_normal](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_normal.png)
 
@@ -188,29 +186,29 @@ the procedure of accessing `A.x` is nearly the same as `a.x`
 
 ### how does attributes initialize in the creation of `class A` ?
 
-we can learn about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class)
+We can learn about the creation procedure in [type->creation of class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/type.md#creation-of-class).
 
-`type` object has many fields in it's C structure, the following picture only shows what's necessary for this topic
+The `type` object has many fields in its C structure. The following picture only shows what's necessary for this topic.
 
-what's in the `__slots__` is sorted and stored as a tuple in `ht_slots`
+What's in `__slots__` is sorted and stored as a tuple in `ht_slots`.
 
-the two attributes in `__slots__` is preallocated in the tail of the newly created type object `A` and two `PyMemberDef` pointers are stored in the order of `ht_slots`
+The two attributes in `__slots__` are preallocated in the tail of the newly created type object `A`, and two `PyMemberDef` pointers are stored in the order of `ht_slots`.
 
-while attribute `x` stays in the `tp_dict` field
+Meanwhile, attribute `x` stays in the `tp_dict` field.
 
-the `tp_dict` field does not have a key named `__dict__`
+The `tp_dict` field does not have a key named `__dict__`
 
 ![type_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/type_create.png)
 
 ### how does attributes initialize in the creation of `instance a` ?
 
-the memory location of the attributes in `__slots__` are preallocated
+The memory locations of the attributes in `__slots__` are preallocated
 
 ![instance_create](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/slot/instance_create.png)
 
 ### lookup procedure in MRO ?
 
-it just iter through every type object in MRO, and if the name in `tp_dict` field, retuen `tp_dict[name]`
+It just iterates through every type object in MRO, and if the name is in the `tp_dict` field, returns `tp_dict[name]`
 
 ```c
 /* cpython/Objects/typeobject.c */

@@ -31,18 +31,18 @@
 
 # introduction
 
-the garbage collection in CPython consists of two components
+The garbage collection in CPython consists of two components
 
 * **reference counting** (mostly defined in `Include/object.h`)
 * **generational garbage collection** (mostly defined in `Modules/gcmodule.c`)
 
 ## reference counting
 
-as [wikipedia](https://en.wikipedia.org/wiki/Reference_counting) says
+As [Wikipedia](https://en.wikipedia.org/wiki/Reference_counting) says
 
 > In computer science, reference counting is a technique of storing the number of references, pointers, or handles to a resource such as an object, block of memory, disk space or other resource. It may also refer, more specifically, to a garbage collection algorithm that uses these reference counts to deallocate objects which are no longer referenced
 
-in python
+In Python
 
 ```python3
 s = "hello world"
@@ -68,7 +68,7 @@ s = "hello world"
 ![refcount2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/refcount2.png)
 
 
-let's compile a script
+Let's compile a script
 
 ```python3
 s = []
@@ -77,7 +77,7 @@ del s
 
 ```
 
-the output is
+The output is
 
 ```python3
 1         0 BUILD_LIST               0
@@ -92,9 +92,9 @@ the output is
 
 ```
 
-in the first line `s = []`
+In the first line `s = []`
 
-`0 BUILD_LIST               0` simply create a new list, initialize it's reference count to 1, and push it onto the stack
+`0 BUILD_LIST               0` simply creates a new list, initializes its reference count to 1, and pushes it onto the stack
 
 `2 STORE_NAME               0`
 
@@ -132,13 +132,13 @@ case TARGET(STORE_NAME): {
 
 ```
 
-before execute line 2 `s2 = s`, reference count of the newly created list object is 1
+Before executing line 2 `s2 = s`, the reference count of the newly created list object is 1
 
-`4 LOAD_NAME                0` gets the value stores in local namespace with key 's' ---- the newly created list object, increment it's reference count, and push it onto the stack
+`4 LOAD_NAME                0` gets the value stored in local namespace with key 's' ---- the newly created list object, increments its reference count, and pushes it onto the stack
 
-until now, the reference count of the newly created list object is 2(one from 's', one from the stack)
+Until now, the reference count of the newly created list object is 2 (one from 's', one from the stack)
 
-`6 STORE_NAME               1` executes the above code again, the difference is the name now becomes 's2', after this opcode, reference count of the list becomes 2
+`6 STORE_NAME               1` executes the above code again. The difference is the name now becomes 's2'. After this opcode, the reference count of the list becomes 2
 
 `8 DELETE_NAME              0 (s)`
 
@@ -174,7 +174,7 @@ case TARGET(DELETE_NAME): {
 
 ### when will it be triggered
 
-if the reference count becomes 0, the deallocate procedure will be triggered immediately
+If the reference count becomes 0, the deallocation procedure will be triggered immediately
 
 ```c
 /* cpython/Include/object.h */
@@ -202,7 +202,7 @@ static inline void _Py_DECREF(const char *filename, int lineno,
 
 ### reference cycle problem
 
-there're some situations that the reference counting can't handle
+There are some situations that reference counting can't handle
 
 ### example1
 
@@ -227,7 +227,7 @@ reference count of **a1** and **a2** are both 2
 
 ```
 
-now, the reference from local namespace is deleted, and they both have a reference to each other, there's no way for the reference count of **a1**/**a2** to become 0
+Now, the reference from the local namespace is deleted, and they both have a reference to each other. There's no way for the reference count of **a1**/**a2** to become 0
 
 ![ref_cycle2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_each2.png)
 
@@ -248,13 +248,13 @@ now, the reference from local namespace is deleted, and they both have a referen
 
 ```
 
-the reference from local namespace is deleted, the reference count of **a** will stays 1 and never become 0
+The reference from the local namespace is deleted. The reference count of **a** will stay 1 and never become 0
 
 ![ref_cycle1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/ref_cycle2.png)
 
 ## generational garbage collection
 
-If there's only one mechanism **reference counting** working, the interpreter will risk the memory leak issue due to the reference cycle in the above examples
+If only one mechanism (**reference counting**) were working, the interpreter would risk memory leak issues due to the reference cycles in the above examples
 
 **generational garbage collection** is the other component used for detecting and garbage collecting the unreachable object
 
@@ -274,7 +274,7 @@ class A:
 
 ### track
 
-there must be a way to keep track of all the heap allocated **PyObject**
+There must be a way to keep track of all the heap-allocated **PyObject**s
 
 **generation0** is a pointer, to the head of the linked list, each element in the linked list consists of two parts, the first part is **PyGC_Head**, the second part is **PyObject**
 
@@ -284,29 +284,29 @@ there must be a way to keep track of all the heap allocated **PyObject**
 
 ![track](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/track.png)
 
-when you create a python object such as `a = list()`, object **a** of type **list** will be appended to the end of the linked list in **generation0**, so **generation0** is able to track all the newly created python object
+When you create a Python object such as `a = list()`, object **a** of type **list** will be appended to the end of the linked list in **generation0**, so **generation0** is able to track all the newly created Python objects
 
-actually, the linked list is linked via **_gc_next**, **_gc_prev** is not a valid pointer, it's used for storing bit flag and other information
+Actually, the linked list is linked via **_gc_next**. **_gc_prev** is not a valid pointer; it's used for storing bit flags and other information
 
 ### generational
 
-if all newly created objects are appended to the tail of one linked list, somehow it will be a very huge linked list
+If all newly created objects are appended to the tail of one linked list, it will eventually become a very huge linked list.
 
-for some program designed for running for a long time, there must exist some long lived objects, repeating garbage collecting these objects will waste lots of CPU time
+For programs designed for running for a long time, there must exist some long-lived objects. Repeatedly garbage collecting these objects will waste lots of CPU time.
 
-generations is used in the purpose of doing less collections
+Generations are used for the purpose of doing fewer collections.
 
-CPython used three generations totally, the newly created objects is stored in the first generation, when an object survive a round of gc, it will be moved to next generation
+CPython uses three generations in total. Newly created objects are stored in the first generation. When an object survives a round of GC, it will be moved to the next generation.
 
-lower generation will be collected more frequently, higher generation will be collected less frequently
+Lower generations will be collected more frequently; higher generations will be collected less frequently.
 
-when a generation is being collected, all the generations lower than the current will be merged together before collection
+When a generation is being collected, all the generations lower than the current one will be merged together before collection
 
 ![generation](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation.png)
 
 ### update_refs
 
-let's run a procedure of garbage collection
+Let's run a procedure of garbage collection
 
 ```python3
 # assume a1, a2, b survived in generation0, and move to generation1
@@ -326,13 +326,13 @@ let's run a procedure of garbage collection
 
 ![update_ref1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/update_ref1.png)
 
-first step is to merge every generation lower than the current generation, mark this merged generation as **young**, mark the generation next to the current generation as **old**
+The first step is to merge every generation lower than the current generation, mark this merged generation as **young**, and mark the generation next to the current generation as **old**
 
 ![young_old](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/young_old.png)
 
-function **update_refs** will copy object's reference count, stores in the **_gc_prev** field of the object, the right most 2 bit of **_gc_prev** is reserved of some marking
+Function **update_refs** will copy the object's reference count and store it in the **_gc_prev** field of the object. The rightmost 2 bits of **_gc_prev** are reserved for some marking.
 
-so, the copy of the reference count will left shift 2 before stores in the **_gc_prev**
+So, the copy of the reference count will be left-shifted by 2 before being stored in **_gc_prev**
 
 `1 / 0x06` means the copy of the reference count is `1`, but the value actually stores in **_gc_prev** is `0x06`
 
@@ -340,31 +340,31 @@ so, the copy of the reference count will left shift 2 before stores in the **_gc
 
 ### subtract_refs
 
-function **subtract_refs** will traverse the **young** generation, iterate through every object in  the linked list
+Function **subtract_refs** will traverse the **young** generation, iterating through every object in the linked list.
 
-for every object in the generation, check if every other object accessible from the current object is collectable and in the same generation, if so, decrement the copied reference count in **_gc_prev** (calls **tp_traverse** with the function **visit_decref**)
+For every object in the generation, check if every other object accessible from the current object is collectable and in the same generation. If so, decrement the copied reference count in **_gc_prev** (calls **tp_traverse** with the function **visit_decref**).
 
-this step aims to decrement reference count referenced by those objects in same generation
+This step aims to decrement reference counts referenced by those objects in the same generation
 
 ![subtract_refs](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/subtract_refs.png)
 
 ### move_unreachable
 
-**move_unreachable** will create a linked list named **unreachable**, traverse the current **generation** named **young**, move those objects with the value of the copy of the reference count <= 0 to **unreachable**
+**move_unreachable** will create a linked list named **unreachable**, traverse the current **generation** named **young**, and move those objects with the value of the copy of the reference count <= 0 to **unreachable**.
 
-if the current object has the value of the copy of the reference count > 0, for every other object in same generation reachable from the current object, if the accessible object has a copy of the reference count <= 0, reset the reference count to 1, and move that object to the tail of **generation** if it's currentlt in **unreachable**
+If the current object has the value of the copy of the reference count > 0, for every other object in the same generation reachable from the current object, if the accessible object has a copy of the reference count <= 0, reset the reference count to 1 and move that object to the tail of **generation** if it's currently in **unreachable**.
 
-let's see an example
+Let's see an example.
 
-first object in **generation** is the local **namespace**, because **namespace** object is reachable, all objects reachable from the local **namespace** is also reachable, so the **_gc_prev** of `c` and `d2` are all set to `0x06`
+The first object in **generation** is the local **namespace**. Because the **namespace** object is reachable, all objects reachable from the local **namespace** are also reachable, so the **_gc_prev** of `c` and `d2` are all set to `0x06`
 
 ![move_unreachable1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable1.png)
 
-the second object is `a1`, since `a1`'s copy of the reference count is <= 0, it's moved to **unreachable**
+The second object is `a1`. Since `a1`'s copy of the reference count is <= 0, it's moved to **unreachable**
 
 ![move_unreachable2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable2.png)
 
-so does `a2`
+So does `a2`
 
 ![move_unreachable3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable3.png)
 
@@ -372,17 +372,17 @@ so does `a2`
 
 ![move_unreachable4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable4.png)
 
-now, it comes to `c`
+Now, it comes to `c`.
 
-because the copy of the reference count of `c`'s value is > 0, it will stay in the **generation**
+Because the copy of the reference count of `c`'s value is > 0, it will stay in the **generation**
 
 ![move_unreachable5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable5.png)
 
-because `d1`'s copy of the reference count is <= 0, it's moved to **unreachable**
+Because `d1`'s copy of the reference count is <= 0, it's moved to **unreachable**
 
 ![move_unreachable6](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable6.png)
 
-because `d2`'s copy of the reference count is > 0, and `d1` is reachable from `d2`
+Because `d2`'s copy of the reference count is > 0, and `d1` is reachable from `d2`
 
 ![move_unreachable7](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable7.png)
 
@@ -390,21 +390,21 @@ because `d2`'s copy of the reference count is > 0, and `d1` is reachable from `d
 
 ![move_unreachable8](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable8.png)
 
-when it comes to `d1`, copy of the reference count is > 0
+When it comes to `d1`, the copy of the reference count is > 0.
 
-and we reach the end of the **generation**, so every object stays in **unreachable** can be garbage collected
+We have reached the end of the **generation**, so every object that stays in **unreachable** can be garbage collected.
 
-all objects survive this round of garbage collections will be moved to the elder **generation**
+All objects that survive this round of garbage collection will be moved to the older **generation**
 
 ![move_unreachable9](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/move_unreachable9.png)
 
 ### finalizer
 
-what if an unusual object(which contains cyclic reference) needed to be garbage collected has defined it's own finalizer ?
+What if an unusual object (which contains a cyclic reference) that needs to be garbage collected has defined its own finalizer?
 
-before python3.4, those objects won't be collected, they will be moved to `gc.garbage` and you need to call `__del__` and collect them manually
+Before Python 3.4, those objects wouldn't be collected. They would be moved to `gc.garbage` and you would need to call `__del__` and collect them manually.
 
-after python3.4, [pep-0442](https://legacy.python.org/dev/peps/pep-0442/) solves the problem
+After Python 3.4, [PEP-0442](https://legacy.python.org/dev/peps/pep-0442/) solves the problem
 
 ```python3
 class A:
@@ -433,47 +433,47 @@ gc.collect()
 
 ```
 
-this is the layout after **move_unreachable**
+This is the layout after **move_unreachable**
 
 ![finalize1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize1.png)
 
-step1, all objects defined it's own finalizer,  the `__del__` methods will be called
+Step 1: For all objects that have defined their own finalizer, the `__del__` methods will be called
 
 after `__del__`
 
 ![finalize2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize2.png)
 
-step2, do **update_refs** in **unreachable**
+Step 2: Do **update_refs** in **unreachable**
 
-notice, the first bit flag of `b` in **_gc_prev** is set, indicate that it's finalizer is called
+Notice that the first bit flag of `b` in **_gc_prev** is set, indicating that its finalizer has been called
 
 ![finalize3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize3.png)
 
-step3, do **subtract_refs** in **unreachable**
+Step 3: Do **subtract_refs** in **unreachable**
 
-this step aims to elimate the reference cycle among objects in **unreachable**
+This step aims to eliminate the reference cycle among objects in **unreachable**.
 
-then, traverse every object in **unreachable**, check if any object with the value of copy of the reference count > 0, if so, it means at least one object in **unreachable** makes outer object create new reference to this object, then go to step4
+Then, traverse every object in **unreachable** and check if any object has the value of copy of the reference count > 0. If so, it means at least one object in **unreachable** makes an outer object create a new reference to this object, then go to step 4.
 
-if not, after traverse, collecte all objects in **unreachable** and return
+If not, after traversing, collect all objects in **unreachable** and return
 
 ![finalize4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize4.png)
 
-stp4, move all objects in **unreachable** to **old** generation
+Step 4: Move all objects in **unreachable** to **old** generation
 
-if there's any object in **unreachable** defined it's own `__del__`, the `__del__` methods will be called in step1, and all objects in **unreachable** will survive this round of garbage collection
+If any object in **unreachable** has defined its own `__del__`, the `__del__` methods will be called in step 1, and all objects in **unreachable** will survive this round of garbage collection
 
 ![finalize5](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/finalize5.png)
 
-in the next round of gc, object `a1` and `a2` will be collected, because object `b`'s reference count is greater than 0 after the **subtract_refs**, it won't be moved to **unreachable**
+In the next round of GC, objects `a1` and `a2` will be collected. Because object `b`'s reference count is greater than 0 after **subtract_refs**, it won't be moved to **unreachable**.
 
-if the `__del__` methods is called, the bit flag in **_gc_prev** will be set, so the `__del__` will be called only once
+If the `__del__` method is called, the bit flag in **_gc_prev** will be set, so `__del__` will be called only once
 
 ### threshold
 
-there are three generations totally, and three **threshold**, each generation has a **threshold**
+There are three generations in total, and three **thresholds**. Each generation has a **threshold**.
 
-before performing collection, CPython will exam from high generation to low generation, if currently the number of objects in the current generation is greater than **threshold**, **gc** will begin in the current generation
+Before performing collection, CPython will examine from high generation to low generation. If the number of objects in the current generation is greater than the **threshold**, **GC** will begin in the current generation
 
 ```python3
 >>> gc.get_threshold()
@@ -481,7 +481,7 @@ before performing collection, CPython will exam from high generation to low gene
 
 ```
 
-it can be set manually
+It can be set manually
 
 ```python3
 gc.set_threshold(500)
@@ -491,7 +491,7 @@ gc.set_threshold(100, 20)
 
 ### when will generational gc be triggered
 
-one way is to call `gc.collect()` manually, it will collect the highest collection directly
+One way is to call `gc.collect()` manually. It will collect the highest generation directly
 
 ```python3
 >>> import gc
@@ -499,31 +499,31 @@ one way is to call `gc.collect()` manually, it will collect the highest collecti
 
 ```
 
-the other way is when the intepreter malloc a new space from the heap
+The other way is when the interpreter mallocs a new space from the heap
 
 ![generation_trigger1](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger1.png)
 
-the `collect` procedure will check from the highest to lowest generation
+The `collect` procedure will check from the highest to lowest generation.
 
-first check the **generation2**, **generation2**'s count is less than **threashold**
+First, check **generation2**. **generation2**'s count is less than the **threshold**
 
 ![generation_trigger2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger2.png)
 
-then check **generation1**, **generation1**'s count is greater than **threashold**, collect procedure begins in **generation1**
+Then check **generation1**. **generation1**'s count is greater than the **threshold**, so the collect procedure begins in **generation1**
 
 ![generation_trigger3](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger3.png)
 
-the collect procedure will merge all the generations lower than the current, and do what's described above
+The collect procedure will merge all the generations lower than the current one and do what's described above
 
 ![generation_trigger4](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gc/generation_trigger4.png)
 
-if the gc is collecting the highest generation, all the free_list will be freed, if you read other article such as [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md) or [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md), you can find what's free_list
+If the GC is collecting the highest generation, all the free_list will be freed. If you read other articles such as [list](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list.md) or [tuple](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple.md), you can find what free_list is
 
 # summary
 
-because the gc algorithm CPython used is not a parallel algorithm, a global lock such as [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when set up the track of an object to gc, or when garbage collecting any of the generations
+Because the GC algorithm CPython uses is not a parallel algorithm, a global lock such as the [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) is necessary to protect the critical region when setting up the track of an object to GC, or when garbage collecting any of the generations.
 
-while other garbage collector in other programming language such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC**(combined with Tri-Color algorithm for global concurrent marking) to do the garbage collection
+Other garbage collectors in other programming languages such as [Java-g1](http://idiotsky.top/2018/07/28/java-g1/) use **Young GC** or **Mix GC** (combined with the Tri-Color algorithm for global concurrent marking) to do the garbage collection
 
 
 # read more

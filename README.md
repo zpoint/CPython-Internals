@@ -4,11 +4,11 @@
 
 * [简体中文](README_CN.md)
 * [한국어](README_KR.md)
-*  **Watch** this repo if you need to be notified when there's update
+*  **Watch** this repo if you need to be notified when there's an update
 
-This repository is my notes/blog for [cpython](https://github.com/python/cpython) source code
+This repository contains my notes/blog for [cpython](https://github.com/python/cpython) source code
 
-Trying to illustrate every detail of cpython implementation
+It attempts to illustrate every detail of CPython implementation
 
 ```shell script
 # based on version 3.8.0a0
@@ -16,7 +16,7 @@ cd cpython
 git reset --hard ab54b9a130c88f708077c2ef6c4963b632c132b3
 ```
 
-The following contents are suitable for those who have python programming experience and interested in internal of python interpreter, for those who needs beginner or advanced material please refer to [awesome-python-books](https://github.com/Junnplus/awesome-python-books)
+The following content is suitable for those who have Python programming experience and are interested in the internals of the Python interpreter. For those who need beginner or advanced material, please refer to [awesome-python-books](https://github.com/Junnplus/awesome-python-books)
 
 # Table of Contents
 
@@ -93,7 +93,7 @@ The following contents are suitable for those who have python programming experi
 
 # Learning material
 
-I will only recommend what I've read
+I only recommend materials I've read
 
 * [CPython internals - Interpreter and source code overview(youtube video)](https://www.youtube.com/watch?v=LhadeL7_EIU&list=PLzV58Zm8FuBL6OAv1Yu6AwXZrnsFbbR0S)
 * [< < Inside The Python Virtual Machine > >](https://leanpub.com/insidethepythonvirtualmachine)
@@ -112,7 +112,7 @@ All kinds of contributions are welcome
   *  if you want to share any knowledge you know
   * post a new article
   * correct any technical mistakes
-  * correct english grammar
+  * correct English grammar
   * translation
   * anything else
 * open an issue

@@ -19,7 +19,7 @@
 
 # memory layout
 
-There's a type named **builtin_function_or_method** in python, as the type name described, all the builtin function or method defined in the c level belong to **builtin_function_or_method**
+There's a type named **builtin_function_or_method** in Python. As the type name describes, all built-in functions or methods defined at the C level belong to **builtin_function_or_method**
 
 ```python3
 >>> print
@@ -35,7 +35,7 @@ There's a type named **builtin_function_or_method** in python, as the type name 
 
 ## print
 
-let's read code snippet first
+Let's read a code snippet first
 
 ```c
 #define PyCFunction_Check(op) (Py_TYPE(op) == &PyCFunction_Type)
@@ -51,7 +51,7 @@ typedef PyObject *(*PyNoArgsFunction)(PyObject *);
 
 ```
 
-The **PyCFunction** is a type in c, any c function with signature(accept two PyObject* as parameters and return a PyObject *)  can be cast to type **PyCFunction**
+**PyCFunction** is a type in C. Any C function with the signature (accepting two PyObject* as parameters and returning a PyObject*) can be cast to type **PyCFunction**
 
 ```c
 // a c function named builtin_print
@@ -69,15 +69,15 @@ static PyMethodDef builtin_methods[] = {
 
 ![print](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print.png)
 
-a **PyMethodDef** should be attached to a **module** object, and a **self** arugment, and then a **PyCFunctionObject** will be generated
+A **PyMethodDef** should be attached to a **module** object with a **self** argument, and then a **PyCFunctionObject** will be generated.
 
-what user really interactive with is **PyCFunctionObject**
+What the user actually interacts with is **PyCFunctionObject**
 
 ![print2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print2.png)
 
-let's check for more detail of each field
+Let's check each field for more detail.
 
-the type in **m_self** field is **module**, and type in **m_module** field is **str**
+The type in the **m_self** field is **module**, and the type in the **m_module** field is **str**
 
 ![print3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/method/print3.png)
 
@@ -85,17 +85,17 @@ the type in **m_self** field is **module**, and type in **m_module** field is **
 
 ## ml_name
 
-as you can see in the above picture, field **ml_name** is the name of the built-in method, it's a c style null terminated string "print"
+As you can see in the above picture, the field **ml_name** is the name of the built-in method; it's a C-style null-terminated string "print"
 
 ## ml_meth
 
-the real c function pointer that does the job
+The actual C function pointer that does the job
 
 ## ml_flags
 
-bit flag indicates how the c function's behave in the python level
+A bit flag that indicates how the C function behaves at the Python level.
 
-the function in **call.c** begin with **_PyMethodDef_** will delegate the work to the **PyCFunction**, but with different calling behaviour according to different **ml_flags**
+The functions in **call.c** beginning with **_PyMethodDef_** will delegate work to the **PyCFunction**, but with different calling behavior according to different **ml_flags**
 
 for more detail please refer to [c-api Common Object Structures](https://docs.python.org/3/c-api/structures.html)
 
@@ -120,12 +120,12 @@ static int numfree = 0;
 
 ```
 
-cpython use a buffer pool with size 256 to reuse the deallocated **PyCFunctionObject** object, free_list is a single linked list, all elements are chained by the **m_self** field
+CPython uses a buffer pool with size 256 to reuse deallocated **PyCFunctionObject** objects. free_list is a singly linked list; all elements are chained by the **m_self** field.
 
-the similar technique appears in float object, the float object chained through the **ob_type** field, I will not draw again, user who need the graph representation please click the link [float(free_list)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md#free_list)
+A similar technique appears in float objects. Float objects are chained through the **ob_type** field. I will not draw again; users who need the graphical representation please click the link [float(free_list)](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md#free_list)
 
 # classmethod
 
 # staticmethod
 
-they're more related in **classobject**, I will talk about them later in [class object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)
+They're more related to **classobject**. I will talk about them later in [class object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/class/class.md)

@@ -36,7 +36,7 @@ l = list()
 
 ```
 
-field `ob_size` stores the actual size, it's type is `Py_ssize_t` which is usually 64 bit, `1 << 64` can represent a very large size, usually you will run out of RAM before overflow the `ob_size` field
+The field `ob_size` stores the actual size. Its type is `Py_ssize_t` which is usually 64 bits. `1 << 64` can represent a very large size; usually you will run out of RAM before overflowing the `ob_size` field
 
 ![list_empty](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/list_empty.png)
 
@@ -85,9 +85,9 @@ you can see that it's actually more like a `C++ vector`
 
 # pop
 
-the append operation will only trigger the `list`'s resize when the `list` is full
+The append operation will only trigger the `list`'s resize when the `list` is full
 
-what about pop ?
+What about pop?
 
 ```python3
 >>> l.pop()
@@ -103,9 +103,9 @@ what about pop ?
 
 ```
 
-the realloc is called and the malloced size is shrinked, actually the resize function will be called each time you call `pop`
+The realloc is called and the malloced size is shrunk. Actually, the resize function will be called each time you call `pop`
 
-but the actual realloc will be called only if the newsize falls lower than half the allocated size
+But the actual realloc will be called only if the newsize falls lower than half the allocated size
 
 ```python3
 /* cpython/Objects/listobject.c */
@@ -131,7 +131,7 @@ new_allocated = (size_t)newsize + (newsize >> 3) + (newsize < 9 ? 3 : 6);
 
 ## timsort
 
-the algorithm CPython used in sorting `list` is **timsort**, it's quiet complicated
+The algorithm CPython uses for sorting `list` is **timsort**. It's quite complicated
 
 ```python3
 >>> l = [5, 9, 17, 11, 10, 14, 2, 8, 12, 19, 4, 13, 3, 0, 16, 1, 6, 15, 18, 7]
@@ -145,11 +145,11 @@ a structure named `MergeState` is created for helping the **timsort** algorithm
 
 ![MergeState](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/MergeState.png)
 
-this is the state after preparing
+This is the state after preparing
 
 ![sort_begin1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin1.png)
 
-assume `minrun` is 5, we will see what `minrun` is and how `minrun` calculated later, for now, we run the sort algorithm and ignore these details for illustration
+Assume `minrun` is 5. We will see what `minrun` is and how `minrun` is calculated later. For now, we run the sort algorithm and ignore these details for illustration
 
 ![sort_begin2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin2.png)
 
@@ -165,7 +165,7 @@ after `binary_sort` the second group
 
 the second group is sorted by [binary_sort](#binary_sort), and the next index of `pending` stores the information of the second group
 
-we can learn from the above graph that `pending` act as a stack, every time a group is sorted, the group info will be pushed onto this stack, a function named `merge_collapse` will be called after the psuh operation
+We can learn from the above graph that `pending` acts as a stack. Every time a group is sorted, the group info will be pushed onto this stack, and a function named `merge_collapse` will be called after the push operation
 
 ```python3
 /* cpython/Objects/listobject.c */
@@ -226,7 +226,7 @@ merge_collapse(MergeState *ms)
 
 ```
 
-the current state is case 3, `merge_at` will merge the two runs at stack indices `i` and `i+1`
+The current state is case 3. `merge_at` will merge the two runs at stack indices `i` and `i+1`
 
 ## merge_at
 
@@ -234,7 +234,7 @@ the current state is case 3, `merge_at` will merge the two runs at stack indices
 
 ![ms](https://github.com/zpoint/Algorithms/blob/master/screenshots/ms.gif)
 
-after `merge_collapse`, the first two runs are merged and valid length of `pending` becomes 1
+After `merge_collapse`, the first two runs are merged and the valid length of `pending` becomes 1
 
 ![sort_begin5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin5.png)
 
@@ -242,13 +242,13 @@ after [binary_sort](#binary_sort) the next run
 
 ![sort_begin6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin6.png)
 
-the `merge_collapse` won't merge any of the `run` because the stack invariants are good
+The `merge_collapse` won't merge any of the `run`s because the stack invariants are satisfied
 
 after [binary_sort](#binary_sort) the final `run`
 
 ![sort_begin7](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin7.png)
 
-it meets `case 1`, and the last two `run` will be merged first
+It meets `case 1`, and the last two `run`s will be merged first
 
 ![sort_begin8](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/sort_begin8.png)
 
@@ -258,15 +258,15 @@ in the while loop of `merge_collapse`, merge will happen again in `case 3`, afte
 
 ## galloping mode
 
-if we are merging these two arrays
+If we are merging these two arrays
 
 ![galloping_mode0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/galloping_mode0.png)
 
-we can use binary search to find the the max element that is smaller than the first element in the right, and copy these elements together instead of merging one by one
+We can use binary search to find the max element that is smaller than the first element in the right, and copy these elements together instead of merging one by one
 
 ![galloping_mode1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/galloping_mode1.png)
 
-we can also do that from right to left
+We can also do that from right to left
 
 ![galloping_mode2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/galloping_mode2.png)
 
@@ -274,17 +274,17 @@ read more detail in [listsort.txt](https://github.com/python/cpython/blob/master
 
 ## binary_sort
 
-before delegating the call to `binary_sort`, a function named `count_run` will be called first to calculate the longest increasing or descending subarray begin at index 0
+Before delegating the call to `binary_sort`, a function named `count_run` will be called first to calculate the longest increasing or descending subarray beginning at index 0
 
 ![binary_sort0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort0.png)
 
 so that `binary_sort` can sort the range begin at index 2, and end at index 4
 
-the subarray before `start` is sorted, and we need to sort all the rest elements from `start` to the end
+The subarray before `start` is sorted, and we need to sort all the remaining elements from `start` to the end
 
 ![binary_sort1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort1.png)
 
-first we set a variable `pivot`'s value to `start`'s value, perform binary search in the left subarray to find the first element that is greater than `pivot`
+First we set a variable `pivot`'s value to `start`'s value, then perform binary search in the left subarray to find the first element that is greater than `pivot`
 
 ```python3
     do {
@@ -297,33 +297,33 @@ first we set a variable `pivot`'s value to `start`'s value, perform binary searc
 
 ```
 
-then we move every element from `l` to `start` forawrd, and set element in `start` to `pivot`
+Then we move every element from `l` to `start` forward, and set the element at `start` to `pivot`
 
 ![binary_sort2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort2.png)
 
-we perform binary search again, this time element in index 2 is selected, we move every element from the selected index to `start` forward again
+We perform binary search again. This time the element at index 2 is selected, and we move every element from the selected index to `start` forward again
 
 ![binary_sort3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort3.png)
 
-and set the value in selected element's index to `pivot`
+And set the value at the selected element's index to `pivot`
 
 ![binary_sort4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort4.png)
 
-we need to perform the final binary search
+We need to perform the final binary search
 
 ![binary_sort5](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort5.png)
 
-the selected element is in index 2, after move every element from `l` to `start` forawrd
+The selected element is at index 2. After moving every element from `l` to `start` forward
 
 ![binary_sort6](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort6.png)
 
-and set element in `start` to `pivot`, we've finished the binary_sort algorithm
+And set the element at `start` to `pivot`, we've finished the binary_sort algorithm
 
 ![binary_sort7](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/binary_sort7.png)
 
 ## run
 
-actually `minrun` will be computed in the following function, if the current `run` number is lower than 64, it will be [binary_sort](#binary_sort) directly, else half of it's size will be shrink until there's a result size lower than 64
+Actually `minrun` will be computed in the following function. If the current `run` number is lower than 64, it will be sorted with [binary_sort](#binary_sort) directly. Otherwise, half of its size will be shrunk until there's a result size lower than 64
 
 I've changed this constant to a smaller value so that the example above can fit into my graph
 
@@ -361,11 +361,11 @@ static int numfree = 0;
 
 ```
 
-there exists per process global variable named **free_list**
+There exists a per-process global variable named **free_list**
 
 ![free_list0](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list0.png)
 
-if we create a new `list` object, the memory request is delegate to CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
+If we create a new `list` object, the memory request is delegated to CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
 
 ```python3
 a = list()
@@ -379,11 +379,11 @@ del a
 
 ```
 
-the destructor of the `list` type will stores the current `list` to **free_list** (if **free_list** is not full)
+The destructor of the `list` type will store the current `list` in **free_list** (if **free_list** is not full)
 
 ![free_list2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list2.png)
 
-next time you create a new `list` object, **free_list** will be checked if there is available objects you can use directly, if so, allocate from **free_list**, if not, allocate from CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
+Next time you create a new `list` object, **free_list** will be checked for available objects you can use directly. If available, allocate from **free_list**; if not, allocate from CPython's [memory management system](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/memory_management/memory_management.md)
 
 ```python3
 b = list()
@@ -392,7 +392,7 @@ b = list()
 
 ![free_list3](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/list/free_list3.png)
 
-by caching `list` objects in **free_list** can
+Caching `list` objects in **free_list** can
 
 * improve performance
 * reduce memory fragmentation
