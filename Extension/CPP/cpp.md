@@ -10,9 +10,9 @@
 
 # overview
 
-We've written [C extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c.md) before to help performance penalty
+We've written a [C extension](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/c.md) before to improve performance
 
-Now we want to take a further step to develop a complex module in C++ and expose to python API
+Now we want to take a further step to develop a complex module in C++ and expose it as a Python API
 
 The C++ compiler is compatible with C and I want to use the power of `STL` in `C++11`(or newer) standard
 
@@ -52,7 +52,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 Sometimes we need to work with NumPy, let's begin with an example
 
-We take a two dimension numpy array, a one dimension numpy array as input and a double value, do some computation and write  the result back to the one dimension array
+We take a two-dimensional NumPy array, a one-dimensional NumPy array as input, and a double value, do some computation, and write the result back to the one-dimensional array
 
 The numpy array should have dtype float64
 
@@ -92,7 +92,7 @@ array([4.5, 6. ])
 
 # bypass the GIL
 
-What if we want to schedule a parallel task to utilize the run time of our task ?
+What if we want to schedule a parallel task to utilize the runtime of our task?
 
 two_dim becomes `X * 3 * N` array
 
@@ -110,9 +110,9 @@ def compute(two_dim: np.array, one_dim: np.array, val: np.float) -> None:
 	# ...
 ```
 
-I want to seperate these tasks to several different threads, and let os schedule them to work together
+I want to separate these tasks into several different threads, and let the OS schedule them to work together
 
-We've learned [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) before, we know that the interpreter in different thread will accquire the mutex before executing every python byte code, so as long as our code in different thread not executing by the python interpreter, everything will be find
+We've learned about the [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) before. We know that the interpreter in different threads will acquire the mutex before executing every Python bytecode, so as long as our code in different threads is not executed by the Python interpreter, everything will be fine
 
 We use the `std::future` from `C++ STL` to schedule our thread according to the environment variable `CONCURRENCY_NUM`
 

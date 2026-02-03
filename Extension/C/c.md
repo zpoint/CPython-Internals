@@ -12,13 +12,13 @@
 
 # overview
 
-recently I get a task to improve someone else's API performance written in Django server, the API will start an async job and in some cases last several minutes, I manage to improve a 40 seconds CPU bound task to lower than 1 second
+Recently I got a task to improve someone else's API performance written in Django server. The API will start an async job and in some cases last several minutes. I managed to improve a 40-second CPU-bound task to lower than 1 second
 
 # example
 
 ## profile
 
-[line_profiler](https://github.com/rkern/line_profiler) is a handful tool to begin with
+[line_profiler](https://github.com/rkern/line_profiler) is a handy tool to begin with
 
 I am running with `python2.7`
 
@@ -57,11 +57,11 @@ if __name__ == "__main__":
 
 ```
 
-notice, if you're running django server with `python manage.py runserver`, the default behaviour of `runserver` will spawn a thread to handle your request, there will be at least two thread register the `profile.print_stats`, their output may interleave together and become confused
+Notice, if you're running Django server with `python manage.py runserver`, the default behavior of `runserver` will spawn a thread to handle your request. There will be at least two threads registering the `profile.print_stats`, and their output may interleave together and become confusing
 
 you may need to call `profile.print_stats()` manually in your code without register the `profile.print_stats`
 
-this is the output
+This is the output
 
 ```shell script
 Timer unit: 1e-06 s
@@ -101,7 +101,7 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 
 ```
 
-we can see that `if i in meaningless_dict.keys():` takes about 128 seconds to run, this is mainly because `dict.keys()` will generate a new list like object and insert all the `keys` in the `dict` into the newly generated list, and `in dict.keys()` will become a `O(n)` list search
+We can see that `if i in meaningless_dict.keys():` takes about 128 seconds to run. This is mainly because `dict.keys()` will generate a new list-like object and insert all the `keys` in the `dict` into the newly generated list, and `in dict.keys()` will become an `O(n)` list search
 
 for python3.x, `dict.keys()` will return a `dict_keys` object, which is a view of the `dict`, the performance issue will be gone
 
@@ -130,23 +130,23 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 
 ```
 
-the runtime of the same line becomes about 3 seconds, it consumes about 18.6% runtime of the function, there still exist other time consuming line, can we do better ?
+The runtime of the same line becomes about 3 seconds, it consumes about 18.6% runtime of the function. There still exist other time-consuming lines. Can we do better?
 
 ## C module
 
-we can rewrite the **my_cpu_bound_task** in C
+We can rewrite the **my_cpu_bound_task** in C
 
-you can find all the C API you need from [python2.7-capi](https://docs.python.org/2.7/c-api/index.html) or [python3.7-capi](https://docs.python.org/3.7/c-api/index.html)
+You can find all the C API you need from [python2.7-capi](https://docs.python.org/2.7/c-api/index.html) or [python3.7-capi](https://docs.python.org/3.7/c-api/index.html)
 
-you can also refer to guide of [Writing a C Extension Module](http://madrury.github.io/jekyll/update/programming/2016/06/20/python-extension-modules.html)
+You can also refer to the guide [Writing a C Extension Module](http://madrury.github.io/jekyll/update/programming/2016/06/20/python-extension-modules.html)
 
 ## python2
 
 a [setup.py](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/profile_py2/my_mod/setup.py) is needed, and a source code file stores all the C function, I name it [my_module.c](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/profile_py2/my_mod/my_module.c)
 
-I am not going to copy pasted all the C source code in the readme
+I am not going to copy and paste all the C source code in the readme
 
-it's avaliable in [CPython-Internals/Extension/C/profile_py2/my_mod/](https://github.com/zpoint/CPython-Internals/tree/master/Extension/C/profile_py2/my_mod)
+It's available in [CPython-Internals/Extension/C/profile_py2/my_mod/](https://github.com/zpoint/CPython-Internals/tree/master/Extension/C/profile_py2/my_mod)
 
 ```shell script
 # only available for python2.x
@@ -190,9 +190,9 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 
 a [setup.py](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/profile_py3/my_mod/setup.py) is needed, and a source code file stores all the C function, I name it [my_module.c](https://github.com/zpoint/CPython-Internals/blob/master/Extension/C/profile_py3/my_mod/my_module.c)
 
-I am not going to copy pasted all the C source code in the readme
+I am not going to copy and paste all the C source code in the readme
 
-it's avaliable in [CPython-Internals/Extension/C/profile_py3/my_mod/](https://github.com/zpoint/CPython-Internals/tree/master/Extension/C/profile_py3/my_mod)
+It's available in [CPython-Internals/Extension/C/profile_py3/my_mod/](https://github.com/zpoint/CPython-Internals/tree/master/Extension/C/profile_py3/my_mod)
 
 ```shell script
 # only available for python3.x

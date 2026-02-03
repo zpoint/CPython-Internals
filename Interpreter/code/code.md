@@ -24,7 +24,7 @@
 
 > a code object is CPython's internal representation of a piece of runnable Python code, such as a function, a module, a class body, or a generator expression. When you run a piece of code, it is parsed and compiled into a code object, which is then run by the CPython virtual machine (VM)
 
-for more detail, please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python)
+For more detail, please refer to [What is a code object in Python?](https://www.quora.com/What-is-a-code-object-in-Python)
 
 ![layout](https://img-blog.csdnimg.cn/20190208112516130.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
@@ -32,7 +32,7 @@ for more detail, please refer to [What is a code object in Python?](https://www.
 
 ## example
 
-let's run an example written in python
+Let's run an example written in Python
 
 ```python3
 def a(x, y, *args,  z=3, **kwargs):
@@ -67,7 +67,7 @@ print("co_cellvars", a.__code__.co_consts[1].co_cellvars)
 
 ```
 
-output
+Output
 
 ```python3
 co_argcount 2
@@ -159,7 +159,7 @@ def _unpack_opargs(code):
 
 ```
 
-so, **co_code** is the opcode and argument stores in binary format
+So, **co_code** is the opcode and argument stored in binary format
 
 ```python3
 >>> c = b'd\x01}\x00t\x00\x88\x01\x88\x00|\x00\x83\x03\x01\x00d\x00S\x00'
@@ -169,7 +169,7 @@ so, **co_code** is the opcode and argument stores in binary format
 
 ```
 
-the binary format can be translated to
+The binary format can be translated to
 
 ```python3
 0 100 1  (LOAD_CONST)
@@ -195,11 +195,11 @@ the binary format can be translated to
 
 > This means line number table, and stores a compressed mapping of bytecode instructions to line numbers.
 
-let's see an example
+Let's see an example.
 
-the first pair (0, 1) in **co_lnotab** means byteoffset 0, line offset: 1 + co_firstlineno(7) == 8
+The first pair (0, 1) in **co_lnotab** means byte offset 0, line offset: 1 + co_firstlineno(7) == 8
 
-the second pair (4, 1) in **co_lnotab** means byteoffset 4, line offset 1 + 8(previous offset) == 9
+The second pair (4, 1) in **co_lnotab** means byte offset 4, line offset 1 + 8 (previous offset) == 9
 
 ```python3
 import dis
@@ -227,15 +227,15 @@ print(dis.dis(f2))
 
 ## co_zombieframe
 
-you can read the following comment from `Objects/frameobject.c`
+You can read the following comment from `Objects/frameobject.c`
 
-for more detail, please refer to [frame object(zombie frame)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md#zombie-frame)
+For more detail, please refer to [frame object(zombie frame)](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/frame.md#zombie-frame)
 
 > each code object will hold a single "zombie" frame. This retains the allocated and initialized frame object from an invocation of the code object. The zombie is reanimated the next time we need a frame object for that code object. Doing this saves the malloc/ realloc required when using a free_list frame that isn't the correct size. It also saves some field initialization.
 
 ## co_extra
 
-this field stores a pointer to a **_PyCodeObjectExtra** object
+This field stores a pointer to a **_PyCodeObjectExtra** object
 
 ```c
 typedef struct {
@@ -245,8 +245,8 @@ typedef struct {
 
 ```
 
-since it has a size field and an array of (void *) pointer, it can store almost everything
+Since it has a size field and an array of (void *) pointers, it can store almost everything.
 
-usually, it's a function pointer related to the interpreter for debug or JIT usage
+Usually, it's a function pointer related to the interpreter for debug or JIT usage.
 
-for more detail please refer to [PEP 523 -- Adding a frame evaluation API to CPython](https://www.python.org/dev/peps/pep-0523/)
+For more detail please refer to [PEP 523 -- Adding a frame evaluation API to CPython](https://www.python.org/dev/peps/pep-0523/)

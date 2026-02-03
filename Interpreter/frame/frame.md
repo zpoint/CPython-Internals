@@ -18,7 +18,7 @@
 
 # memory layout
 
-the **PyFrameObject** is the stack frame in python virtual machine, it contains space for the currently executing code object, parameters, variables in different scope, try block info and etc
+The **PyFrameObject** is the stack frame in the Python virtual machine. It contains space for the currently executing code object, parameters, variables in different scopes, try block info, and more
 
 for more information please refer to [stack frame strategy](https://en.citizendium.org/wiki/Stack_frame)
 
@@ -26,13 +26,13 @@ for more information please refer to [stack frame strategy](https://en.citizendi
 
 # example
 
-every time you make a function call, a new **PyFrameObject** will be created and attached to the current function call
+Every time you make a function call, a new **PyFrameObject** will be created and attached to the current function call.
 
-it's not intuitive to trace a frame object in the middle of a function, I will use a [generator object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md) to do the explanation
+It's not intuitive to trace a frame object in the middle of a function. I will use a [generator object](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/gen/gen.md) to do the explanation.
 
-you can always get the frame of the current environment by executing `sys._current_frames()`
+You can always get the frame of the current environment by executing `sys._current_frames()`.
 
-if you need the meaning of each field, please refer to [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) or read source code directly
+If you need the meaning of each field, please refer to [Junnplus' blog](https://github.com/Junnplus/blog/issues/22) or read the source code directly
 
 ## f_valuestack/f_stacktop/f_localsplus
 
@@ -81,7 +81,7 @@ def g2(a, b=1, c=2):
 
 ```
 
-the **dis** result
+The **dis** result
 
 ```python3
   # ./python.exe -m dis frame_dis.py
@@ -124,7 +124,7 @@ Disassembly of <code object g2 at 0x10c495030, file "frame_dis.py", line 1>:
 
 ```
 
-let's iter through the generator
+Let's iterate through the generator
 
 ```python3
 >>> gg = g2("param a")
@@ -133,13 +133,13 @@ let's iter through the generator
 
 ![example0](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/frame/example0.png)
 
-after the first **next** returns, the first **opcode** `0 LOAD_FAST                0 (a)` will be executed and the current execution flow is in the middle of the second **opcode** `2 YIELD_VALUE`
+After the first **next** returns, the first **opcode** `0 LOAD_FAST                0 (a)` will be executed and the current execution flow is in the middle of the second **opcode** `2 YIELD_VALUE`.
 
-the field **f_lasti** is 2, indicate that the virtual program counter is in `2 YIELD_VALUE`
+The field **f_lasti** is 2, indicating that the virtual program counter is at `2 YIELD_VALUE`.
 
-the **opcode** `LOAD_FAST` will push the paramter to the **f_valuestack**, and **opcode** `YIELD_VALUE` will **pop** the top element in the **f_valuestack**, the defination of **pop** is `#define BASIC_POP()       (*--stack_pointer)`
+The **opcode** `LOAD_FAST` will push the parameter to **f_valuestack**, and **opcode** `YIELD_VALUE` will **pop** the top element from **f_valuestack**. The definition of **pop** is `#define BASIC_POP()       (*--stack_pointer)`.
 
-the value(address 0x100a5b538) in **f_valuestack** is the same as the previous step(previous picture), but the first element the address(0x100a5b538) pointed to is different, currently it's a pointer to a PyUnicodeObject('param a') or an invalid address(if the PyUnicodeObject is deallocated))
+The value (address 0x100a5b538) in **f_valuestack** is the same as the previous step (previous picture), but the first element the address (0x100a5b538) points to is different. Currently, it's a pointer to a PyUnicodeObject('param a') or an invalid address (if the PyUnicodeObject is deallocated)
 
 ```python3
 >>> next(gg)
@@ -156,23 +156,23 @@ the value(address 0x100a5b538) in **f_valuestack** is the same as the previous s
 
 ```
 
-the opcode `6 LOAD_GLOBAL              0 (str)` `8 LOAD_FAST                1 (b)` and `10 LOAD_FAST                2 (c)` in line 3 pushes **str**(parameter str is stored in the frame-f_code->co_names field), **b**(int 1) and **c**(int 2) to **f_valuestack**, opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack**(**b** and **c**), sum these two values, store to the top of the **f_valuestack**, this is what the **f_valuestack** looks like after `12 BINARY_ADD`
+The opcodes `6 LOAD_GLOBAL              0 (str)`, `8 LOAD_FAST                1 (b)`, and `10 LOAD_FAST                2 (c)` in line 3 push **str** (parameter str is stored in the frame->f_code->co_names field), **b** (int 1), and **c** (int 2) to **f_valuestack**. Opcode `12 BINARY_ADD` pops off the top 2 elements in **f_valuestack** (**b** and **c**), sums these two values, and stores the result at the top of **f_valuestack**. This is what **f_valuestack** looks like after `12 BINARY_ADD`
 
 ![example1_2](./example1_2.png)
 
-the opcode `14 CALL_FUNCTION            1` will pop the function and argument off the stack and delegate the actual function call
+The opcode `14 CALL_FUNCTION            1` will pop the function and argument off the stack and delegate the actual function call.
 
-after the function call, result `'3'` is pushed onto the stack
+After the function call, the result `'3'` is pushed onto the stack
 
 ![example1_2_1](./example1_2_1.png)
 
-opcode `16 STORE_FAST               2 (c)` pops off the top element in the **f_valuestack** and stores it into the 2th position of the **f_localsplus**
+Opcode `16 STORE_FAST               2 (c)` pops off the top element in **f_valuestack** and stores it into the 2nd position of **f_localsplus**
 
 ![example1_2_2](./example1_2_2.png)
 
-opcode `18 LOAD_FAST                2 (c)` push the 2th element in the **f_localsplus** onto the **f_valuestack**, and  `20 YIELD_VALUE ` pops it and send it to the caller
+Opcode `18 LOAD_FAST                2 (c)` pushes the 2nd element in **f_localsplus** onto **f_valuestack**, and `20 YIELD_VALUE` pops it and sends it to the caller.
 
-field **f_lasti** is 20, indicate that it's currently executing the opcode `20 YIELD_VALUE`
+Field **f_lasti** is 20, indicating that it's currently executing the opcode `20 YIELD_VALUE`
 
 ![example2](./example2.png)
 
@@ -192,7 +192,7 @@ after `32 LOAD_FAST                3 (new_g)`
 
 ![example1_3_4](./example1_3_4.png)
 
-the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable object
+The opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable object
 
 `36 LOAD_CONST               0 (None)` pushes `None` onto the stack
 
@@ -202,13 +202,13 @@ the opcode `34 GET_YIELD_FROM_ITER` makes sure the stack's top is an iterable ob
 
 ```
 
-field **f_lasti** is 36, indicate that it's after `38 YIELD_FROM`
+Field **f_lasti** is 36, indicating that it's after `38 YIELD_FROM`.
 
-in the end of `YIELD_FROM` the following code `f->f_lasti -= sizeof(_Py_CODEUNIT);`  reset the `f_lasti` to the beginning of `YIELD_FROM` [Thanks to @RyanHe123](https://github.com/zpoint/CPython-Internals/issues/46)
+At the end of `YIELD_FROM`, the following code `f->f_lasti -= sizeof(_Py_CODEUNIT);` resets `f_lasti` to the beginning of `YIELD_FROM` [Thanks to @RyanHe123](https://github.com/zpoint/CPython-Internals/issues/46)
 
 ![example3](./example3.png)
 
-the frame object deallocated after the **StopIteration** raised (the opcode `44 RETURN_VALUE` also executed)
+The frame object is deallocated after **StopIteration** is raised (the opcode `44 RETURN_VALUE` is also executed)
 
 ```python3
 >>> next(gg)
@@ -226,9 +226,9 @@ StopIteration
 
 ## f_blockstack
 
-f_blockstack is an array, element type is **PyTryBlock**, size is **CO_MAXBLOCKS**(20)
+f_blockstack is an array. The element type is **PyTryBlock** and the size is **CO_MAXBLOCKS** (20).
 
-the definition of **PyTryBlock**
+The definition of **PyTryBlock**
 
 ```c
 typedef struct {
@@ -239,7 +239,7 @@ typedef struct {
 
 ```
 
-let's define a generator with some blocks
+Let's define a generator with some blocks
 
 ```python3
 def g3():
@@ -265,9 +265,9 @@ def g3():
 
 ![blockstack0](./blockstack0.png)
 
-in the first **yield** statement, the first **try block** is set up
+In the first **yield** statement, the first **try block** is set up.
 
-**f_iblock** is 1, indicate that there's currently one block
+**f_iblock** is 1, indicating that there's currently one block
 
 **b_type** 122 is the opcode `SETUP_FINALLY`, **b_handler** 20 is the opcode location of the `except ZeroDivisionError`, **b_level** 0 is the stack pointer's position to use
 
@@ -322,7 +322,7 @@ in the first **yield** statement, the first **try block** is set up
 
 ![blockstack4](./blockstack4.png)
 
-the other two try block is handled properly
+The other two try blocks are handled properly
 
 ```python3
 >>> next(gg)
@@ -338,7 +338,7 @@ the other two try block is handled properly
 
 ![blockstack5](./blockstack5.png)
 
-frame object deallocated
+Frame object is deallocated
 
 ```python3
 >>> next(gg)
@@ -350,7 +350,7 @@ StopIteration
 
 ## f_back
 
-**f_back** is a pointer which points to the previous frame, it makes the related frames a single linked list
+**f_back** is a pointer that points to the previous frame. It makes the related frames a singly linked list
 
 ```python3
 import inspect
@@ -366,7 +366,7 @@ g4(3)
 
 ```
 
-output
+Output
 
 ```python3
 depth 3
@@ -386,9 +386,9 @@ depth 0
 
 ## zombie frame
 
-the first time a code object attached to a frame object, after the execution of the code block, the frame object will not be freed, it becomes a "zombie" frame, next time the code block executes again, it will reuse the same frame object
+The first time a code object is attached to a frame object, after the execution of the code block, the frame object will not be freed. It becomes a "zombie" frame. The next time the code block executes again, it will reuse the same frame object.
 
-the strategy saves malloc/realloc overhead and some field initialization
+This strategy saves malloc/realloc overhead and some field initialization
 
 ```python3
 def g5():
@@ -412,7 +412,7 @@ StopIteration
 
 ## free_list sub
 
-there's a single linked list store the deallocated frame object, it saves malloc/free overhead
+There's a singly linked list that stores the deallocated frame objects. It saves malloc/free overhead
 
 ```c
 static PyFrameObject *free_list = NULL;
@@ -422,7 +422,7 @@ static int numfree = 0;         /* number of frames currently in free_list */
 
 ```
 
-When a **PyFrameObject** is on the free list, only the following members have a meaning
+When a **PyFrameObject** is on the free list, only the following members have meaning
 
 ```python3
 ob_type             == &Frametype
@@ -432,7 +432,7 @@ ob_size             size of localsplus
 
 ```
 
-the creating process will check if the stack size is enough
+The creation process will check if the stack size is enough
 
 ```c
 if (Py_SIZE(f) < extras) {
@@ -440,7 +440,7 @@ if (Py_SIZE(f) < extras) {
 
 ```
 
-let's see an example
+Let's see an example
 
 ```python3
 import inspect

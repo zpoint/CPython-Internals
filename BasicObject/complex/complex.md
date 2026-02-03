@@ -13,9 +13,9 @@
 
 # memory layout
 
-the **PyComplexObject** stores two double precision floating point number inside
+**PyComplexObject** stores two double-precision floating-point numbers inside.
 
-the handling process and representation are mostly the same as [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md) object
+The handling process and representation are mostly the same as the [float](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/float/float.md) object
 
 ![layout](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/layout.png)
 
@@ -35,7 +35,7 @@ d = complex(0.1, -0.2)
 
 ![example1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/complex/example1.png)
 
-let's read the add function
+Let's read the add function
 
 ```c
 Py_complex
@@ -62,9 +62,9 @@ complex_add(PyObject *v, PyObject *w)
 
 ```
 
-the add operation is quite simple, sum the **real**, sum the **image** part and return the new value
+The add operation is quite simple: sum the **real** parts, sum the **imag** parts, and return the new value.
 
-the sub/divide/pow/neg operations are similar
+The sub/divide/pow/neg operations are similar
 
 ```python3
 >>> e = c + d

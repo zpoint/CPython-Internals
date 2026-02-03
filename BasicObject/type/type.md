@@ -21,13 +21,13 @@
 
 # mro
 
-the [C3 superclass linearization](https://en.wikipedia.org/wiki/C3_linearization) is implemented in python for Method Resolution Order (MRO) after python2.3, prior to python2.3, the Method Resolution Order is a Depth-First, Left-to-Right algorithm
+The [C3 superclass linearization](https://en.wikipedia.org/wiki/C3_linearization) is implemented in Python for Method Resolution Order (MRO) after Python 2.3. Prior to Python 2.3, the Method Resolution Order was a Depth-First, Left-to-Right algorithm
 
 for those who are interested in detail, please refer to [Amit Kumar: Demystifying Python Method Resolution Order - PyCon APAC 2016](https://www.youtube.com/watch?v=cuonAMJjHow&t=400s)
 
 ## before python2.3
 
-let's define an example
+Let's define an example
 
 ```python3
 from __future__ import print_function
@@ -56,7 +56,7 @@ class F(D, E):
 
 ![mro_ hierarchy](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/mro_hierarchy.png)
 
-the **mro** order implementation before python2.3 is a Depth-First, Left-Most algorithm
+The **mro** order implementation before Python 2.3 was a Depth-First, Left-Most algorithm
 
 mro of **D** is computed as `DAB`
 
@@ -74,12 +74,12 @@ I am B
 
 ## after python2.3
 
-the **merge** part of the **C3** algorithm can be simply summarized as the following steps
+The **merge** part of the **C3** algorithm can be simply summarized as the following steps:
 
-* take the head of the first list
-* if this head is not in the tail of any of the other lists, then add it to the linearization of C and remove it from the lists in the merge
-* otherwise look at the head of the next list and take it, if it is a good head
-* then repeat the operation until all the class are removed or it is impossible to find good heads(the inherted order need to be monotonous, or the algorithm won't terminate, for more detail please refer to the first video in [read more](#read-more))
+* Take the head of the first list
+* If this head is not in the tail of any of the other lists, then add it to the linearization of C and remove it from the lists in the merge
+* Otherwise, look at the head of the next list and take it if it is a good head
+* Then repeat the operation until all the classes are removed or it is impossible to find good heads (the inherited order needs to be monotonous, or the algorithm won't terminate; for more detail please refer to the first video in [read more](#read-more))
 
 mro of **D** is computed as
 
@@ -151,7 +151,7 @@ class F(D, E):
 
 ```
 
-in python2, class `A`, `B`,`C`, `D`, and `E` are not inherted from the `object`, even after python2.3, objects not inherted from `object` will not use the **C3** algorithm for **MRO**, the old style Depth-First, Left-Most algorithm will be used
+In Python 2, classes `A`, `B`, `C`, `D`, and `E` are not inherited from `object`. Even after Python 2.3, objects not inherited from `object` will not use the **C3** algorithm for **MRO**; the old-style Depth-First, Left-Most algorithm will be used
 
 ```python3
 # ./python2.7
@@ -162,7 +162,7 @@ I am B
 
 ```
 
-while in python3, they both implicit inherted from `object`, objects inherted from `object` use the **C3** algorithm for **MRO**
+While in Python 3, they both implicitly inherit from `object`. Objects inherited from `object` use the **C3** algorithm for **MRO**
 
 ```python3
 # ./python3
@@ -174,7 +174,7 @@ I am E
 
 # creation of class
 
-if we `dis` the above code
+If we `dis` the above code
 
 ```python3
  26          96 LOAD_BUILD_CLASS
@@ -195,7 +195,7 @@ and the following opcodes push all the variables `__build_class__` needed to sta
 
 `110 CALL_FUNCTION            4` calls the `__build_class__` to generate the class
 
-the `__build_class__`  will find the `metaclass`, `name`, `bases`, and `ns`(namespace) and delegates the call to `metaclass.__call__` attribute
+The `__build_class__` will find the `metaclass`, `name`, `bases`, and `ns` (namespace) and delegate the call to the `metaclass.__call__` attribute
 
 for example, the `class F`
 
@@ -207,26 +207,26 @@ ns: {'__module__': '__main__', '__qualname__': 'F'}, cls: <class '__main__.F'>
 
 ```
 
-in the example `class F`, what does `<class 'type'>.__call__` do ?
+In the example `class F`, what does `<class 'type'>.__call__` do?
 
-the function is defined in `cpython/Objects/typeobject.c`
+The function is defined in `cpython/Objects/typeobject.c`.
 
-prototype is `static PyObject *type_call(PyTypeObject *type, PyObject *args, PyObject *kwds)`
+The prototype is `static PyObject *type_call(PyTypeObject *type, PyObject *args, PyObject *kwds)`.
 
-we can draw the following procedure according to the source code
+We can draw the following procedure according to the source code
 
 ![creation_of_class](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/creation_of_class.png)
 
 # creation of instance
 
-if we add the following line to the tail of the above codes
+If we add the following line to the end of the above code
 
 ```python3
 f = F()
 
 ```
 
-we can find other snippet of the `dis` result
+We can find another snippet of the `dis` result
 
 ```python3
 
@@ -236,7 +236,7 @@ we can find other snippet of the `dis` result
 
 ```
 
-it simply calls the `__call__` attribute of `F`
+It simply calls the `__call__` attribute of `F`
 
 ```python3
 
@@ -249,11 +249,11 @@ it simply calls the `__call__` attribute of `F`
 
 # metaclass
 
-in the above procedures, we can learn that **metaclass** controls the creation of a **class**, the creation of **instance** doesn't invoke the **metaclass**, it just calls the `__call__` attribute of the class to create the instance
+In the above procedures, we can learn that the **metaclass** controls the creation of a **class**. The creation of an **instance** doesn't invoke the **metaclass**; it just calls the `__call__` attribute of the class to create the instance
 
 ![difference_between_class_instance](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/type/difference_between_class_instance.png)
 
-we can change the behaviour of a class on the fly by manually define a **metaclass**
+We can change the behavior of a class on the fly by manually defining a **metaclass**
 
 ```python3
 class F(object):

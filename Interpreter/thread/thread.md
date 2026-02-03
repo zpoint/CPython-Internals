@@ -23,15 +23,15 @@
 
 # prerequisites
 
-the following contents will show you how CPython implements thread related function, you are able to get the answer of "Does posix semaphore or mutex used as a python thread lock ?"
+The following contents will show you how CPython implements thread-related functions. You will be able to get the answer to "Is POSIX semaphore or mutex used as a Python thread lock?"
 
-if you are confused about what **posix thread** is or what **posix semaphore** is, you need to refer to Chapter 11 and Chapter 12 of [APUE](https://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739) and [UNP vol 2](https://www.amazon.com/UNIX-Network-Programming-Interprocess-Communications/dp/0130810819)
+If you are confused about what **POSIX thread** is or what **POSIX semaphore** is, you need to refer to Chapter 11 and Chapter 12 of [APUE](https://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739) and [UNP vol 2](https://www.amazon.com/UNIX-Network-Programming-Interprocess-Communications/dp/0130810819)
 
-if you are interested in how thread/intepreter organized, please refer to [overwview](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md#intepreter-and-thread)
+If you are interested in how thread/interpreter is organized, please refer to [overview](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/pyobject/pyobject.md#intepreter-and-thread)
 
 # memory layout
 
-a bootstate structure stores every informations a new python thread needed
+A bootstate structure stores all the information a new Python thread needs
 
 ![bootstate](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/bootstate.png)
 
@@ -41,9 +41,9 @@ a bootstate structure stores every informations a new python thread needed
 
 ![thread](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/thread.png)
 
-the following content will only shows the posix part defined in **thread_pthread.h**, for other platform, even if the API of the system call is different, the idea is the same
+The following content will only show the POSIX part defined in **thread_pthread.h**. For other platforms, even if the API of the system call is different, the idea is the same
 
-notice, you're not encouraged to use module `_thread` directly, use `threading` instead, the following code use `_thread` for illustration
+Notice, you're not encouraged to use module `_thread` directly. Use `threading` instead. The following code uses `_thread` for illustration
 
 # example
 
@@ -61,7 +61,7 @@ module **threading** is a wrapper for the built-in **_thread** module, **threadi
 
 # start_new_thread
 
-**PyEval_InitThreads** will create [gil](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) if it's not created before, thread scheduling strategy has changed after python3.2, there's no need to give another thread a chance to run periodly when there's only one python intepreter thread
+**PyEval_InitThreads** will create [GIL](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/gil/gil.md) if it's not created before. Thread scheduling strategy has changed after Python 3.2. There's no need to give another thread a chance to run periodically when there's only one Python interpreter thread
 
 ```c
 /* cpython/Modules/_threadmodule.c */
@@ -108,7 +108,7 @@ thread_PyThread_start_new_thread(PyObject *self, PyObject *fargs)
 
 # allocate_lock
 
-this is the normal lock object
+This is the normal lock object
 
 ```python3
 >>> r = _thread.allocate_lock()
@@ -125,7 +125,7 @@ True
 
 ![lock_object](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/lock_object.png)
 
-in the posix system, the defination and allocation of **lock_lock**
+In the POSIX system, the definition and allocation of **lock_lock**
 
 ```c
 /* cpython/Include/pythread.h */
@@ -169,14 +169,14 @@ PyThread_allocate_lock(void)
 
 ```
 
-from the above code we can know that CPython perfer implement the field in **lock_lock** as [posix semaphores](http://www.csc.villanova.edu/~mdamian/threads/posixsem.html) to [posix mutex](http://www.skrenta.com/rt/man/pthread_mutex_init.3.html), below examples use semaphores for illustration
+From the above code we can see that CPython prefers to implement the field in **lock_lock** as [POSIX semaphores](http://www.csc.villanova.edu/~mdamian/threads/posixsem.html) over [POSIX mutex](http://www.skrenta.com/rt/man/pthread_mutex_init.3.html). The examples below use semaphores for illustration
 
 ```python3
 >>> r.acquire_lock()
 
 ```
 
-if you try to acquire the lock, several posix system call will be invoked according to the timeout value
+If you try to acquire the lock, several POSIX system calls will be invoked according to the timeout value
 
 ```python3
 /* cpython/Python/thread_pthread.h */
@@ -204,13 +204,13 @@ while (1) {
 
 ```
 
-if you acquire the lock successfully, field locked will become 1
+If you acquire the lock successfully, the locked field will become 1
 
 ![lock_object_locked](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/lock_object_locked.png)
 
 # allocate_rlock
 
-**rlock** is the abbreviation of recursive lock, as [wikipedia](https://en.wikipedia.org/wiki/Reentrant_mutex) says
+**RLock** is the abbreviation of recursive lock. As [Wikipedia](https://en.wikipedia.org/wiki/Reentrant_mutex) says
 
 > In computer science, the reentrant mutex (recursive mutex, recursive lock) is a particular type of mutual exclusion (mutex) device that may be locked multiple times by the same process/thread, without causing a deadlock.
 
@@ -222,9 +222,9 @@ if you acquire the lock successfully, field locked will become 1
 
 ```
 
-the procedure of allocation of **lock_lock** in rlock object is the same as the above example
+The procedure of allocation of **lock_lock** in the RLock object is the same as the above example
 
-before acquire the lock, **rlock_owner** and **rlock_count** are all set to 0
+Before acquiring the lock, **rlock_owner** and **rlock_count** are both set to 0
 
 ```python3
 >>> r.acquire()
@@ -240,9 +240,9 @@ before acquire the lock, **rlock_owner** and **rlock_count** are all set to 0
 
 ![rlock_object_acquire2](https://github.com/zpoint/CPython-Internals/blob/master/Interpreter/thread/rlock_object_acquire2.png)
 
-we found that **rlock_owner** is the current thread's ident, and **rlock_count** is a counter of how many times the lock is currently acquired
+We found that **rlock_owner** is the current thread's ident, and **rlock_count** is a counter of how many times the lock is currently acquired
 
-the acquire procedure is very clear
+The acquire procedure is very clear
 
 ```c
 /* cpython/Modules/_threadmodule.c */
@@ -286,7 +286,7 @@ rlock_acquire(rlockobject *self, PyObject *args, PyObject *kwds)
 
 ```
 
-the release procedure
+The release procedure
 
 ```c
 /* cpython/Modules/_threadmodule.c */
@@ -327,7 +327,7 @@ thread_PyThread_exit_thread(PyObject *self, PyObject *Py_UNUSED(ignored))
 
 # stack_size
 
-you can set the stack size to 100kb by calling
+You can set the stack size to 100KB by calling
 
 ```python3
 >>> _thread.stack_size(102400) # threading.stack_size(102400)
@@ -379,4 +379,4 @@ _pythread_pthread_set_stacksize(size_t size)
 
 # thread local
 
-the implementation of thread local storage is a per thread [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md) object stored inside the **PyThreadState** structure
+The implementation of thread local storage is a per-thread [dict](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/dict/dict.md) object stored inside the **PyThreadState** structure

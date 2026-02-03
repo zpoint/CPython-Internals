@@ -43,7 +43,7 @@ For those who need the detail of python dict object, please refer to my previous
 
 ## close
 
-After call the close method, the **fd** becomes -1, and one more key **__IOBase_closed** inserted to **dict** field
+After calling the close method, the **fd** becomes -1, and one more key **__IOBase_closed** is inserted into the **dict** field
 
 ```python3
 >>> f.close()
@@ -67,7 +67,7 @@ the **fd** and **dict** object are all reused, and **writable**, **appending**, 
 
 ## fd
 
-let's pass an integer to parameter name
+Let's pass an integer to the parameter name
 
 ```python3
 >>> f = open("../../Desktop/2.txt", "rb")

@@ -46,7 +46,7 @@ The **ob_alloc** field represents the real allocated size in bytes
 
 ## append
 
-after append a charracter 'a', **ob_alloc** becomes 2, **ob_bytes** and **ob_start** all points to same address
+After appending a character 'a', **ob_alloc** becomes 2, and **ob_bytes** and **ob_start** both point to the same address
 
 ```python3
 a.append(ord('a'))
@@ -57,7 +57,7 @@ a.append(ord('a'))
 
 ## resize
 
-The size grow pattern is shown in the code
+The size growth pattern is shown in the code
 
 ```python3
     /* Need growing, decide on a strategy */
@@ -72,7 +72,7 @@ The size grow pattern is shown in the code
 
 ```
 
-In appending, ob_alloc is 2, and request size is 2, 2 <= 2 * 1.125, so the new allocated size is 2 + (2 >> 3) + 3 ==> 5
+When appending, ob_alloc is 2 and the requested size is 2. Since 2 <= 2 * 1.125, the new allocated size is 2 + (2 >> 3) + 3 ==> 5
 
 ```python3
 a.append(ord('b'))
@@ -99,7 +99,7 @@ b[0:5] = [1,2]
 
 ![after_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after_slice.png)
 
-as long as the slice operation is going to shrink the bytearray, and the **new_size < allocate / 2** is False, the resize operation won't shrink the real malloced size
+As long as the slice operation is going to shrink the bytearray and **new_size < allocate / 2** is False, the resize operation won't shrink the actual malloced size
 
 ```python3
 b[2:6] = [3, 4]
@@ -108,7 +108,7 @@ b[2:6] = [3, 4]
 
 ![after2_slice](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/after2_slice.png)
 
-now, in the shrink operation, the **new_size < allocate / 2** is True, the resize operation will be triggered
+Now, in the shrink operation, **new_size < allocate / 2** is True, so the resize operation will be triggered
 
 ```python3
 b[0:3] = [7,8]
@@ -119,7 +119,7 @@ b[0:3] = [7,8]
 
 The growing pattern in slice operation is the same as the append operation
 
-request size is 6, 6 < 6 * 1.125, so new allocated size is 6 + (6 >> 3) + 3 ==> 9
+The requested size is 6. Since 6 < 6 * 1.125, the new allocated size is 6 + (6 >> 3) + 3 ==> 9
 
 ```python3
 b[0:3] = [1,2,3,4]
@@ -130,7 +130,7 @@ b[0:3] = [1,2,3,4]
 
 ## ob_exports
 
-what's field **ob_exports** mean ? If you need detail, you can refer to [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) and [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
+What does the field **ob_exports** mean? If you need details, you can refer to [less-copies-in-python-with-the-buffer-protocol-and-memoryviews](https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews) and [PEP 3118](https://www.python.org/dev/peps/pep-3118/)
 
 ```python3
 buf = bytearray(b"abcdefg")
@@ -139,9 +139,9 @@ buf = bytearray(b"abcdefg")
 
 ![exports](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports.png)
 
-the **bytearray** implements the **buffer protocol**, and **memoryview** is able to access the internal data block via the **buffer protocol**, **mybuf** and **buf** are all sharing the same internal block
+The **bytearray** implements the **buffer protocol**, and **memoryview** is able to access the internal data block via the **buffer protocol**. **mybuf** and **buf** both share the same internal block.
 
-field **ob_exports** becomes 1, which indicate how many objects currently sharing the internal block via **buffer protocol**
+The field **ob_exports** becomes 1, which indicates how many objects are currently sharing the internal block via the **buffer protocol**
 
 ```python3
 mybuf = memoryview(buf)
@@ -151,7 +151,7 @@ mybuf[1] = 3
 
 ![exports_1](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/bytearray/exports_1.png)
 
-so does **mybuf2** object(**ob_exports** doesn't change because you need to call the c function defined by **buf** object via the **buffer protocol**, **mybuf2** barely calls the slice function of **mybuf**)
+The same applies to the **mybuf2** object (**ob_exports** doesn't change because you need to call the C function defined by the **buf** object via the **buffer protocol**; **mybuf2** only calls the slice function of **mybuf**)
 
 ```python3
 mybuf2 = mybuf[:4]

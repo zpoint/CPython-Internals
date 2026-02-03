@@ -39,7 +39,7 @@ s = b""
 
 ## ascii characters
 
-let's initialize a byte object with ascii characters
+Let's initialize a bytes object with ASCII characters
 
 ```python3
 s = b"abcdefg123"
@@ -65,17 +65,17 @@ s = "我是帅哥".encode("utf8")
 
 The field **ob_shash** should store the hash value of the byte object, value **-1** means not computed yet.
 
-The first time the hash value computed, it will be cached in the **ob_shash** field
+The first time the hash value is computed, it will be cached in the **ob_shash** field.
 
-the cached hash value can save recalculation and speeds up dictionary lookups
+The cached hash value can save recalculation and speed up dictionary lookups
 
 ## ob_size
 
-field **ob_size** is inside every **PyVarObject**, the **PyBytesObject** uses this **field** to store size information to keep O(1) time complexity for **len()** operation and tracks the size of non-ascii string(may be null characters inside)
+The field **ob_size** is inside every **PyVarObject**. **PyBytesObject** uses this field to store size information to keep O(1) time complexity for the **len()** operation and to track the size of non-ASCII strings (which may contain null characters inside)
 
 ## summary
 
-The **PyBytesObject** is a python wrapper of c style null terminate string, with **ob_shash** for caching hash value and **ob_size** for storing the size information of **PyBytesObject**
+The **PyBytesObject** is a Python wrapper of C-style null-terminated strings, with **ob_shash** for caching the hash value and **ob_size** for storing size information
 
 The implementation of **PyBytesObject** looks like the **embstr** encoding in redis
 

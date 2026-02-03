@@ -16,8 +16,8 @@
 
 ![memory layout](https://img-blog.csdnimg.cn/20190313121821367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNzIwMzI5,size_16,color_FFFFFF,t_70)
 
-The structure of **tuple** object is more simple than other python object.
-Obviously, **ob_item** is an array of PyObject* pointer, all elements will be stored inside the **ob_item** array, But how exactly each element stored in **PyTupleObject**? Is the first element begin at the 0 index? What is the resize strategy?
+The structure of the **tuple** object is simpler than other Python objects.
+Obviously, **ob_item** is an array of PyObject* pointers, and all elements will be stored inside the **ob_item** array. But how exactly is each element stored in **PyTupleObject**? Does the first element begin at index 0? What is the resize strategy?
 
 Let's see
 
@@ -42,7 +42,7 @@ t = ("aa", "bb", "cc", "dd")
 
 ```
 
-**ob_size** represents the size of **PyTupleObject** object, because tuple object is immutable, the **ob_item** is the start address of an array of pointer to **PyObject**, and the size of this array is **ob_size**, there's no need for resize operation.
+**ob_size** represents the size of the **PyTupleObject** object. Because a tuple object is immutable, **ob_item** is the start address of an array of pointers to **PyObject**, and the size of this array is **ob_size**. There's no need for a resize operation.
 
 ![tuple_4](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/tuple_4.png)
 
@@ -59,8 +59,8 @@ static int numfree[PyTuple_MAXSAVESIZE];
 
 ```
 
-let's exam what **free_list** and **numfree** is
-we assume that python interpreter don't create/deallocate any tuple object internally during the following code
+Let's examine what **free_list** and **numfree** are.
+We assume that the Python interpreter doesn't create/deallocate any tuple objects internally during the following code
 
 ```python3
 >>> t = tuple()
@@ -84,7 +84,7 @@ we assume that python interpreter don't create/deallocate any tuple object inter
 4459413360
 >>> del t
 >>> t = ("bb", )
->>> id(t) # it's not repeatable, because I assume that python intepreter don't create/deallocate any tuple object during execution
+>>> id(t) # it's not repeatable, because I assume that the Python interpreter doesn't create/deallocate any tuple objects during execution
 4459413360
 >>> t2 = ("cc", )
 >>> del t
@@ -94,7 +94,7 @@ we assume that python interpreter don't create/deallocate any tuple object inter
 
 ![delete_2](https://github.com/zpoint/CPython-Internals/blob/master/BasicObject/tuple/delete_2.png)
 
-num_free[i] means how many objects left in free_list[i], when you create a new tuple with size i, cpython will use the top object at free_list[i]
+num_free[i] indicates how many objects are left in free_list[i]. When you create a new tuple with size i, CPython will use the top object at free_list[i]
 
 ```python3
 >>> t = ("aa", )
